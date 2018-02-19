@@ -498,22 +498,26 @@ int checkMouse(XEvent *e)
         //Mouse moved
         savex = e->xbutton.x;
         savey = e->xbutton.y;
-
-        if (savex > g.player.pos[0]) {
-            g.player.orientation[0] = 1;
-        } else if (savex < g.player.pos[0]) {
-            g.player.orientation[0] = -1;
-        }
-        if (savey > g.player.pos[1]) {
-            g.player.orientation[1] = 1;
-        } else if (savey < g.player.pos[1]) {
-            g.player.orientation[1] = -1;
-        }
-
-        setPlayerOrientation();
-    
     }
-    for (i=0; i<g.nbuttons; i++) {
+
+    if (savex > (g.player.pos[0]+10)) {
+        g.player.orientation[0] = 1;
+    } else if (savex < (g.player.pos[0]-10)) {
+        g.player.orientation[0] = -1;
+    } else {
+        g.player.orientation[0] = 0;
+    }
+    if (savey < (g.yres - g.player.pos[1] - 10)) {
+        g.player.orientation[1] = 1;
+    } else if (savey > (g.yres - g.player.pos[1] + 10)) {
+        g.player.orientation[1] = -1;
+    } else {
+        g.player.orientation[1] = 0;
+    }
+
+    setPlayerOrientation();
+
+    /*for (i=0; i<g.nbuttons; i++) {
         g.button[i].over=0;
         if (x >= g.button[i].r.left &&
                 x <= g.button[i].r.right &&
@@ -533,7 +537,7 @@ int checkMouse(XEvent *e)
                 }
             }
         }
-    }
+    }*/
     return 0;
 }
 
@@ -560,7 +564,7 @@ void setPlayerOrientation()
         if (g.player.orientation[1] == -1) {
             //face South
             g.player.pointer[0] = g.player.pos[0];
-            g.player.pointer[1] = g.player.pos[1] + PRADIUS;
+            g.player.pointer[1] = g.player.pos[1] - PRADIUS;
         }
         else if (g.player.orientation[1] == 1) {
             //face North
@@ -620,27 +624,28 @@ void physics()
     //
     //
     //Is it time to move the snake?
-    static struct timespec snakeTime;
-    static int firsttime=1;
-    if (firsttime) {
-        firsttime=0;
-        clock_gettime(CLOCK_REALTIME, &snakeTime);
-    }
-    struct timespec tt;
-    clock_gettime(CLOCK_REALTIME, &tt);
-    timeCopy(&snakeTime, &tt);
-
+    /*static struct timespec snakeTime;
+      static int firsttime=1;
+      if (firsttime) {
+      firsttime=0;
+      clock_gettime(CLOCK_REALTIME, &snakeTime);
+      }
+      struct timespec tt;
+      clock_gettime(CLOCK_REALTIME, &tt);
+      timeCopy(&snakeTime, &tt);
+      */
     //update player position
     if (g.player.vel[0] < 100) {
         g.player.pos[0] += g.player.vel[0];
         g.player.pointer[0] += g.player.vel[0];
     }
-    
+
     if (g.player.vel[1] < 100) {
         g.player.pos[1] += g.player.vel[1];
         g.player.pointer[1] += g.player.vel[1];
     }
 
+    //keep player from maintaining velocity
     if (g.player.vel[0] > 0) {
         g.player.vel[0] -= 0.01;
     } else if (g.player.vel[0] < 0) {
@@ -715,18 +720,24 @@ void render(void)
     glMatrixMode(GL_MODELVIEW); glLoadIdentity();
     //this sets to 2D mode (no perspective)
     glOrtho(0, g.xres, 0, g.yres, -1, 1);
+
+    r.left   = g.xres/2;
+    r.bot    = g.yres-100;
+    r.center = 1;
+    ggprint16(&r, 16, 0x00ffffff, "Freesword");
+
     //
     //screen background
     /*glColor3f(0.5f, 0.5f, 0.5f);
-    glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    */
+      glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
+      glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
+      glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
+      glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
+      glEnd();
+      glBindTexture(GL_TEXTURE_2D, 0);
+      */
     /*
     //draw the main game board in middle of screen
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -761,9 +772,9 @@ void render(void)
       */ 
     //
     //draw player
-    glTranslatef(g.player.pos[0], -(g.player.pos[1]), 0.0);
-    glPushMatrix();
     glColor3f(0.5f, 0.0f, 0.5f);
+    glPushMatrix();
+    //    glTranslatef(g.player.pos[0], g.player.pos[1], 0.0);
 
     //starting coordinates
     float cx = g.player.pos[0];
@@ -792,18 +803,8 @@ void render(void)
     } 
     glEnd();  
 
-
-    /* glBegin(GL_TRIANGLES);
-       glVertex2f(-25.0f, 0.0f);
-       glVertex2f(0.0f, 40.0f);
-       glVertex2f(25.0f, 0.0f);*/
-
-    //glEnd();
-    glPopMatrix();
-
     //draw player pointer
     glTranslatef(g.player.pointer[0], g.player.pointer[1], 0.0);
-    glPushMatrix();
     glColor3f(0.5f, 0.0f, 0.0f);
     glBegin(GL_TRIANGLES);
     glVertex2f(-5.0f, 0.0f);
@@ -811,10 +812,6 @@ void render(void)
     glVertex2f(5.0f, 0.0f);
     glEnd();
     glPopMatrix();
-    
-    r.left   = g.xres/2;
-    r.bot    = g.yres-100;
-    r.center = 1;
-    ggprint16(&r, 16, 0x00ffffff, "Freesword");
+
 }
 
