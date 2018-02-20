@@ -44,13 +44,27 @@
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+
+#ifdef __MACH__
+	#include <mach/clock.h>
+	#include <mach/mach.h>
+	#include <mach/mach_init.h>
+	#include <mach/mach_time.h>
+	#include <OpenAL/al.h>
+	#include <OpenAL/alc.h>
+	//#include <OpenAL/alut.h>
+	//#include <OpenAL/MacOSX_OALExtensions.h>
+#else
+	#define USE_OPENAL_SOUND
+#endif
+
 #include "log.h"
 //#include "ppm.h"
 #include "fonts.h"
 
-#define USE_OPENAL_SOUND
+
 #ifdef USE_OPENAL_SOUND
-#include </usr/include/AL/alut.h>
+#include <AL/alut.h>
 #endif //USE_OPENAL_SOUND
 
 //macros
@@ -266,32 +280,55 @@ void initOpengl(void);
 int checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
-void initSounds(void);
+//void initSound(void);
 void physics(void);
 void render(void);
 void getGridCenter(const int i, const int j, int cent[2]);
-#ifdef USE_OPENAL_SOUND
+
 void initSound();
 void cleanupSound();
 void playSound(ALuint source);
-#endif //USE_OPENAL_SOUND
-
 
 //-----------------------------------------------------------------------------
 //Setup timers
+
+double current_time()
+ {
+     struct timespec now;
+    
+    //https://gist.github.com/jbenet/1087739     
+    #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+      clock_serv_t cclock;
+      mach_timespec_t mts;
+      host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+      clock_get_time(cclock, &mts);
+      mach_port_deallocate(mach_task_self(), cclock);
+      now.tv_sec = mts.tv_sec;
+      now.tv_nsec = mts.tv_nsec;
+    #else
+      clock_gettime(CLOCK_REALTIME, now);
+    #endif
+    
+    
+     return now.tv_sec + now.tv_nsec*1e-9;
+ }
+ 
 const double physicsRate = 1.0 / 60.0;
-const double oobillion = 1.0 / 1e9;
-struct timespec timeStart, timeCurrent;
-struct timespec timePause;
+//const double oobillion = 1.0 / 1e9;
+//struct timespec timeStart, timeCurrent;
+//struct timespec timePause;
+double timeStart, timeCurrent;
+double timePause;
 double physicsCountdown = 0.0;
 double timeSpan = 0.0;
-double timeDiff(struct timespec *start, struct timespec *end) {
+/*double timeDiff(struct timespec *start, struct timespec *end) {
 	return (double)(end->tv_sec - start->tv_sec ) +
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
 void timeCopy(struct timespec *dest, struct timespec *source) {
 	memcpy(dest, source, sizeof(struct timespec));
 }
+*/
 //-----------------------------------------------------------------------------
 
 
@@ -305,8 +342,8 @@ int main(int argc, char *argv[])
 	initialize_fonts();
 	initSound();
 	srand((unsigned int)time(NULL));
-	clock_gettime(CLOCK_REALTIME, &timePause);
-	clock_gettime(CLOCK_REALTIME, &timeStart);
+	timePause = current_time();
+	timeStart = current_time();
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -318,11 +355,11 @@ int main(int argc, char *argv[])
 		//
 		//Below is a process to apply physics at a consistent rate.
 		//1. Get the time right now.
-		clock_gettime(CLOCK_REALTIME, &timeCurrent);
+		timeCurrent=current_time();
 		//2. How long since we were here last?
-		timeSpan = timeDiff(&timeStart, &timeCurrent);
+		timeSpan = timeCurrent-timeStart;
 		//3. Save the current time as our new starting time.
-		timeCopy(&timeStart, &timeCurrent);
+		timeStart=timeCurrent;
 		//4. Add time-span to our countdown amount.
 		physicsCountdown += timeSpan;
 		//5. Has countdown gone beyond our physics rate? 
@@ -676,18 +713,18 @@ void physics(void)
 	//
 	//
 	//Is it time to move the snake?
-	static struct timespec snakeTime;
+	static double snakeTime;
 	static int firsttime=1;
 	if (firsttime) {
 		firsttime=0;
-		clock_gettime(CLOCK_REALTIME, &snakeTime);
+		snakeTime=current_time();
 	}
-	struct timespec tt;
-	clock_gettime(CLOCK_REALTIME, &tt);
-	double timeSpan = timeDiff(&snakeTime, &tt);
+	double tt;
+	tt = current_time();
+	double timeSpan = tt-snakeTime;
 	if (timeSpan < g.snake.delay)
 		return;
-	timeCopy(&snakeTime, &tt);
+	snakeTime=tt;
 	//
 	playSound(g.alSourceDrip);
 	//move the snake segments...
