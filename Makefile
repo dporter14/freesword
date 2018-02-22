@@ -1,6 +1,5 @@
 CFLAGS = -I ./include
-##LIB    = ./lib/fmod/libfmodex64.so
-LFLAGS = -lX11 -lGLU -lGL -lm #-lXrandr
+LFLAGS = -lX11 -lGLU -lGL -lm
 
 ifeq ($(OS),Windows_NT)
     CFLAGS += -D WIN32
@@ -17,12 +16,13 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-        CFLAGS += -D LINUX /usr/lib/x86_64-linux-gnu/libopenal.so /usr/lib/x86_64-linux-gnu/libalut.so 
-        LFLAGS += -lrt 
+        CFLAGS += -D LINUX
+        LFLAGS += -lrt /usr/lib/x86_64-linux-gnu/libopenal.so \
+        	/usr/lib/x86_64-linux-gnu/libalut.so libggfonts.a
     endif
     ifeq ($(UNAME_S),Darwin)
-        CFLAGS += -D OSX -I/opt/X11/include -I/usr/local/opt/alut/include
-        LFLAGS +=  -L/opt/X11/lib -L/usr/local/opt/alut/lib -lalut -framework OpenAL
+        CFLAGS += -D OSX -I/opt/X11/include
+        LFLAGS +=  -L/opt/X11/lib -lalut -framework OpenAL m_libggfonts.a
     endif
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
@@ -36,11 +36,10 @@ else
     endif
 endif
 
-
 all: snake
 
 snake: snake.cpp log.cpp
-	g++ $(CFLAGS) snake.cpp log.cpp libggfonts.a \
+	g++ $(CFLAGS) snake.cpp log.cpp  \
 	-Wall -Wextra $(LFLAGS) -o snake
 
 clean:
