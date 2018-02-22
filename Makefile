@@ -36,13 +36,13 @@ else
     endif
 endif
 
-all: snake
+all: movement_test
 
 snake: snake.cpp log.cpp
 	g++ $(CFLAGS) snake.cpp log.cpp  \
 	-Wall -Wextra $(LFLAGS) -o snake
 
 clean:
-	rm -f snake
+	rm -f movement_test 
 	rm -f *.o
 
