@@ -1,37 +1,3 @@
-//
-//program: snake.cpp
-//author:  Gordon Griesel
-//purpose: Simple snake game
-//cs335 Spring 2014
-//cmps3350 Spring 2018
-//
-//
-//notes:
-//This may be used as the starting point for a class project.
-//Students should add the following components:
-//
-//A minor bug was left in the program for demonstration.
-//
-//These items could be used to generate your requirements phase.
-//
-// . Introduction page
-// . Title page
-// . Credits page
-// . Main menu
-// . Snake texture
-// . Rat texture
-// . Levels
-// . Changes in difficulty/speed
-// . Scoring
-// . Save high scores
-// . Board texture
-// . Sound
-// . Special effects
-// . Mouse dragging
-// . Win and lose indication
-// . Additional features
-//
-//
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,6 +5,7 @@
 #include <time.h>
 #include <math.h>
 #include <X11/Xlib.h>
+#include <iostream>
 //#include <X11/Xutil.h>
 //#include <GL/gl.h>
 //#include <GL/glu.h>
@@ -55,8 +22,6 @@
 	#include <mach/mach.h>
 	#include <mach/mach_init.h>
 	#include <mach/mach_time.h>
-	//#include <OpenAL/al.h>
-	//#include <OpenAL/alc.h>
 	#include <AL/alut.h>
 #else
 	#ifdef USE_OPENAL_SOUND

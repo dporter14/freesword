@@ -1,7 +1,27 @@
 #include <iostream>
 
-using namespace std;
+#include "defs.h"
 
-int main(){
-    cout << "Hello World" << endl;
+int taylor_func()
+{	
+	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

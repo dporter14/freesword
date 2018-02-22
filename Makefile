@@ -36,7 +36,11 @@ else
     endif
 endif
 
-all: snake
+all: freesword snake
+
+freesword: freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp
+	g++ $(CFLAGS) freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
+	-Wall -Wextra $(LFLAGS) -o freesword
 
 snake: snake.cpp log.cpp
 	g++ $(CFLAGS) snake.cpp log.cpp  \
@@ -44,5 +48,6 @@ snake: snake.cpp log.cpp
 
 clean:
 	rm -f snake
+	rm -f freesword
 	rm -f *.o
 
