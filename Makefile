@@ -21,8 +21,8 @@ else
         LFLAGS += -lrt 
     endif
     ifeq ($(UNAME_S),Darwin)
-        CFLAGS += -D OSX -I/opt/X11/include
-        LFLAGS +=  -L/opt/X11/lib
+        CFLAGS += -D OSX -I/opt/X11/include -I/usr/local/opt/alut/include
+        LFLAGS +=  -L/opt/X11/lib -L/usr/local/opt/alut/lib -lalut -framework OpenAL
     endif
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)

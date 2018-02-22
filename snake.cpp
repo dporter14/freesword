@@ -44,28 +44,26 @@
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include "log.h"
+//#include "ppm.h"
+#include "fonts.h"
 
+#define USE_OPENAL_SOUND
+	
 #ifdef __MACH__
 	#include <mach/clock.h>
 	#include <mach/mach.h>
 	#include <mach/mach_init.h>
 	#include <mach/mach_time.h>
-	#include <OpenAL/al.h>
-	#include <OpenAL/alc.h>
-	//#include <OpenAL/alut.h>
-	//#include <OpenAL/MacOSX_OALExtensions.h>
+	//#include <OpenAL/al.h>
+	//#include <OpenAL/alc.h>
+	#include <AL/alut.h>
 #else
-	#define USE_OPENAL_SOUND
+	#ifdef USE_OPENAL_SOUND
+		#include </usr/include/AL/alut.h>
+	#endif //USE_OPENAL_SOUND
 #endif
 
-#include "log.h"
-//#include "ppm.h"
-#include "fonts.h"
-
-
-#ifdef USE_OPENAL_SOUND
-#include <AL/alut.h>
-#endif //USE_OPENAL_SOUND
 
 //macros
 #define rnd() (double)rand()/(double)RAND_MAX
@@ -280,14 +278,16 @@ void initOpengl(void);
 int checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
-//void initSound(void);
+void initSounds(void);
 void physics(void);
 void render(void);
 void getGridCenter(const int i, const int j, int cent[2]);
-
+#ifdef USE_OPENAL_SOUND
 void initSound();
 void cleanupSound();
 void playSound(ALuint source);
+#endif //USE_OPENAL_SOUND
+
 
 //-----------------------------------------------------------------------------
 //Setup timers
@@ -306,7 +306,7 @@ double current_time()
       now.tv_sec = mts.tv_sec;
       now.tv_nsec = mts.tv_nsec;
     #else
-      clock_gettime(CLOCK_REALTIME, now);
+      clock_gettime(CLOCK_REALTIME, &now);
     #endif
     
     
