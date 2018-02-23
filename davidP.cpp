@@ -2,9 +2,9 @@
 
 #include "defs.h"
 
-int david_func()
-{	
-	return 0;
+void david_function
+{
+	//do a thing
 }
 
 
