@@ -20,6 +20,7 @@ typedef Flt	Matrix[4][4];
 #define ABS(a) (((a)<0)?(-(a)):(a))
 #define SGN(a) (((a)<0)?(-1):(1))
 #define SGND(a) (((a)<0.0)?(-1.0):(1.0))
+#define CLAMP(a,b,c) ((a)<(b)?(b):((a)>(c)?(b):(a)))
 
 /*typedef struct t_rect {
 	int left;
@@ -51,18 +52,19 @@ typedef struct Screen2 {
 class Character {
 	public:
 		char* sprite_file;
-		Vec pos;
-		Character(){}
-		~Character(){}
+		Vec pos; // char's position
+		Vec vel; // char's velocity
+		Vec dir; // char's orientation
+		Character(){} //constructor
+		~Character(){} //destructor
+		void move();
+		void setOrientation();
+		
 	private:
 };
 
 class Player : Character {
 	public:
-		int pos[2];
-		int vel[2];
-		int dir; //movement direction; 0/1/2/3 : up/left/down/right
-		int orientation[2]; //direction player is facing; [0] = x [1] = y, x=-1:left y=1:up, etc.
 		int pointer[2]; //placeholder for player's face
 		int status; //0 alive 1 dead
 	private:
@@ -73,8 +75,7 @@ class Enemy : Character {
 	private:
 };
 
-void movePlayer(Player *player);
-void setPlayerOrientation(Player *player);
+int taylor_func(int xres, int yres);
 
 #endif
 

@@ -380,15 +380,13 @@ void initOpengl(void)
 void initPlayer()
 {
 	g.player.status = 0;
-	g.player.dir = 0;
-	g.player.orientation[0] = 0;
-	g.player.orientation[1] = 1;
+	VecMake(0,1,0,g.player.dir);
+	VecMake(0,1,0,g.player.vel);
+	VecMake(50,50,0,g.player.pos);
+	
 	g.player.pointer[0] = 75;
 	g.player.pointer[1] = 75;
-	g.player.pos[0] = 50;
-	g.player.pos[1] = 50;
-	g.player.vel[0] = 0;
-	g.player.vel[1] = 1;
+	
 }
 
 void init()
@@ -473,6 +471,7 @@ int checkKeys(XEvent *e)
 		return 0;
 	}
 	(void)shift;
+	Vec temp;
 	switch (key) {
 		case XK_r:
 			resetGame();
@@ -482,20 +481,24 @@ int checkKeys(XEvent *e)
 		case XK_minus:
 			break;
 		case XK_a:
-			g.player.dir = DIRECTION_A;
-			movePlayer(&g.player);
+			VecMake(-1,0,0,temp);
+			VecAdd(temp, g.player.vel, g.player.vel);
+			g.player.movePlayer();
 			break;
 		case XK_d:
-			g.player.dir = DIRECTION_D;
-			movePlayer(&g.player);
+			VecMake(1,0,0,temp);
+			VecAdd(temp, g.player.vel, g.player.vel);
+			g.player.movePlayer();
 			break;
 		case XK_w:
-			g.player.dir = DIRECTION_W;
-			movePlayer(&g.player);
+			VecMake(0,1,0,temp);
+			VecAdd(temp, g.player.vel, g.player.vel);
+			g.player.movePlayer();
 			break;
 		case XK_s:
-			g.player.dir = DIRECTION_S;
-			movePlayer(&g.player);
+			VecMake(0,-1,0,temp);
+			VecAdd(temp, g.player.vel, g.player.vel);
+			g.player.movePlayer();
 			break;
 	}
 	return 0;
@@ -532,21 +535,21 @@ int checkMouse(XEvent *e)
 	}
 
 	if (savex > (g.player.pos[0]+10)) {
-		g.player.orientation[0] = 1;
+		g.player.dir[0] = 1;
 	} else if (savex < (g.player.pos[0]-10)) {
-		g.player.orientation[0] = -1;
+		g.player.dir[0] = -1;
 	} else {
-		g.player.orientation[0] = 0;
+		g.player.dir[0] = 0;
 	}
 	if (savey < (g.yres - g.player.pos[1] - 10)) {
-		g.player.orientation[1] = 1;
+		g.player.dir[1] = 1;
 	} else if (savey > (g.yres - g.player.pos[1] + 10)) {
-		g.player.orientation[1] = -1;
+		g.player.dir[1] = -1;
 	} else {
-		g.player.orientation[1] = 0;
+		g.player.dir[1] = 0;
 	}
 
-	setPlayerOrientation(&g.player);
+	g.player.setPlayerOrientation();
 
 	/*for (i=0; i<g.nbuttons; i++) {
 		g.button[i].over=0;

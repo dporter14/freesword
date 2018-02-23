@@ -11,42 +11,13 @@
 #define PRADIUS 25
 
 #define PLAYER_MAX_SPEED 10
-#define N_PLAYER_MAX_SPEED -10
 
 struct Global;
 
-void movePlayer(Player *player)
+void movePlayer()
 {
-	switch (player->dir) {
-		case DIRECTION_W: 
-			if (player->vel[1] < PLAYER_MAX_SPEED) {
-				player->vel[1] += 10; 
-			} else {
-				player->vel[1] = PLAYER_MAX_SPEED;
-			}
-			break;
-		case DIRECTION_A: 
-			if (player->vel[0] > N_PLAYER_MAX_SPEED) {
-				player->vel[0] += -10;
-			} else {
-				player->vel[0] = N_PLAYER_MAX_SPEED;
-			}
-			break;
-		case DIRECTION_S: 
-			if (player->vel[1] > N_PLAYER_MAX_SPEED) {
-				player->vel[1] += -10; 
-			} else { 
-				player->vel[1] = N_PLAYER_MAX_SPEED;
-			}
-			break;
-		case DIRECTION_D: 
-			if (player->vel[0] < PLAYER_MAX_SPEED) {
-				player->vel[0] += 10;
-			} else {
-				player->vel[0] = PLAYER_MAX_SPEED;
-			}
-			break;
-	}
+	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
+	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 }
 
 void setPlayerOrientation(Player *player)
