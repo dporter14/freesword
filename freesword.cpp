@@ -461,7 +461,7 @@ int checkKeys(XEvent *e)
 {
 	static int shift=0;
 	if (e->type == KeyPress)
-		mason_func();
+		//mason_func();
 	if (e->type != KeyRelease && e->type != KeyPress)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
