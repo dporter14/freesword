@@ -1,10 +1,9 @@
+#include "defs.h"
 #include <iostream>
 
-#include "defs.h"
-
-void david_function
+void print_david()
 {
-	//do a thing
+	std::cout << "This is a David Print\n";
 }
 
 

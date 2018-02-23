@@ -1,6 +1,8 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
+#include <iostream>
+
 typedef double Flt;
 typedef double Vec[3];
 typedef Flt	Matrix[4][4];
@@ -97,7 +99,13 @@ void mason_func();
 
 /////// END MASON FUNCTIONS ////////////////////////
 
+/*//////////////////////////////////////////////////
+	David Functions
+*///////////////////////////////////////////////////
 
+void print_david();
+
+/////// End David Functions/////////////////////////
 
 void movePlayer(Player *player);
 void setPlayerOrientation(Player *player);

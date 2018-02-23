@@ -365,7 +365,7 @@ void initOpengl(void)
 	//load the image file into a ppm structure.
 	//
 	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.marbleImage = &img[0];
+	g.marbleImage = &img[1];
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.marbleTexture);
@@ -498,6 +498,9 @@ int checkKeys(XEvent *e)
 		case XK_s:
 			g.player.dir = DIRECTION_S;
 			movePlayer(&g.player);
+			break;
+		case XK_p:
+			print_david();
 			break;
 	}
 	return 0;
@@ -752,7 +755,7 @@ void render(void)
 	r.bot	= g.yres-100;
 	r.center = 1;
 	ggprint16(&r, 16, 0x00ffffff, "Freesword");
-
+	
 	//
 	//screen background
 	/*glColor3f(0.5f, 0.5f, 0.5f);
