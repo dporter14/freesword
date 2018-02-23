@@ -73,6 +73,32 @@ class Enemy : Character {
 	private:
 };
 
+
+/*//////////////////////////////////////////////////
+ 	MASON FUNCTIONS			############
+*///////////////////////////////////////////////////
+class Menu {
+
+	public:
+		Menu();
+	private:
+		double m_height, m_width;
+		std::string m_buttonTitle;		
+};
+class mainMenu : public Menu {
+	
+	public:
+
+	private:
+	
+};
+
+void mason_func();
+
+/////// END MASON FUNCTIONS ////////////////////////
+
+
+
 void movePlayer(Player *player);
 void setPlayerOrientation(Player *player);
 

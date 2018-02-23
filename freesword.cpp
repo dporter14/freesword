@@ -460,6 +460,8 @@ void resetGame()
 int checkKeys(XEvent *e)
 {
 	static int shift=0;
+	if (e->type == KeyPress)
+		mason_func();
 	if (e->type != KeyRelease && e->type != KeyPress)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
@@ -641,6 +643,87 @@ void physics()
 		g.player.vel[1] += 0.01;
 	}
 
+}
+
+/*======================================================
+   SOUND =================================================	
+  ======================================================*/
+void initSound()
+{
+	#ifdef USE_OPENAL_SOUND
+	alutInit(0, NULL);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: alutInit()\n");
+		return;
+	}
+	//Clear error state.
+	alGetError();
+	//
+	//Setup the listener.
+	//Forward and up vectors are used.
+	float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alListenerfv(AL_ORIENTATION, vec);
+	alListenerf(AL_GAIN, 1.0f);
+	//
+	//Buffer holds the sound information.
+	g.alBufferDrip = alutCreateBufferFromFile("./sounds/drip.wav");
+	g.alBufferTick = alutCreateBufferFromFile("./sounds/tick.wav");
+	//
+	//Source refers to the sound.
+	//Generate a source, and store it in a buffer.
+	alGenSources(1, &g.alSourceDrip);
+	alSourcei(g.alSourceDrip, AL_BUFFER, g.alBufferDrip);
+	//Set volume and pitch to normal, no looping of sound.
+	alSourcef(g.alSourceDrip, AL_GAIN, 1.0f);
+	alSourcef(g.alSourceDrip, AL_PITCH, 1.0f);
+	alSourcei(g.alSourceDrip, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+		return;
+	}
+	//Generate a source, and store it in a buffer.
+	alGenSources(1, &g.alSourceTick);
+	alSourcei(g.alSourceTick, AL_BUFFER, g.alBufferTick);
+	//Set volume and pitch to normal, no looping of sound.
+	alSourcef(g.alSourceTick, AL_GAIN, 1.0f);
+	alSourcef(g.alSourceTick, AL_PITCH, 1.0f);
+	alSourcei(g.alSourceTick, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+		return;
+	}
+	#endif //USE_OPENAL_SOUND
+}
+
+void cleanupSound()
+{
+	#ifdef USE_OPENAL_SOUND
+	//First delete the source.
+	alDeleteSources(1, &g.alSourceDrip);
+	alDeleteSources(1, &g.alSourceTick);
+	//Delete the buffer.
+	alDeleteBuffers(1, &g.alBufferDrip);
+	alDeleteBuffers(1, &g.alBufferTick);
+	//Close out OpenAL itself.
+	//Get active context.
+	ALCcontext *Context = alcGetCurrentContext();
+	//Get device for active context.
+	ALCdevice *Device = alcGetContextsDevice(Context);
+	//Disable context.
+	alcMakeContextCurrent(NULL);
+	//Release context(s).
+	alcDestroyContext(Context);
+	//Close device.
+	alcCloseDevice(Device);
+	#endif //USE_OPENAL_SOUND
+}
+
+void playSound(ALuint source)
+{
+	#ifdef USE_OPENAL_SOUND
+	alSourcePlay(source);
+	#endif //USE_OPENAL_SOUND
 }
 
 

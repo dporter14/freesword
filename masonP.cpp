@@ -1,27 +1,16 @@
 #include <iostream>
-
 #include "defs.h"
-class Menu
-{
-	private:
-	float height, width;
-	
-	
-	public:
-	Menu()
-	{
-	
-	}
-};
-class mainMenu : public menu
-{
 
-};
-class ammo : public menu
-{
+struct Global;
 
-};
-int mason_func()
-{	
-	return 0;
+Menu::Menu() 
+{
+	m_height = 0;
+	m_width = 0;
+	m_buttonTitle = "";
+}
+	
+void mason_func()
+{
+	std::cout << "Test test\n";	
 }
