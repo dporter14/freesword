@@ -1,5 +1,5 @@
 CFLAGS = -I ./include
-LFLAGS = -lX11 -lGLU -lGL -lm
+LFLAGS = -lX11 -lGLU -lGL -lm -lglut
 
 ifeq ($(OS),Windows_NT)
     CFLAGS += -D WIN32

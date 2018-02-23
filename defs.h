@@ -73,8 +73,8 @@ class Enemy : Character {
 	private:
 };
 
-void movePlayer(Player player);
-void setPlayerOrientation(Player player);
+void movePlayer(Player *player);
+void setPlayerOrientation(Player *player);
 
 #endif
 

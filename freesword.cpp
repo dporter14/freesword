@@ -483,19 +483,19 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_a:
 			g.player.dir = DIRECTION_A;
-			movePlayer(g.player);
+			movePlayer(&g.player);
 			break;
 		case XK_d:
 			g.player.dir = DIRECTION_D;
-			movePlayer(g.player);
+			movePlayer(&g.player);
 			break;
 		case XK_w:
 			g.player.dir = DIRECTION_W;
-			movePlayer(g.player);
+			movePlayer(&g.player);
 			break;
 		case XK_s:
 			g.player.dir = DIRECTION_S;
-			movePlayer(g.player);
+			movePlayer(&g.player);
 			break;
 	}
 	return 0;
@@ -546,7 +546,7 @@ int checkMouse(XEvent *e)
 		g.player.orientation[1] = 0;
 	}
 
-	setPlayerOrientation(g.player);
+	setPlayerOrientation(&g.player);
 
 	/*for (i=0; i<g.nbuttons; i++) {
 		g.button[i].over=0;
