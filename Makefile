@@ -42,11 +42,13 @@ freesword: freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp
 	g++ $(CFLAGS) freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
 	-Wall -Wextra $(LFLAGS) -o freesword
 
+
 snake: snake.cpp log.cpp
 	g++ $(CFLAGS) snake.cpp log.cpp  \
 	-Wall -Wextra $(LFLAGS) -o snake
 
 clean:
+
 	rm -f snake
 	rm -f freesword
 	rm -f *.o

@@ -1,3 +1,4 @@
+
 #include <math.h>
 
 #include "defs.h"
@@ -9,6 +10,7 @@
 
 //player shape radius
 #define PRADIUS 25
+
 
 #define PLAYER_MAX_SPEED 10
 #define N_PLAYER_MAX_SPEED -10
