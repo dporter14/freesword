@@ -1,5 +1,5 @@
 CFLAGS = -I ./include
-LFLAGS = -lX11 -lGLU -lGL -lm
+LFLAGS = -lX11 -lGLU -lGL -lm -lglut
 
 ifeq ($(OS),Windows_NT)
     CFLAGS += -D WIN32
@@ -36,13 +36,20 @@ else
     endif
 endif
 
-all: movement_test
+all: freesword snake
+
+freesword: freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp
+	g++ $(CFLAGS) freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
+	-Wall -Wextra $(LFLAGS) -o freesword
+
 
 snake: snake.cpp log.cpp
 	g++ $(CFLAGS) snake.cpp log.cpp  \
 	-Wall -Wextra $(LFLAGS) -o snake
 
 clean:
-	rm -f movement_test 
+
+	rm -f snake
+	rm -f freesword
 	rm -f *.o
 
