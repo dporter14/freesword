@@ -1,10 +1,12 @@
 #include <iostream>
 
-#include "defs.h"
+#include "global.h"
+
+using namespace std;
 class Menu
 {
 	private:
-	float height, width;
+	//float height, width;
 	
 	
 	public:
@@ -13,15 +15,16 @@ class Menu
 	
 	}
 };
-class mainMenu : public menu
+class mainMenu : public Menu
 {
 
 };
-class ammo : public menu
+class ammo : public Menu
 {
 
 };
 int mason_func()
 {	
+	cout << "nananananana masonman" << endl;
 	return 0;
 }

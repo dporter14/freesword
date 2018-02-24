@@ -1,9 +1,11 @@
 #include <iostream>
 
-#include "defs.h"
+#include "global.h"
 
+using namespace std;
 int david_func()
 {	
+	cout << "hi im david" << endl;
 	return 0;
 }
 

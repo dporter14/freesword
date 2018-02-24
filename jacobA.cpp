@@ -1,7 +1,7 @@
-
+#include <iostream>
 #include <math.h>
 
-#include "defs.h"
+#include "global.h"
 
 #define DIRECTION_W	 0
 #define DIRECTION_A	 1
@@ -15,7 +15,6 @@
 #define PLAYER_MAX_SPEED 10
 #define N_PLAYER_MAX_SPEED -10
 
-struct Global;
 
 void movePlayer(Player *player)
 {
@@ -99,4 +98,10 @@ void setPlayerOrientation(Player *player)
 			player->pointer[1] = player->pos[1] + (sqrt((PRADIUS*PRADIUS)/2));
 		}
 	}
+}
+
+using namespace std;
+int jacob_func(){
+	cout << "pet me jacob" << endl;
+	return 0;
 }
