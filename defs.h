@@ -1,7 +1,6 @@
 #ifndef _DEFS_H
 #define _DEFS_H
 
-
 typedef double Flt;
 typedef double Vec[3];
 typedef Flt	Matrix[4][4];

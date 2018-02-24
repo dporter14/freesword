@@ -101,7 +101,6 @@ void setPlayerOrientation(Player *player)
 }
 
 using namespace std;
-int jacob_func(){
+void jacob_func(){
 	cout << "pet me jacob" << endl;
-	return 0;
 }

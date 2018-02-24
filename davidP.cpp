@@ -1,12 +1,10 @@
 #include <iostream>
-
 #include "global.h"
 
-using namespace std;
-int david_func()
-{	
-	cout << "hi im david" << endl;
-	return 0;
+
+void david_func(){
+
+	std::cout << "This is a David Print\n";
 }
 
 

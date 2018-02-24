@@ -2,29 +2,14 @@
 
 #include "global.h"
 
-using namespace std;
-class Menu
+Menu::Menu() 
 {
-	private:
-	//float height, width;
+	m_height = 0;
+	m_width = 0;
+	m_buttonTitle = "";
+}
 	
-	
-	public:
-	Menu()
-	{
-	
-	}
-};
-class mainMenu : public Menu
+void mason_func()
 {
-
-};
-class ammo : public Menu
-{
-
-};
-int mason_func()
-{	
-	cout << "nananananana masonman" << endl;
-	return 0;
+	std::cout << "Mason: Test test\n";	
 }
