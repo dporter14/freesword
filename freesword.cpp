@@ -12,7 +12,7 @@
 
 #include "log.h"
 #include "fonts.h"
-#include "defs.h"
+#include "global.h"
 
 #define USE_OPENAL_SOUND	
 #ifdef __MACH__
@@ -28,7 +28,6 @@
 #endif
 
 //macros
-#define rnd() (double)rand()/(double)RAND_MAX
 
 #define DIRECTION_DOWN  0
 #define DIRECTION_LEFT  1
@@ -41,114 +40,7 @@
 //player shape radius
 #define PRADIUS 25
 //
-#define MAX_GRID 80
-typedef struct t_grid {
-	int status;
-	float color[4];
-} Grid;
-//
-/*
-typedef struct t_player {
-	int pos[2];
-	int vel[2];
-	int dir; //movement direction; 0/1/2/3 : up/left/down/right
-	int orientation[2]; //direction player is facing; [0] = x [1] = y, x=-1:left y=1:up, etc.
-	int pointer[2]; //placeholder for player's face
-	int status; //0 alive 1 dead
-} Player;
-*/
-#define MAXBUTTONS 4
-typedef struct t_button {
-	Rect r;
-	char text[32];
-	int over;
-	int down;
-	int click;
-	float color[3];
-	float dcolor[3];
-	unsigned int text_color;
-} Button;
 
-class Image {
-	public:
-		int width, height;
-		unsigned char *data;
-		~Image() { delete [] data; }
-		Image(const char *fname) {
-			if (fname[0] == '\0')
-				return;
-			//printf("fname **%s**\n", fname);
-			int ppmFlag = 0;
-			char name[40];
-			strcpy(name, fname);
-			int slen = strlen(name);
-			char ppmname[80];
-			if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-				ppmFlag = 1;
-			if (ppmFlag) {
-				strcpy(ppmname, name);
-			} else {
-				name[slen-4] = '\0';
-				//printf("name **%s**\n", name);
-				sprintf(ppmname,"%s.ppm", name);
-				//printf("ppmname **%s**\n", ppmname);
-				char ts[100];
-				//system("convert img.jpg img.ppm");
-				sprintf(ts, "convert %s %s", fname, ppmname);
-				system(ts);
-			}
-			//sprintf(ts, "%s", name);
-			FILE *fpi = fopen(ppmname, "r");
-			if (fpi) {
-				char line[200];
-				fgets(line, 200, fpi);
-				fgets(line, 200, fpi);
-				while (line[0] == '#')
-					fgets(line, 200, fpi);
-				sscanf(line, "%i %i", &width, &height);
-				fgets(line, 200, fpi);
-				//get pixel data
-				int n = width * height * 3;			
-				data = new unsigned char[n];			
-				for (int i=0; i<n; i++)
-					data[i] = fgetc(fpi);
-				fclose(fpi);
-			} else {
-				printf("ERROR opening image: %s\n",ppmname);
-				exit(0);
-			}
-			if (!ppmFlag)
-				unlink(ppmname);
-		}
-};
-Image img[1] = {"./images/marble.gif" };
-
-
-struct Global {
-	int xres, yres;
-	Grid grid[MAX_GRID][MAX_GRID];
-	Player player;
-	int gridDim;
-	int boardDim;
-	int gameover;
-	int winner;
-	Image *marbleImage;
-	GLuint marbleTexture;
-	Button button[MAXBUTTONS];
-	int nbuttons;
-	//
-	ALuint alBufferDrip, alBufferTick;
-	ALuint alSourceDrip, alSourceTick;
-	Global() {
-		xres = 800;
-		yres = 600;
-		gridDim = 40;
-		gameover = 0;
-		winner = 0;
-		nbuttons = 0;
-		marbleImage=NULL;
-	}
-} g;
 
 class X11_wrapper {
 	private:
@@ -344,6 +236,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+#ifdef USE_OPENAL_SOUND
+void playSound(ALuint source)
+{
+	alSourcePlay(source);	
+}
+#endif //USE_OPENAL_SOUND
+
 void initOpengl(void)
 {
 	//OpenGL initialization
@@ -365,7 +264,7 @@ void initOpengl(void)
 	//load the image file into a ppm structure.
 	//
 	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.marbleImage = &img[0];
+	g.marbleImage = &img[1];
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.marbleTexture);
@@ -498,6 +397,18 @@ int checkKeys(XEvent *e)
 		case XK_s:
 			g.player.dir = DIRECTION_S;
 			movePlayer(&g.player);
+			break;
+		case XK_1:
+			david_func();
+			break;
+		case XK_2:
+			taylor_func();
+			break;
+		case XK_3:
+			mason_func();
+			break;
+		case XK_4:
+			jacob_func();
 			break;
 	}
 	return 0;
@@ -719,13 +630,6 @@ void cleanupSound()
 	#endif //USE_OPENAL_SOUND
 }
 
-void playSound(ALuint source)
-{
-	#ifdef USE_OPENAL_SOUND
-	alSourcePlay(source);
-	#endif //USE_OPENAL_SOUND
-}
-
 
 void render(void)
 {
@@ -752,7 +656,7 @@ void render(void)
 	r.bot	= g.yres-100;
 	r.center = 1;
 	ggprint16(&r, 16, 0x00ffffff, "Freesword");
-
+	
 	//
 	//screen background
 	/*glColor3f(0.5f, 0.5f, 0.5f);

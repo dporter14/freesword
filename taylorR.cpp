@@ -1,10 +1,11 @@
 #include <iostream>
 
-#include "defs.h"
+#include "global.h"
 
-int taylor_func()
+using namespace std;
+void taylor_func()
 {	
-	return 0;
+	cout << "taylor breathes code" << endl;
 }
 
 

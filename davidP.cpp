@@ -1,10 +1,10 @@
 #include <iostream>
+#include "global.h"
 
-#include "defs.h"
 
-int david_func()
-{	
-	return 0;
+void david_func(){
+
+	std::cout << "This is a David Print\n";
 }
 
 

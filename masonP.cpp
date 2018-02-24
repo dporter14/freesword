@@ -1,7 +1,6 @@
 #include <iostream>
-#include "defs.h"
 
-struct Global;
+#include "global.h"
 
 Menu::Menu() 
 {
@@ -12,5 +11,5 @@ Menu::Menu()
 	
 void mason_func()
 {
-	std::cout << "Test test\n";	
+	std::cout << "Mason: Test test\n";	
 }
