@@ -706,7 +706,7 @@ void render(void)
 	VecMake(0, 0, 1, up);
 	if (VecDot(up, cross)<0)
 		angl = -angl;
-	printf("%f\n",angl*180/PI);
+	
 	glRotatef(angl*180/PI,0,0,1);
 	glColor3f(0.5f, 0.0f, 0.0f);
 	glBegin(GL_TRIANGLES);
