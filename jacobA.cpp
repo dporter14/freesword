@@ -1,6 +1,8 @@
+#include <iostream>
 #include <math.h>
 
-#include "defs.h"
+#include "global.h"
+extern Global g;
 
 #define DIRECTION_W	 0
 #define DIRECTION_A	 1
@@ -10,9 +12,9 @@
 //player shape radius
 #define PRADIUS 25
 
+
 #define PLAYER_MAX_SPEED 10
 
-struct Global;
 
 void movePlayer()
 {
@@ -68,4 +70,10 @@ void setPlayerOrientation(Player *player)
 			player->pointer[1] = player->pos[1] + (sqrt((PRADIUS*PRADIUS)/2));
 		}
 	}
+}
+
+using namespace std;
+void jacob_func(){
+	strcpy(g.title.text,"Jacob test");
+	g.title.text_color = 0x00ffffff;
 }

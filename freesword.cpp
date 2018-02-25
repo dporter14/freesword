@@ -12,7 +12,7 @@
 
 #include "log.h"
 #include "fonts.h"
-#include "defs.h"
+#include "global.h"
 
 #define USE_OPENAL_SOUND	
 #ifdef __MACH__
@@ -28,7 +28,6 @@
 #endif
 
 //macros
-#define rnd() (double)rand()/(double)RAND_MAX
 
 #define DIRECTION_DOWN  0
 #define DIRECTION_LEFT  1
@@ -41,114 +40,10 @@
 //player shape radius
 #define PRADIUS 25
 //
-#define MAX_GRID 80
-typedef struct t_grid {
-	int status;
-	float color[4];
-} Grid;
-//
-/*
-typedef struct t_player {
-	int pos[2];
-	int vel[2];
-	int dir; //movement direction; 0/1/2/3 : up/left/down/right
-	int orientation[2]; //direction player is facing; [0] = x [1] = y, x=-1:left y=1:up, etc.
-	int pointer[2]; //placeholder for player's face
-	int status; //0 alive 1 dead
-} Player;
-*/
-#define MAXBUTTONS 4
-typedef struct t_button {
-	Rect r;
-	char text[32];
-	int over;
-	int down;
-	int click;
-	float color[3];
-	float dcolor[3];
-	unsigned int text_color;
-} Button;
 
-class Image {
-	public:
-		int width, height;
-		unsigned char *data;
-		~Image() { delete [] data; }
-		Image(const char *fname) {
-			if (fname[0] == '\0')
-				return;
-			//printf("fname **%s**\n", fname);
-			int ppmFlag = 0;
-			char name[40];
-			strcpy(name, fname);
-			int slen = strlen(name);
-			char ppmname[80];
-			if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-				ppmFlag = 1;
-			if (ppmFlag) {
-				strcpy(ppmname, name);
-			} else {
-				name[slen-4] = '\0';
-				//printf("name **%s**\n", name);
-				sprintf(ppmname,"%s.ppm", name);
-				//printf("ppmname **%s**\n", ppmname);
-				char ts[100];
-				//system("convert img.jpg img.ppm");
-				sprintf(ts, "convert %s %s", fname, ppmname);
-				system(ts);
-			}
-			//sprintf(ts, "%s", name);
-			FILE *fpi = fopen(ppmname, "r");
-			if (fpi) {
-				char line[200];
-				fgets(line, 200, fpi);
-				fgets(line, 200, fpi);
-				while (line[0] == '#')
-					fgets(line, 200, fpi);
-				sscanf(line, "%i %i", &width, &height);
-				fgets(line, 200, fpi);
-				//get pixel data
-				int n = width * height * 3;			
-				data = new unsigned char[n];			
-				for (int i=0; i<n; i++)
-					data[i] = fgetc(fpi);
-				fclose(fpi);
-			} else {
-				printf("ERROR opening image: %s\n",ppmname);
-				exit(0);
-			}
-			if (!ppmFlag)
-				unlink(ppmname);
-		}
-};
+Global g;
 Image img[1] = {"./images/marble.gif" };
 
-
-struct Global {
-	int xres, yres;
-	Grid grid[MAX_GRID][MAX_GRID];
-	Player player;
-	int gridDim;
-	int boardDim;
-	int gameover;
-	int winner;
-	Image *marbleImage;
-	GLuint marbleTexture;
-	Button button[MAXBUTTONS];
-	int nbuttons;
-	//
-	ALuint alBufferDrip, alBufferTick;
-	ALuint alSourceDrip, alSourceTick;
-	Global() {
-		xres = 800;
-		yres = 600;
-		gridDim = 40;
-		gameover = 0;
-		winner = 0;
-		nbuttons = 0;
-		marbleImage=NULL;
-	}
-} g;
 
 class X11_wrapper {
 	private:
@@ -344,6 +239,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+#ifdef USE_OPENAL_SOUND
+void playSound(ALuint source)
+{
+	alSourcePlay(source);	
+}
+#endif //USE_OPENAL_SOUND
+
 void initOpengl(void)
 {
 	//OpenGL initialization
@@ -365,7 +267,7 @@ void initOpengl(void)
 	//load the image file into a ppm structure.
 	//
 	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.marbleImage = &img[0];
+	g.marbleImage = &img[1];
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.marbleTexture);
@@ -461,6 +363,8 @@ int checkKeys(XEvent *e)
 	if (e->type != KeyRelease && e->type != KeyPress)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
+	//if (e->type == KeyPress)
+		//mason_func();
 	if (e->type == KeyRelease) {
 		if (key == XK_Shift_L || key == XK_Shift_R)
 			shift=0;
@@ -499,6 +403,18 @@ int checkKeys(XEvent *e)
 			VecMake(0,-1,0,temp);
 			VecAdd(temp, g.player.vel, g.player.vel);
 			g.player.movePlayer();
+			break;
+		case XK_1:
+			david_func();
+			break;
+		case XK_2:
+			taylor_func();
+			break;
+		case XK_3:
+			mason_func();
+			break;
+		case XK_4:
+			jacob_func();
 			break;
 	}
 	return 0;
@@ -625,7 +541,7 @@ void physics()
 		g.player.pos[0] += g.player.vel[0];
 		g.player.pointer[0] += g.player.vel[0];
 	}
-
+	
 	if (g.player.vel[1] < 100) {
 		g.player.pos[1] += g.player.vel[1];
 		g.player.pointer[1] += g.player.vel[1];
@@ -646,10 +562,84 @@ void physics()
 
 }
 
+/*======================================================
+   SOUND =================================================	
+  ======================================================*/
+void initSound()
+{
+	#ifdef USE_OPENAL_SOUND
+	alutInit(0, NULL);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: alutInit()\n");
+		return;
+	}
+	//Clear error state.
+	alGetError();
+	//
+	//Setup the listener.
+	//Forward and up vectors are used.
+	float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alListenerfv(AL_ORIENTATION, vec);
+	alListenerf(AL_GAIN, 1.0f);
+	//
+	//Buffer holds the sound information.
+	g.alBufferDrip = alutCreateBufferFromFile("./sounds/drip.wav");
+	g.alBufferTick = alutCreateBufferFromFile("./sounds/tick.wav");
+	//
+	//Source refers to the sound.
+	//Generate a source, and store it in a buffer.
+	alGenSources(1, &g.alSourceDrip);
+	alSourcei(g.alSourceDrip, AL_BUFFER, g.alBufferDrip);
+	//Set volume and pitch to normal, no looping of sound.
+	alSourcef(g.alSourceDrip, AL_GAIN, 1.0f);
+	alSourcef(g.alSourceDrip, AL_PITCH, 1.0f);
+	alSourcei(g.alSourceDrip, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+		return;
+	}
+	//Generate a source, and store it in a buffer.
+	alGenSources(1, &g.alSourceTick);
+	alSourcei(g.alSourceTick, AL_BUFFER, g.alBufferTick);
+	//Set volume and pitch to normal, no looping of sound.
+	alSourcef(g.alSourceTick, AL_GAIN, 1.0f);
+	alSourcef(g.alSourceTick, AL_PITCH, 1.0f);
+	alSourcei(g.alSourceTick, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+		return;
+	}
+	#endif //USE_OPENAL_SOUND
+}
+
+void cleanupSound()
+{
+	#ifdef USE_OPENAL_SOUND
+	//First delete the source.
+	alDeleteSources(1, &g.alSourceDrip);
+	alDeleteSources(1, &g.alSourceTick);
+	//Delete the buffer.
+	alDeleteBuffers(1, &g.alBufferDrip);
+	alDeleteBuffers(1, &g.alBufferTick);
+	//Close out OpenAL itself.
+	//Get active context.
+	ALCcontext *Context = alcGetCurrentContext();
+	//Get device for active context.
+	ALCdevice *Device = alcGetContextsDevice(Context);
+	//Disable context.
+	alcMakeContextCurrent(NULL);
+	//Release context(s).
+	alcDestroyContext(Context);
+	//Close device.
+	alcCloseDevice(Device);
+	#endif //USE_OPENAL_SOUND
+}
+
 
 void render(void)
 {
-	Rect r;
+	//Rect r;
 	//--------------------------------------------------------
 	//This code is repeated several times in this program, so
 	//it can be made more generic and cleaner with some work.
@@ -668,11 +658,8 @@ void render(void)
 	//this sets to 2D mode (no perspective)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 
-	r.left   = g.xres/2;
-	r.bot	= g.yres-100;
-	r.center = 1;
-	ggprint16(&r, 16, 0x00ffffff, "Freesword");
-
+	
+	
 	//
 	//screen background
 	/*glColor3f(0.5f, 0.5f, 0.5f);
@@ -759,6 +746,8 @@ void render(void)
 	glVertex2f(5.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
+	
+	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
 }
 
