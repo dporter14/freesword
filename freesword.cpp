@@ -41,6 +41,9 @@
 #define PRADIUS 25
 //
 
+Global g;
+Image img[1] = {"./images/marble.gif" };
+
 
 class X11_wrapper {
 	private:
@@ -400,9 +403,11 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_1:
 			david_func();
+			
 			break;
 		case XK_2:
 			taylor_func();
+			
 			break;
 		case XK_3:
 			mason_func();
@@ -535,7 +540,7 @@ void physics()
 		g.player.pos[0] += g.player.vel[0];
 		g.player.pointer[0] += g.player.vel[0];
 	}
-
+	
 	if (g.player.vel[1] < 100) {
 		g.player.pos[1] += g.player.vel[1];
 		g.player.pointer[1] += g.player.vel[1];
@@ -633,7 +638,7 @@ void cleanupSound()
 
 void render(void)
 {
-	Rect r;
+	//Rect r;
 	//--------------------------------------------------------
 	//This code is repeated several times in this program, so
 	//it can be made more generic and cleaner with some work.
@@ -652,10 +657,7 @@ void render(void)
 	//this sets to 2D mode (no perspective)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 
-	r.left   = g.xres/2;
-	r.bot	= g.yres-100;
-	r.center = 1;
-	ggprint16(&r, 16, 0x00ffffff, "Freesword");
+	
 	
 	//
 	//screen background
@@ -743,6 +745,8 @@ void render(void)
 	glVertex2f(5.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
+	
+	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
 }
 

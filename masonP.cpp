@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "global.h"
+extern Global g;
 
 Menu::Menu() 
 {
@@ -11,5 +12,6 @@ Menu::Menu()
 	
 void mason_func()
 {
-	std::cout << "Mason: Test test\n";	
+	strcpy(g.title.text,"Mason: Test test");
+	g.title.text_color = 0x00ff00ff;
 }

@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "global.h"
+extern Global g;
 
 #define DIRECTION_W	 0
 #define DIRECTION_A	 1
@@ -102,5 +103,6 @@ void setPlayerOrientation(Player *player)
 
 using namespace std;
 void jacob_func(){
-	cout << "pet me jacob" << endl;
+	strcpy(g.title.text,"Freesword");
+	g.title.text_color = 0x00ffffff;
 }

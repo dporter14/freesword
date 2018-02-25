@@ -92,7 +92,6 @@ class Image {
 				unlink(ppmname);
 		}
 };
-static Image img[1] = {"./images/marble.gif" };
 
 struct Global {
 	int xres, yres;
@@ -105,6 +104,7 @@ struct Global {
 	GLuint marbleTexture;
 	Button button[MAXBUTTONS];
 	int nbuttons;
+	Button title;
 	//
 	ALuint alBufferDrip, alBufferTick;
 	ALuint alSourceDrip, alSourceTick;
@@ -116,8 +116,13 @@ struct Global {
 		winner = 0;
 		nbuttons = 0;
 		marbleImage=NULL;
+		title.r.left   = xres/2;
+		title.r.bot	= yres-100;
+		title.r.center = 1;
+		strcpy(title.text,"Freesword");
+		title.text_color = 0x00ffffff;
 	}
-} static g;
+};
 
 
 #endif
