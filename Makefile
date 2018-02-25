@@ -39,7 +39,7 @@ endif
 all: freesword snake
 
 freesword: freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp
-	g++ $(CFLAGS) freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
+	g++ $(CFLAGS) -g freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
 	-Wall -Wextra $(LFLAGS) -o freesword
 
 

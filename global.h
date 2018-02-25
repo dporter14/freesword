@@ -93,8 +93,11 @@ class Image {
 		}
 };
 
+enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D};
+
 struct Global {
 	int xres, yres;
+	int savex, savey;
 	Player player;
 	int gridDim;
 	int boardDim;
@@ -105,6 +108,7 @@ struct Global {
 	Button button[MAXBUTTONS];
 	int nbuttons;
 	Button title;
+	bool isPressed[5];
 	//
 	ALuint alBufferDrip, alBufferTick;
 	ALuint alSourceDrip, alSourceTick;
@@ -116,13 +120,19 @@ struct Global {
 		winner = 0;
 		nbuttons = 0;
 		marbleImage=NULL;
-		title.r.left   = xres/2;
+		
+		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text,"Freesword");
 		title.text_color = 0x00ffffff;
+		
+		savex = savey = 0;
+		for(int i = K_SHIFT; i<K_D; i++){
+			isPressed[i] = false;
+		}
 	}
 };
-
+extern Global g;
 
 #endif

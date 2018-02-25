@@ -2,77 +2,77 @@
 #include <math.h>
 
 #include "global.h"
-extern Global g;
 
-#define DIRECTION_W	 0
-#define DIRECTION_A	 1
-#define DIRECTION_S	 2
-#define DIRECTION_D	 3
+#define PLAYER_MAX_SPEED 5
 
-//player shape radius
-#define PRADIUS 25
-
-
-#define PLAYER_MAX_SPEED 10
-
-
-void movePlayer()
+//init player
+void Player::init()
 {
-	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
+	//player shape radius
+	pradius = 30;
+	status = 0;
+	VecMake(0,1,0,dir);
+	VecMake(0,0,0,vel);
+	VecMake(50,50,0,pos);
+	
+	pointer[0] = 75;
+	pointer[1] = 75;
+	
+}
+
+//move player according to its velocity
+void Character::move()
+{
+	pos[0] += vel[0]; 
+	pos[1] += vel[1];
+}
+
+//manually move player
+void Character::setPosition(Flt x, Flt y)
+{
+	pos[0] = x; 
+	pos[1] = y;
+}
+
+//manually change velocity
+void Character::setVelocity(Flt x, Flt y)
+{
+	vel[0] = x; 
+	vel[1] = y;
+	
+	//make sure velocity is within speed bounds
+	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED); 
 	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 }
 
-void setPlayerOrientation(Player *player)
+//relatively change velocity
+void Character::addVelocity(Flt x, Flt y)
 {
-	if (player->orientation[0] == -1) {
-		if (player->orientation[1] == -1) {
-			//face SW
-			player->pointer[0] = player->pos[0] - (sqrt((PRADIUS*PRADIUS)/2));
-			player->pointer[1] = player->pos[1] - (sqrt((PRADIUS*PRADIUS)/2));
-		}
-		else if (player->orientation[1] == 0) {
-			//face West
-			player->pointer[0] = player->pos[0] - PRADIUS;
-			player->pointer[1] = player->pos[1];
-		}
-		else if (player->orientation[1] == 1) {
-			//face NW
-			player->pointer[0] = player->pos[0] - (sqrt((PRADIUS*PRADIUS)/2));
-			player->pointer[1] = player->pos[1] + (sqrt((PRADIUS*PRADIUS)/2));
-		}
-	}
-	else if (player->orientation[0] == 0) {
-		if (player->orientation[1] == -1) {
-			//face South
-			player->pointer[0] = player->pos[0];
-			player->pointer[1] = player->pos[1] - PRADIUS;
-		}
-		else if (player->orientation[1] == 1) {
-			//face North
-			player->pointer[0] = player->pos[0];
-			player->pointer[1] = player->pos[1] + (sqrt((PRADIUS*PRADIUS)/2));
-		}
-	}
-	else if (player->orientation[0] == 1) {
-		if (player->orientation[1] == -1) {
-			//face SE
-			player->pointer[0] = player->pos[0] + (sqrt((PRADIUS*PRADIUS)/2));
-			player->pointer[1] = player->pos[1] - (sqrt((PRADIUS*PRADIUS)/2));
-		}
-		else if (player->orientation[1] == 0) {
-			//face East
-			player->pointer[0] = player->pos[0] + PRADIUS;
-			player->pointer[1] = player->pos[1];
-		}
-		else if (player->orientation[1] == 1) {
-			//face NE
-			player->pointer[0] = player->pos[0] + (sqrt((PRADIUS*PRADIUS)/2));
-			player->pointer[1] = player->pos[1] + (sqrt((PRADIUS*PRADIUS)/2));
-		}
-	}
+	vel[0] += x; 
+	vel[1] += y;
+	
+	//make sure velocity is within speed bounds
+	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED); 
+	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 }
 
-using namespace std;
+void Character::lookAt(Flt x, Flt y)
+{
+	//Set direction to a unit vector pointing at x and y
+	VecMake(x-pos[0], y-pos[1], 0, dir);
+	Flt scale = 1/VecLen(dir);
+	VecS(scale, dir, dir);
+	
+}
+
+void Player::lookAt(Flt x, Flt y)
+{
+	Character::lookAt(x, y);
+	
+	//Set player pointer to face direction
+	VecAddS(pradius+1, dir, pos, pointer);
+}
+
 void jacob_func(){
 	strcpy(g.title.text,"Jacob test");
 	g.title.text_color = 0x00ffffff;

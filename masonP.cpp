@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "global.h"
-extern Global g;
+
 
 Menu::Menu() 
 {

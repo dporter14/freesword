@@ -8,7 +8,7 @@ typedef Flt	Matrix[4][4];
 #define VecMake(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
 #define VecNegate(a)	(a)[0]=(-(a)[0]); (a)[1]=(-(a)[1]); (a)[2]=(-(a)[2]);
 #define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-#define VecLen(a)	sqrtf((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2])
+#define VecLen(a)	sqrt((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2])
 #define VecLen2(a)	((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2])
 #define VecCopy(a,b)	(b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2];
 #define VecAdd(a,b,c) (c)[0]=(a)[0]+(b)[0]; (c)[1]=(a)[1]+(b)[1]; (c)[2]=(a)[2]+(b)[2]
@@ -20,8 +20,9 @@ typedef Flt	Matrix[4][4];
 #define ABS(a) (((a)<0)?(-(a)):(a))
 #define SGN(a) (((a)<0)?(-1):(1))
 #define SGND(a) (((a)<0.0)?(-1.0):(1.0))
-#define CLAMP(a,b,c) ((a)<(b)?(b):((a)>(c)?(b):(a)))
+#define CLAMP(a,b,c) ((a)<(b)?(b):((a)>(c)?(c):(a)))
 #define RND() (double)rand()/(double)RAND_MAX
+#define PI 3.1415926535897932
 
 /*typedef struct t_rect {
 	int left;

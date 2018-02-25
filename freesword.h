@@ -6,24 +6,33 @@
 class Character {
 	public:
 		char* sprite_file;
-		Vec pos;
-		Character(){}
-		~Character(){}
+		Vec pos; // char's position
+		Vec vel; // char's velocity
+		Vec dir; // char's orientation
+		bool status; //0 alive 1 dead
+		
+		Character(){} //constructor
+		~Character(){} //destructor
+		void move();
+		void lookAt(Flt x, Flt y);
+		void setPosition(Flt x, Flt y);
+		void setVelocity(Flt x, Flt y);
+		void addVelocity(Flt x, Flt y);
 	private:
 };
 
-class Player : Character {
+class Player : public Character {
 	public:
-		int pos[2];
-		int vel[2];
-		int dir; //movement direction; 0/1/2/3 : up/left/down/right
-		int orientation[2]; //direction player is facing; [0] = x [1] = y, x=-1:left y=1:up, etc.
-		int pointer[2]; //placeholder for player's face
-		int status; //0 alive 1 dead
+		Vec pointer; //placeholder for player's face
+		Flt pradius;	
+		void lookAt(Flt x, Flt y);
+		void init();
+		Player(){}
+		~Player(){}
 	private:
 };
 
-class Enemy : Character {
+class Enemy : public Character {
 	public:
 	private:
 };

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "global.h"
-extern Global g;
+
 
 void david_func(){
 	strcpy(g.title.text,"This is a David Print");

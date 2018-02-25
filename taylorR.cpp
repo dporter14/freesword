@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "global.h"
-extern Global g;
 
 using namespace std;
 void taylor_func()

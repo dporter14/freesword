@@ -27,20 +27,6 @@
 	#endif //USE_OPENAL_SOUND
 #endif
 
-//macros
-
-#define DIRECTION_DOWN  0
-#define DIRECTION_LEFT  1
-#define DIRECTION_UP	2
-#define DIRECTION_RIGHT 3
-#define DIRECTION_W	 0
-#define DIRECTION_A	 1
-#define DIRECTION_S	 2
-#define DIRECTION_D	 3
-//player shape radius
-#define PRADIUS 25
-//
-
 Global g;
 Image img[1] = {"./images/marble.gif" };
 
@@ -203,8 +189,8 @@ int main(int argc, char *argv[])
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.checkResize(&e);
-			done = checkMouse(&e);
-			done = checkKeys(&e);
+			done |= checkMouse(&e);
+			done |= checkKeys(&e);
 		}
 		//
 		//Below is a process to apply physics at a consistent rate.
@@ -240,327 +226,6 @@ int main(int argc, char *argv[])
 }
 
 #ifdef USE_OPENAL_SOUND
-void playSound(ALuint source)
-{
-	alSourcePlay(source);	
-}
-#endif //USE_OPENAL_SOUND
-
-void initOpengl(void)
-{
-	//OpenGL initialization
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glEnable(GL_COLOR_MATERIAL);
-	//
-	//choose one of these
-	//glShadeModel(GL_FLAT);
-	glShadeModel(GL_SMOOTH);
-	glDisable(GL_LIGHTING);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	//
-	glEnable(GL_TEXTURE_2D);
-	//marble_texture = loadBMP("marble.bmp");
-	glBindTexture(GL_TEXTURE_2D, 0);
-	//
-	//load the image file into a ppm structure.
-	//
-	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.marbleImage = &img[1];
-	//
-	//create opengl texture elements
-	glGenTextures(1, &g.marbleTexture);
-	glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3,
-			g.marbleImage->width, g.marbleImage->height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
-}
-
-void initPlayer()
-{
-	g.player.status = 0;
-	VecMake(0,1,0,g.player.dir);
-	VecMake(0,1,0,g.player.vel);
-	VecMake(50,50,0,g.player.pos);
-	
-	g.player.pointer[0] = 75;
-	g.player.pointer[1] = 75;
-	
-}
-
-void init()
-{
-	g.boardDim = g.gridDim * 10;
-	//
-	initPlayer();
-	//
-	//initialize buttons...
-	/*
-	   g.nbuttons=0;
-	//size and position
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 320;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top =
-	g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx =
-	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery =
-	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Reset");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.4f;
-	g.button[g.nbuttons].color[1] = 0.4f;
-	g.button[g.nbuttons].color[2] = 0.7f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 160;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
-	g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Quit");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.3f;
-	g.button[g.nbuttons].color[1] = 0.3f;
-	g.button[g.nbuttons].color[2] = 0.6f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
-	*/
-}
-
-void resetGame()
-{
-	initPlayer();
-	g.gameover  = 0;
-	g.winner	= 0;
-}
-
-int checkKeys(XEvent *e)
-{
-	static int shift=0;
-	if (e->type != KeyRelease && e->type != KeyPress)
-		return 0;
-	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
-	//if (e->type == KeyPress)
-		//mason_func();
-	if (e->type == KeyRelease) {
-		if (key == XK_Shift_L || key == XK_Shift_R)
-			shift=0;
-		return 0;
-	}
-	if (key == XK_Shift_L || key == XK_Shift_R) {
-		shift=1;
-		return 0;
-	}
-	(void)shift;
-	Vec temp;
-	switch (key) {
-		case XK_r:
-			resetGame();
-			break;
-		case XK_equal:
-			break;
-		case XK_minus:
-			break;
-		case XK_a:
-			VecMake(-1,0,0,temp);
-			VecAdd(temp, g.player.vel, g.player.vel);
-			g.player.movePlayer();
-			break;
-		case XK_d:
-			VecMake(1,0,0,temp);
-			VecAdd(temp, g.player.vel, g.player.vel);
-			g.player.movePlayer();
-			break;
-		case XK_w:
-			VecMake(0,1,0,temp);
-			VecAdd(temp, g.player.vel, g.player.vel);
-			g.player.movePlayer();
-			break;
-		case XK_s:
-			VecMake(0,-1,0,temp);
-			VecAdd(temp, g.player.vel, g.player.vel);
-			g.player.movePlayer();
-			break;
-		case XK_1:
-			david_func();
-			break;
-		case XK_2:
-			taylor_func();
-			break;
-		case XK_3:
-			mason_func();
-			break;
-		case XK_4:
-			jacob_func();
-			break;
-	}
-	return 0;
-}
-
-int checkMouse(XEvent *e)
-{
-	static int savex = 0;
-	static int savey = 0;
-	int x,y;
-	int lbutton=0;
-	int rbutton=0;
-	//
-	if (e->type == ButtonRelease)
-		return 0;
-	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
-			//Left button is down
-			lbutton=1;
-		}
-		if (e->xbutton.button==3) {
-			//Right button is down
-			rbutton=1;
-			if (rbutton){}
-		}
-	}
-	x = e->xbutton.x;
-	y = e->xbutton.y;
-	y = g.yres - y;
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-		//Mouse moved
-		savex = e->xbutton.x;
-		savey = e->xbutton.y;
-	}
-
-	if (savex > (g.player.pos[0]+10)) {
-		g.player.dir[0] = 1;
-	} else if (savex < (g.player.pos[0]-10)) {
-		g.player.dir[0] = -1;
-	} else {
-		g.player.dir[0] = 0;
-	}
-	if (savey < (g.yres - g.player.pos[1] - 10)) {
-		g.player.dir[1] = 1;
-	} else if (savey > (g.yres - g.player.pos[1] + 10)) {
-		g.player.dir[1] = -1;
-	} else {
-		g.player.dir[1] = 0;
-	}
-
-	g.player.setPlayerOrientation();
-
-	/*for (i=0; i<g.nbuttons; i++) {
-		g.button[i].over=0;
-		if (x >= g.button[i].r.left &&
-				x <= g.button[i].r.right &&
-				y >= g.button[i].r.bot &&
-				y <= g.button[i].r.top) {
-			g.button[i].over=1;
-			if (g.button[i].over) {
-				if (lbutton) {
-					switch (i) {
-						case 0:
-							resetGame();
-							break;
-						case 1:
-							printf("Quit was clicked!\n");
-							return 1;
-					}
-				}
-			}
-		}
-	}*/
-	return 0;
-}
-
-
-
-void getGridCenter(const int i, const int j, int cent[2])
-{
-	//This function can be optimized, and made more generic.
-	int b2 = g.boardDim/2;
-	int screenCenter[2] = {g.xres/2, g.yres/2};
-	int s0 = screenCenter[0];
-	int s1 = screenCenter[1];
-	int bq;
-	//quad upper-left corner
-	int quad[2];
-	//bq is the width of one grid section
-	bq = (g.boardDim / g.gridDim);
-	//-------------------------------------
-	//because y dimension is bottom-to-top in OpenGL.
-	int i1 = g.gridDim - i - 1;
-	quad[0] = s0-b2;
-	quad[1] = s1-b2;
-	cent[0] = quad[0] + bq/2;
-	cent[1] = quad[1] + bq/2;
-	cent[0] += (bq * j);
-	cent[1] += (bq * i1);
-}
-
-
-void physics()
-{
-	if (g.gameover) {
-		std::cout<<"GAME OVER\n";
-		return;
-	}
-	//
-	//
-	//Is it time to move the snake?
-	/*static struct timespec snakeTime;
-	  static int firsttime=1;
-	  if (firsttime) {
-	  firsttime=0;
-	  clock_gettime(CLOCK_REALTIME, &snakeTime);
-	  }
-	  struct timespec tt;
-	  clock_gettime(CLOCK_REALTIME, &tt);
-	  timeCopy(&snakeTime, &tt);
-	  */
-	//update player position
-	if (g.player.vel[0] < 100) {
-		g.player.pos[0] += g.player.vel[0];
-		g.player.pointer[0] += g.player.vel[0];
-	}
-	
-	if (g.player.vel[1] < 100) {
-		g.player.pos[1] += g.player.vel[1];
-		g.player.pointer[1] += g.player.vel[1];
-	}
-
-	//keep player from maintaining velocity
-	if (g.player.vel[0] > 0) {
-		g.player.vel[0] -= 0.01;
-	} else if (g.player.vel[0] < 0) {
-		g.player.vel[0] += 0.01;
-	}
-
-	if (g.player.vel[1] > 0) {
-		g.player.vel[1] -= 0.01;
-	} else if (g.player.vel[1] < 0) {
-		g.player.vel[1] += 0.01;
-	}
-
-}
 
 /*======================================================
    SOUND =================================================	
@@ -634,6 +299,300 @@ void cleanupSound()
 	//Close device.
 	alcCloseDevice(Device);
 	#endif //USE_OPENAL_SOUND
+}
+
+void playSound(ALuint source)
+{
+	alSourcePlay(source);	
+}
+#endif //USE_OPENAL_SOUND
+
+void initOpengl(void)
+{
+	//OpenGL initialization
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_COLOR_MATERIAL);
+	//
+	//choose one of these
+	//glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
+	glDisable(GL_LIGHTING);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+	glEnable(GL_TEXTURE_2D);
+	//marble_texture = loadBMP("marble.bmp");
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+	//load the image file into a ppm structure.
+	//
+	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
+	g.marbleImage = &img[1];
+	//
+	//create opengl texture elements
+	glGenTextures(1, &g.marbleTexture);
+	glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+			g.marbleImage->width, g.marbleImage->height,
+			0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
+}
+
+
+
+void init()
+{
+	g.boardDim = g.gridDim * 10;
+	//
+	g.player.init();
+	//
+	//initialize buttons...
+	/*
+	   g.nbuttons=0;
+	//size and position
+	g.button[g.nbuttons].r.width = 140;
+	g.button[g.nbuttons].r.height = 60;
+	g.button[g.nbuttons].r.left = 20;
+	g.button[g.nbuttons].r.bot = 320;
+	g.button[g.nbuttons].r.right =
+	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
+	g.button[g.nbuttons].r.top =
+	g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
+	g.button[g.nbuttons].r.centerx =
+	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
+	g.button[g.nbuttons].r.centery =
+	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
+	strcpy(g.button[g.nbuttons].text, "Reset");
+	g.button[g.nbuttons].down = 0;
+	g.button[g.nbuttons].click = 0;
+	g.button[g.nbuttons].color[0] = 0.4f;
+	g.button[g.nbuttons].color[1] = 0.4f;
+	g.button[g.nbuttons].color[2] = 0.7f;
+	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
+	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
+	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
+	g.button[g.nbuttons].text_color = 0x00ffffff;
+	g.nbuttons++;
+	g.button[g.nbuttons].r.width = 140;
+	g.button[g.nbuttons].r.height = 60;
+	g.button[g.nbuttons].r.left = 20;
+	g.button[g.nbuttons].r.bot = 160;
+	g.button[g.nbuttons].r.right =
+	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
+	g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
+	g.button[g.nbuttons].r.height;
+	g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
+	g.button[g.nbuttons].r.right) / 2;
+	g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
+	g.button[g.nbuttons].r.top) / 2;
+	strcpy(g.button[g.nbuttons].text, "Quit");
+	g.button[g.nbuttons].down = 0;
+	g.button[g.nbuttons].click = 0;
+	g.button[g.nbuttons].color[0] = 0.3f;
+	g.button[g.nbuttons].color[1] = 0.3f;
+	g.button[g.nbuttons].color[2] = 0.6f;
+	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
+	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
+	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
+	g.button[g.nbuttons].text_color = 0x00ffffff;
+	g.nbuttons++;
+	*/
+}
+
+void resetGame()
+{
+	g.player.init();
+	g.gameover  = 0;
+	g.winner	= 0;
+}
+
+int checkKeys(XEvent *e)
+{
+	if (e->type != KeyRelease && e->type != KeyPress)
+		return 0;
+	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
+		
+	switch (key) {
+		case XK_Shift_L:
+		case XK_Shift_R:
+			if (e->type == KeyPress)
+				g.isPressed[K_SHIFT]=1;
+			else
+				g.isPressed[K_SHIFT]=0;
+			break;
+		case XK_Escape:
+			return 1;
+		case XK_r:
+			resetGame();
+			break;
+		case XK_equal:
+			break;
+		case XK_minus:
+			break;
+		case XK_a:
+			if (e->type == KeyPress)
+				g.isPressed[K_A]=1;
+			else
+				g.isPressed[K_A]=0;
+			break;
+		case XK_d:
+			if (e->type == KeyPress)
+				g.isPressed[K_D]=1;
+			else
+				g.isPressed[K_D]=0;
+			break;
+		case XK_w:	
+			if (e->type == KeyPress)
+				g.isPressed[K_W]=1;
+			else
+				g.isPressed[K_W]=0;
+			break;
+		case XK_s:
+			if (e->type == KeyPress)
+				g.isPressed[K_S]=1;
+			else
+				g.isPressed[K_S]=0;
+			break;
+		case XK_1:
+			david_func();
+			break;
+		case XK_2:
+			taylor_func();
+			break;
+		case XK_3:
+			mason_func();
+			break;
+		case XK_4:
+			jacob_func();
+			break;
+	}
+	return 0;
+}
+
+int checkMouse(XEvent *e)
+{
+	int x,y;
+	int lbutton=0;
+	int rbutton=0;
+	//
+	if (e->type == ButtonRelease)
+		return 0;
+	if (e->type == ButtonPress) {
+		if (e->xbutton.button==1) {
+			//Left button is down
+			lbutton=1;
+		}
+		if (e->xbutton.button==3) {
+			//Right button is down
+			rbutton=1;
+			if (rbutton){}
+		}
+	}
+	x = e->xbutton.x;
+	y = e->xbutton.y;
+	y = g.yres - y;
+	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
+		//Mouse moved
+		g.savex = x;
+		g.savey = y;
+	}
+
+	
+	/*for (i=0; i<g.nbuttons; i++) {
+		g.button[i].over=0;
+		if (x >= g.button[i].r.left &&
+				x <= g.button[i].r.right &&
+				y >= g.button[i].r.bot &&
+				y <= g.button[i].r.top) {
+			g.button[i].over=1;
+			if (g.button[i].over) {
+				if (lbutton) {
+					switch (i) {
+						case 0:
+							resetGame();
+							break;
+						case 1:
+							printf("Quit was clicked!\n");
+							return 1;
+					}
+				}
+			}
+		}
+	}*/
+	return 0;
+}
+
+
+
+void getGridCenter(const int i, const int j, int cent[2])
+{
+	//This function can be optimized, and made more generic.
+	int b2 = g.boardDim/2;
+	int screenCenter[2] = {g.xres/2, g.yres/2};
+	int s0 = screenCenter[0];
+	int s1 = screenCenter[1];
+	int bq;
+	//quad upper-left corner
+	int quad[2];
+	//bq is the width of one grid section
+	bq = (g.boardDim / g.gridDim);
+	//-------------------------------------
+	//because y dimension is bottom-to-top in OpenGL.
+	int i1 = g.gridDim - i - 1;
+	quad[0] = s0-b2;
+	quad[1] = s1-b2;
+	cent[0] = quad[0] + bq/2;
+	cent[1] = quad[1] + bq/2;
+	cent[0] += (bq * j);
+	cent[1] += (bq * i1);
+}
+
+
+void physics()
+{
+	if (g.gameover) {
+		std::cout<<"GAME OVER\n";
+		return;
+	}
+	//
+	//
+	//Is it time to move the snake?
+	/*static struct timespec snakeTime;
+	  static int firsttime=1;
+	  if (firsttime) {
+	  firsttime=0;
+	  clock_gettime(CLOCK_REALTIME, &snakeTime);
+	  }
+	  struct timespec tt;
+	  clock_gettime(CLOCK_REALTIME, &tt);
+	  timeCopy(&snakeTime, &tt);
+	  */
+	Player *p = &g.player;
+	if (g.isPressed[K_W]) {
+		p->addVelocity(0,1);
+	} else if (g.isPressed[K_S]) {
+		p->addVelocity(0,-1);
+	} else if (ABS(g.player.vel[1]) > 0) {
+		//keep player from maintaining velocity
+		p->addVelocity(0,SGN(p->vel[1])*-0.5);
+	}
+	
+	if (g.isPressed[K_D]) {
+		p->addVelocity(1,0);
+	} else if (g.isPressed[K_A]) {
+		p->addVelocity(-1,0);
+	} else if (ABS(g.player.vel[0]) > 0) {
+		//keep player from maintaining velocity
+		p->addVelocity(SGN(p->vel[0])*-0.5,0);
+	}
+	
+	//update player position
+	p->move();
+	//look at last known mouse pos
+	g.player.lookAt(g.savex,g.savey);
+
 }
 
 
@@ -714,7 +673,7 @@ void render(void)
 	float cx = g.player.pos[0];
 	float cy = g.player.pos[1];
 	//radius
-	float ra = PRADIUS;
+	float ra = g.player.pradius;
 	int num_segments = 100;
 
 	float theta = 2 * 3.1415926 / float(num_segments); 
@@ -739,11 +698,21 @@ void render(void)
 
 	//draw player pointer
 	glTranslatef(g.player.pointer[0], g.player.pointer[1], 0.0);
+	Vec up, cross;
+	VecMake(0, 1, 0, up);
+	float angl = acos(VecDot(g.player.dir, up));
+	
+	VecCross(up, g.player.dir, cross);
+	VecMake(0, 0, 1, up);
+	if (VecDot(up, cross)<0)
+		angl = -angl;
+	printf("%f\n",angl*180/PI);
+	glRotatef(angl*180/PI,0,0,1);
 	glColor3f(0.5f, 0.0f, 0.0f);
 	glBegin(GL_TRIANGLES);
-	glVertex2f(-5.0f, 0.0f);
-	glVertex2f(0.0f, 5.0f);
-	glVertex2f(5.0f, 0.0f);
+	glVertex2f(-10.0f, 0.0f);
+	glVertex2f(0.0f, 10.0f);
+	glVertex2f(10.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
 	
