@@ -103,6 +103,6 @@ void setPlayerOrientation(Player *player)
 
 using namespace std;
 void jacob_func(){
-	strcpy(g.title.text,"Freesword");
+	strcpy(g.title.text,"Jacob test");
 	g.title.text_color = 0x00ffffff;
 }
