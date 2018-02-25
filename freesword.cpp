@@ -362,11 +362,11 @@ void resetGame()
 int checkKeys(XEvent *e)
 {
 	static int shift=0;
-	if (e->type == KeyPress)
-		mason_func();
 	if (e->type != KeyRelease && e->type != KeyPress)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
+	//if (e->type == KeyPress)
+		//mason_func();
 	if (e->type == KeyRelease) {
 		if (key == XK_Shift_L || key == XK_Shift_R)
 			shift=0;
@@ -403,11 +403,9 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_1:
 			david_func();
-			
 			break;
 		case XK_2:
 			taylor_func();
-			
 			break;
 		case XK_3:
 			mason_func();
