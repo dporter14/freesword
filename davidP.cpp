@@ -1,3 +1,5 @@
+//Author: David Porter
+
 #include <iostream>
 #include "global.h"
 extern Global g;
