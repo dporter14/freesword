@@ -493,6 +493,7 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
+                        if (lbutton){}
 			if(g.anims[0].done){
 				g.nanims=1;
 				Animation *act = &g.anims[0];
