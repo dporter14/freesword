@@ -3,7 +3,12 @@
 
 #include "global.h"
 
-#define PLAYER_MAX_SPEED 5
+void jacob_func(){
+	strcpy(g.title.text,"Jacob test");
+	g.title.text_color = 0x00ffffff;
+}
+
+#define PLAYER_MAX_SPEED 15
 
 //init player
 void Player::init()
@@ -14,9 +19,10 @@ void Player::init()
 	VecMake(0,1,0,dir);
 	VecMake(0,0,0,vel);
 	VecMake(50,50,0,pos);
+	VecMake(0.5, 0.0, 0.5, color);
+	VecMake(0,30,0,rhand_pos);
+	VecMake(0,1,0,rhand_dir);
 	
-	pointer[0] = 75;
-	pointer[1] = 75;
 	
 }
 
@@ -65,15 +71,3 @@ void Character::lookAt(Flt x, Flt y)
 	
 }
 
-void Player::lookAt(Flt x, Flt y)
-{
-	Character::lookAt(x, y);
-	
-	//Set player pointer to face direction
-	VecAddS(pradius+1, dir, pos, pointer);
-}
-
-void jacob_func(){
-	strcpy(g.title.text,"Jacob test");
-	g.title.text_color = 0x00ffffff;
-}

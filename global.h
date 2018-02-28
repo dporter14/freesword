@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "freesword.h"
 #include "fonts.h"
@@ -29,6 +30,9 @@
 #endif
 
 #define MAXBUTTONS 4
+#define MAXENEMIES 100
+#define MAXANIMATIONS 10
+
 typedef struct t_button {
 	Rect r;
 	char text[32];
@@ -99,8 +103,8 @@ struct Global {
 	int xres, yres;
 	int savex, savey;
 	Player player;
-	int gridDim;
-	int boardDim;
+	Enemy enemies[MAXENEMIES];
+	int nenemies;
 	int gameover;
 	int winner;
 	Image *marbleImage;
@@ -108,6 +112,8 @@ struct Global {
 	Button button[MAXBUTTONS];
 	int nbuttons;
 	Button title;
+	Animation anims[MAXANIMATIONS];
+	int nanims;
 	bool isPressed[5];
 	//
 	ALuint alBufferDrip, alBufferTick;
@@ -115,10 +121,12 @@ struct Global {
 	Global() {
 		xres = 800;
 		yres = 600;
-		gridDim = 40;
+		
 		gameover = 0;
 		winner = 0;
-		nbuttons = 0;
+		nbuttons = 
+		nanims =
+		nenemies = 0;
 		marbleImage=NULL;
 		
 		title.r.left = xres/2;

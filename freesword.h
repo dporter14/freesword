@@ -3,29 +3,67 @@
 
 #include "defs.h"
 
+enum wep_type {W_SWORD};
+
+class Weapon {
+	wep_type type;
+	Weapon(){
+		type=W_SWORD;
+	}
+};
+
+class Animation {
+	public:
+		int frame, nframes;
+		bool done;
+		
+		void play();
+		void (Animation::*func)(int frame);
+		
+		void *actors[2];
+		int nactors;
+		void addActor(void* actor){	actors[nactors++] = actor; }
+		void clear(){ 
+			nactors=0;
+			//need to unassign anim handler from actors
+		}
+		
+		Animation(){ done=1; }
+		void sword_slash(int frame);
+		
+};
+
 class Character {
 	public:
-		char* sprite_file;
+		//define color and radius of circle until we have sprite
+		//char* sprite_file;
+		Vec color;
+		Flt pradius;
+		
 		Vec pos; // char's position
 		Vec vel; // char's velocity
 		Vec dir; // char's orientation
+		Vec rhand_pos; //pos of right hand
+		Vec rhand_dir; //orientation of right hadn
 		bool status; //0 alive 1 dead
+		Animation* anim_handler; //
 		
-		Character(){} //constructor
+		//constructor
+		Character(){
+			anim_handler=NULL;
+		} 
 		~Character(){} //destructor
 		void move();
 		void lookAt(Flt x, Flt y);
 		void setPosition(Flt x, Flt y);
 		void setVelocity(Flt x, Flt y);
 		void addVelocity(Flt x, Flt y);
+		void draw();
 	private:
 };
 
 class Player : public Character {
 	public:
-		Vec pointer; //placeholder for player's face
-		Flt pradius;	
-		void lookAt(Flt x, Flt y);
 		void init();
 		Player(){}
 		~Player(){}
@@ -34,8 +72,14 @@ class Player : public Character {
 
 class Enemy : public Character {
 	public:
+		void attackPlayer();
 	private:
 };
+
+
+
+
+
 /*//////////////////////////////////////////////////
  	MASON FUNCTIONS			############
 *///////////////////////////////////////////////////
@@ -71,9 +115,6 @@ void david_func();
  	JACOB FUNCTIONS			############
 *///////////////////////////////////////////////////
 
-void movePlayer(Player *player);
-void setPlayerOrientation(Player *player);
-
 void jacob_func();
 
 /////// End Jacob Functions/////////////////////////
@@ -83,6 +124,7 @@ void jacob_func();
 *///////////////////////////////////////////////////
 
 void taylor_func();
+void spawnEnemy(Flt x, Flt y);
 
 /////// End Taylor Functions/////////////////////////
 

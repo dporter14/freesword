@@ -120,9 +120,12 @@ int checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
 void initSounds(void);
+
+void gameUpdate();
+void animation(void);
 void physics(void);
 void render(void);
-void getGridCenter(const int i, const int j, int cent[2]);
+
 #ifdef USE_OPENAL_SOUND
 void initSound();
 void cleanupSound();
@@ -186,6 +189,7 @@ int main(int argc, char *argv[])
 	timeStart = current_time();
 	int done = 0;
 	while (!done) {
+		gameUpdate();
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.checkResize(&e);
@@ -212,6 +216,7 @@ int main(int argc, char *argv[])
 		//		   Apply no physics this frame.
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
+			animation();
 			physics();
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
@@ -344,8 +349,6 @@ void initOpengl(void)
 
 void init()
 {
-	g.boardDim = g.gridDim * 10;
-	//
 	g.player.init();
 	//
 	//initialize buttons...
@@ -406,6 +409,13 @@ void resetGame()
 	g.player.init();
 	g.gameover  = 0;
 	g.winner	= 0;
+}
+
+void gameUpdate()
+{
+	if(g.nenemies<50){
+		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
+	}
 }
 
 int checkKeys(XEvent *e)
@@ -483,6 +493,17 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
+			if(g.anims[0].done){
+				g.nanims=1;
+				Animation *act = &g.anims[0];
+				act->done=0;
+				act->clear();
+				act->addActor(&g.player);
+				//g.player.anim_handler = act;
+				act->frame = 0;
+				act->nframes = 16;
+				act->func = &Animation::sword_slash;
+			}
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
@@ -499,7 +520,7 @@ int checkMouse(XEvent *e)
 		g.savey = y;
 	}
 
-	
+	//for menu buttons
 	/*for (i=0; i<g.nbuttons; i++) {
 		g.button[i].over=0;
 		if (x >= g.button[i].r.left &&
@@ -525,30 +546,18 @@ int checkMouse(XEvent *e)
 }
 
 
-
-void getGridCenter(const int i, const int j, int cent[2])
-{
-	//This function can be optimized, and made more generic.
-	int b2 = g.boardDim/2;
-	int screenCenter[2] = {g.xres/2, g.yres/2};
-	int s0 = screenCenter[0];
-	int s1 = screenCenter[1];
-	int bq;
-	//quad upper-left corner
-	int quad[2];
-	//bq is the width of one grid section
-	bq = (g.boardDim / g.gridDim);
-	//-------------------------------------
-	//because y dimension is bottom-to-top in OpenGL.
-	int i1 = g.gridDim - i - 1;
-	quad[0] = s0-b2;
-	quad[1] = s1-b2;
-	cent[0] = quad[0] + bq/2;
-	cent[1] = quad[1] + bq/2;
-	cent[0] += (bq * j);
-	cent[1] += (bq * i1);
+void animation(){
+	int i=0;
+	while ( i<g.nanims ) {
+		g.anims[i].play();
+		if(g.anims[i].done){
+			g.anims[i].clear();
+			g.anims[i]=g.anims[--g.nanims];
+		} else {
+			i++;
+		}
+	}
 }
-
 
 void physics()
 {
@@ -590,9 +599,15 @@ void physics()
 	
 	//update player position
 	p->move();
-	//look at last known mouse pos
-	g.player.lookAt(g.savex,g.savey);
-
+	//look at last known mouse pos if not attacking
+	if(g.anims[0].done){
+		g.player.lookAt(g.savex,g.savey);
+	}
+	
+	for(int i=0; i<g.nenemies; i++){
+		g.enemies[i].attackPlayer();
+		g.enemies[i].move();
+	}
 }
 
 
@@ -618,7 +633,6 @@ void render(void)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 
 	
-	
 	//
 	//screen background
 	/*glColor3f(0.5f, 0.5f, 0.5f);
@@ -640,82 +654,14 @@ void render(void)
 	glVertex2i(s0+b2, s1+b2);
 	glVertex2i(s0+b2, s1-b2);
 	glEnd();
-	// */
-	/*//grid lines...
-	  int x0 = s0-b2;
-	  int x1 = s0+b2;
-	  int y0 = s1-b2;
-	  int y1 = s1+b2;
-	  glColor3f(0.1f, 0.1f, 0.1f);
-	  glBegin(GL_LINES);
-	  for (i=1; i<g.gridDim; i++) {
-	  y0 += 10;
-	  glVertex2i(x0,y0);
-	  glVertex2i(x1,y0);
-	  }
-	  x0 = s0-b2;
-	  y0 = s1-b2;
-	  y1 = s1+b2;
-	  for (j=1; j<g.gridDim; j++) {
-	  x0 += 10;
-	  glVertex2i(x0,y0);
-	  glVertex2i(x0,y1);
-	  }
-	  glEnd();
-	  */ 
-	//
-	//draw player
-	glColor3f(0.5f, 0.0f, 0.5f);
-	glPushMatrix();
-	//	glTranslatef(g.player.pos[0], g.player.pos[1], 0.0);
-
-	//starting coordinates
-	float cx = g.player.pos[0];
-	float cy = g.player.pos[1];
-	//radius
-	float ra = g.player.pradius;
-	int num_segments = 100;
-
-	float theta = 2 * 3.1415926 / float(num_segments); 
-	float c = cosf(theta);//precalculate the sine and cosine
-	float s = sinf(theta);
-	float t;
-
-	float x = ra;//we start at angle = 0 
-	float y = 0; 
-
-	glBegin(GL_POLYGON); 
-	for(int ii = 0; ii < num_segments; ii++) 
-	{ 
-		glVertex2f(x + cx, y + cy);//output vertex 
-
-		//apply the rotation matrix
-		t = x;
-		x = c * x - s * y;
-		y = s * t + c * y;
-	} 
-	glEnd();  
-
-	//draw player pointer
-	glTranslatef(g.player.pointer[0], g.player.pointer[1], 0.0);
-	Vec up, cross;
-	VecMake(0, 1, 0, up);
-	float angl = acos(VecDot(g.player.dir, up));
 	
-	VecCross(up, g.player.dir, cross);
-	VecMake(0, 0, 1, up);
-	if (VecDot(up, cross)<0)
-		angl = -angl;
+	*/
 	
-	glRotatef(angl*180/PI,0,0,1);
-	glColor3f(0.5f, 0.0f, 0.0f);
-	glBegin(GL_TRIANGLES);
-	glVertex2f(-10.0f, 0.0f);
-	glVertex2f(0.0f, 10.0f);
-	glVertex2f(10.0f, 0.0f);
-	glEnd();
-	glPopMatrix();
-	
+	//draw character
+	g.player.draw();
+	for(int i=0; i<g.nenemies; i++){
+		g.enemies[i].draw();
+	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
 }
