@@ -350,7 +350,8 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-	//
+    initWalls();
+    //
 	//initialize buttons...
 	/*
 	   g.nbuttons=0;
@@ -609,6 +610,15 @@ void physics()
 		g.enemies[i].attackPlayer();
 		g.enemies[i].move();
 	}
+
+    if(g.player.pos[0] > g.xres)
+        g.player.pos[0] = g.xres-5;
+    if(g.player.pos[0] < 0)
+        g.player.pos[0] = 5;
+    if(g.player.pos[1] > g.yres)
+        g.player.pos[1] = g.yres-5;
+    if(g.player.pos[1] < 0)
+        g.player.pos[1] = 5;
 }
 
 
@@ -660,7 +670,13 @@ void render(void)
 	
 	//draw character
 	g.player.draw();
-	for(int i=0; i<g.nenemies; i++){
+	//draw border walls #buildthewall
+    g.n.draw();
+    g.e.draw();
+    g.w.draw();
+    g.s.draw();
+
+    for(int i=0; i<g.nenemies; i++){
 		g.enemies[i].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);

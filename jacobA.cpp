@@ -70,4 +70,40 @@ void Character::lookAt(Flt x, Flt y)
 	VecS(scale, dir, dir);
 	
 }
+    
+void initWalls()
+{   
+    g.n.width = g.xres;
+    g.n.height = 5;
+    g.n.x = g.xres/2;
+    g.n.y = 0;
 
+    g.e.width = 5;
+    g.e.height = g.yres;
+    g.e.x = g.xres;
+    g.e.y = g.yres/2;
+
+    g.s.width = g.xres;
+    g.s.height = 5;
+    g.s.x = g.xres/2;
+    g.s.y = g.yres;
+
+    g.w.width = 5;
+    g.w.height = g.yres;
+    g.w.x = 0;
+    g.w.y = g.yres/2;
+}
+
+void Wall::draw(){
+    glColor3f(1.0, 0.0, 0.0);
+
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-(width/2), height/2);
+    glVertex2f(-(width/2), -(height/2));
+    glVertex2f(width/2, -(height/2));
+    glVertex2f(width/2, height/2);
+    glEnd();
+    glPopMatrix();
+}
