@@ -1,3 +1,4 @@
+// by Taylor Redden
 #include <iostream>
 
 #include "global.h"
@@ -22,7 +23,8 @@ void spawnEnemy(Flt x, Flt y){
 	VecMake(0,1,0,e->rhand_dir);
 }
 
-void Enemy::attackPlayer(){
+void Enemy::attackPlayer()
+{
 	Vec toPlayer;
 	VecSub(g.player.pos, pos, toPlayer);
 	lookAt(g.player.pos[0], g.player.pos[1]);
@@ -34,39 +36,77 @@ void Enemy::attackPlayer(){
 	}
 }
 
-void Animation::play() {
-	if (frame<=nframes){
-		(*this.*func)(frame++);
-	} else {
-		done=1;
+void Animation::add_actor(Object* actor)
+{
+	actors[nactors++] = actor;
+	actor->anim_handler = this;
+}
+
+void Animation::init()
+{
+	frame=0;
+	done=0;
+}
+		
+void Animation::play() 
+{
+	switch(type) {
+		case A_SWORD_SLASH:
+			sword_slash();
+			break;
+		case A_TEST:
+			test();
+			break;
+	}
+	if(done){
+		while(nactors) {
+			nactors--;
+			actors[nactors]->anim_handler=NULL;
+		}
 	}
 }
 	
-void Animation::sword_slash(int frame) {
-	Character* actor = (Character*)actors[0];
+void Animation::set_frames(int frames)
+{
+	nframes = frames;
+}
+
+void Animation::set_duration(float duration)
+{
+	nframes = duration * 60;
+}
+
+void Animation::sword_slash() 
+{
+	Player* actor = (Player*)actors[0];
 	static Vec orig_pos;
 	static Vec orig_dir;
 	if(frame==0){
 		VecCopy(actor->rhand_pos, orig_pos);
 		VecCopy(actor->rhand_dir, orig_dir);
-		actor->rhand_pos[0] = 35;
+		//actor->rhand_pos[0] = 50;
 		actor->rhand_pos[1] = 35;
 		
-	} 
-	if(frame==16){
+	}
+	if (frame==nframes+1) {
 		VecCopy(orig_pos, actor->rhand_pos);
 		VecCopy(orig_dir, actor->rhand_dir);
+		done=1;
 	} else {
-		actor->rhand_pos[0] = (-100/15)*frame+50;
-		float angle = (PI/2/15)*frame+(PI/3);
+		actor->rhand_pos[0] = (-100/float(nframes))*float(frame)+50;
+		float angle = (PI/2/float(nframes))*float(frame)+(PI/3);
 		actor->rhand_dir[0] = cosf(angle);
 		actor->rhand_dir[1] = sinf(angle);
 		
 		//cout << (-100/28)*frame+50 << endl;
 	}
+	frame++;
 }
 
-
+void Animation::test()
+{
+	//do stuff
+}
 
 
 

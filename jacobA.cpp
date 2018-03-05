@@ -20,7 +20,7 @@ void Player::init()
 	VecMake(0,0,0,vel);
 	VecMake(50,50,0,pos);
 	VecMake(0.5, 0.0, 0.5, color);
-	VecMake(0,30,0,rhand_pos);
+	VecMake(35,0,0,rhand_pos);
 	VecMake(0,1,0,rhand_dir);
 	
 	
@@ -68,6 +68,12 @@ void Character::lookAt(Flt x, Flt y)
 	VecMake(x-pos[0], y-pos[1], 0, dir);
 	Flt scale = 1/VecLen(dir);
 	VecS(scale, dir, dir);
-	
+	if (ABS(dir[0])>ABS(dir[1])){
+		dir[0]=SGN(dir[0]);
+		dir[1]=0;
+	} else {
+		dir[1]=SGN(dir[1]);
+		dir[0]=0;
+	}
 }
 

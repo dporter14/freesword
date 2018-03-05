@@ -75,7 +75,7 @@ class X11_wrapper {
 		void setTitle() {
 			//Set the window title bar.
 			XMapWindow(dpy, win);
-			XStoreName(dpy, win, "snake");
+			XStoreName(dpy, win, "Free Sword");
 		}
 		void setupScreenRes(const int w, const int h) {
 			g.xres = w;
@@ -413,7 +413,7 @@ void resetGame()
 
 void gameUpdate()
 {
-	if(g.nenemies<50){
+	if(g.nenemies<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}
 }
@@ -493,16 +493,12 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
-			if(g.anims[0].done){
-				g.nanims=1;
-				Animation *act = &g.anims[0];
-				act->done=0;
-				act->clear();
-				act->addActor(&g.player);
-				//g.player.anim_handler = act;
-				act->frame = 0;
-				act->nframes = 16;
-				act->func = &Animation::sword_slash;
+			if(g.player.anim_handler==NULL){
+				Animation *act = &g.anims[g.nanims++];
+				act->init();
+				act->add_actor(&g.player);
+				act->set_duration(0.15);
+				act->type = A_SWORD_SLASH;
 			}
 		}
 		if (e->xbutton.button==3) {
@@ -551,7 +547,7 @@ void animation(){
 	while ( i<g.nanims ) {
 		g.anims[i].play();
 		if(g.anims[i].done){
-			g.anims[i].clear();
+			//g.anims[i].clear();
 			g.anims[i]=g.anims[--g.nanims];
 		} else {
 			i++;

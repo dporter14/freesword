@@ -12,28 +12,42 @@ class Weapon {
 	}
 };
 
+class Animation;
+
+class Object {
+	public:
+		Animation* anim_handler; //		
+};
+
+enum anim_type {A_SWORD_SLASH, A_TEST};
+
 class Animation {
 	public:
 		int frame, nframes;
 		bool done;
 		
-		void play();
-		void (Animation::*func)(int frame);
+		anim_type type;
 		
-		void *actors[2];
+		Object *actors[2];
 		int nactors;
-		void addActor(void* actor){	actors[nactors++] = actor; }
-		void clear(){ 
-			nactors=0;
-			//need to unassign anim handler from actors
-		}
 		
-		Animation(){ done=1; }
-		void sword_slash(int frame);
+		void init();
+		void play();
+		void add_actor(Object* actor);
+		void set_frames(int frames);
+		void set_duration(float duration);
+		
+		
+		Animation(){};
+		~Animation(){};
+		
+		void sword_slash();
+		void test();
+		
 		
 };
 
-class Character {
+class Character : public Object{
 	public:
 		//define color and radius of circle until we have sprite
 		//char* sprite_file;
@@ -46,7 +60,6 @@ class Character {
 		Vec rhand_pos; //pos of right hand
 		Vec rhand_dir; //orientation of right hadn
 		bool status; //0 alive 1 dead
-		Animation* anim_handler; //
 		
 		//constructor
 		Character(){
