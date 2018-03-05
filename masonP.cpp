@@ -9,6 +9,12 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
+
+bool pause() {
+	bool paused = false;
+	
+	
+}
 	
 void mason_func()
 {
