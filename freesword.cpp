@@ -214,11 +214,11 @@ int main(int argc, char *argv[])
 		//			  Break when countdown < physics-rate.
 		//	   if no,
 		//		   Apply no physics this frame.
-		while(physicsCountdown >= physicsRate && if(pause() == false) {
+		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
 			animation();
-			if(pause() == false)
-				physics();
+		//	if(pause() == false)
+			physics();
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
 		}

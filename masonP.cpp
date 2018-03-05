@@ -16,7 +16,7 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
-
+/*
 bool pause() 
 {
 	bool paused = true;
@@ -38,4 +38,4 @@ bool pause()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glPopMatrix();	
-}
+}*/

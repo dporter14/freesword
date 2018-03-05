@@ -123,6 +123,7 @@ class mainMenu : public Menu {
 };
 
 void mason_func();
+bool pause();
 
 /////// END Mason FUNCTIONS ////////////////////////
 
