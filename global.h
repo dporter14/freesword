@@ -120,8 +120,8 @@ struct Global {
     ALuint alBufferDrip, alBufferTick;
     ALuint alSourceDrip, alSourceTick;
     Global() {
-        xres = 800;
-        yres = 600;
+        xres = 1200;
+        yres = 900;
 
         gameover = 0;
         winner = 0;
