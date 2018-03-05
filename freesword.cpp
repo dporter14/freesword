@@ -217,7 +217,8 @@ int main(int argc, char *argv[])
 		while(physicsCountdown >= physicsRate && if(pause() == false) {
 			//6. Apply physics
 			animation();
-			physics();
+			if(pause() == false)
+				physics();
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
 		}
