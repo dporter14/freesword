@@ -12,54 +12,68 @@ class Weapon {
     }
 };
 
-class Animation {
-    public:
-        int frame, nframes;
-        bool done;
+class Animation;
 
-        void play();
-        void (Animation::*func)(int frame);
-
-        void *actors[2];
-        int nactors;
-        void addActor(void* actor){	actors[nactors++] = actor; }
-        void clear(){ 
-            nactors=0;
-            //need to unassign anim handler from actors
-        }
-
-        Animation(){ done=1; }
-        void sword_slash(int frame);
-
+class Object {
+	public:
+		Animation* anim_handler; //		
 };
 
-class Character {
-    public:
-        //define color and radius of circle until we have sprite
-        //char* sprite_file;
-        Vec color;
-        Flt pradius;
+enum anim_type {A_SWORD_SLASH, A_TEST};
 
-        Vec pos; // char's position
-        Vec vel; // char's velocity
-        Vec dir; // char's orientation
-        Vec rhand_pos; //pos of right hand
-        Vec rhand_dir; //orientation of right hadn
-        bool status; //0 alive 1 dead
-        Animation* anim_handler; //
+class Animation {
+	public:
+		int frame, nframes;
+		bool done;
+		
+		anim_type type;
+		
+		Object *actors[2];
+		int nactors;
+		
+		void init();
+		void play();
+		void add_actor(Object* actor);
+		void set_frames(int frames);
+		void set_duration(float duration);
+		
+		
+		Animation(){};
+		~Animation(){};
+		
+		void sword_slash();
+		void test();
+		
+		
+};
 
-        //constructor
-        Character(){
-            anim_handler=NULL;
-        } 
-        ~Character(){} //destructor
-        void move();
-        void lookAt(Flt x, Flt y);
-        void setPosition(Flt x, Flt y);
-        void setVelocity(Flt x, Flt y);
-        void addVelocity(Flt x, Flt y);
-        void draw();
-    private:
+class Character : public Object{
+	public:
+		//define color and radius of circle until we have sprite
+		//char* sprite_file;
+		Vec color;
+		Flt pradius;
+		
+		Vec pos; // char's position
+		Vec vel; // char's velocity
+		Vec dir; // char's orientation
+		Vec rhand_pos; //pos of right hand
+		Vec rhand_dir; //orientation of right hadn
+		bool status; //0 alive 1 dead
+		
+		//constructor
+		Character(){
+			anim_handler=NULL;
+		} 
+		~Character(){} //destructor
+		void move();
+		void lookAt(Flt x, Flt y);
+		void setPosition(Flt x, Flt y);
+		void setVelocity(Flt x, Flt y);
+		void addVelocity(Flt x, Flt y);
+		void draw();
+	private:
+
 };
 
 class Player : public Character {

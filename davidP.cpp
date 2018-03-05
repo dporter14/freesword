@@ -83,10 +83,13 @@ void Character::draw(){
 	glPopMatrix();
 }
 
-
-
-
-
+/*
+void Animation::my_anim(){
+	if (frame==0){
+		cout << "hello world" << endl;
+	}
+}
+*/
 
 
 
