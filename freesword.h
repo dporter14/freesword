@@ -6,10 +6,10 @@
 enum wep_type {W_SWORD};
 
 class Weapon {
-	wep_type type;
-	Weapon(){
-		type=W_SWORD;
-	}
+    wep_type type;
+    Weapon(){
+        type=W_SWORD;
+    }
 };
 
 class Animation;
@@ -73,43 +73,53 @@ class Character : public Object{
 		void addVelocity(Flt x, Flt y);
 		void draw();
 	private:
+
 };
 
 class Player : public Character {
-	public:
-		void init();
-		Player(){}
-		~Player(){}
-	private:
+    public:
+        void init();
+        Player(){}
+        ~Player(){}
+    private:
 };
 
 class Enemy : public Character {
-	public:
-		void attackPlayer();
-	private:
+    public:
+        void attackPlayer();
+    private:
 };
 
+class Wall {
 
+    public:
+        //wall width and height
+        Flt width, height;
+        //coordinates for center of wall
+        Flt x, y;
+        
+        void draw();
+};
 
 
 
 /*//////////////////////////////////////////////////
- 	MASON FUNCTIONS			############
-*///////////////////////////////////////////////////
+  MASON FUNCTIONS			############
+  *///////////////////////////////////////////////////
 class Menu {
 
-	public:
-		Menu();
-	private:
-		double m_height, m_width;
-		std::string m_buttonTitle;		
+    public:
+        Menu();
+    private:
+        double m_height, m_width;
+        std::string m_buttonTitle;		
 };
 class mainMenu : public Menu {
-	
-	public:
 
-	private:
-	
+    public:
+
+    private:
+
 };
 
 void mason_func();
@@ -117,24 +127,24 @@ void mason_func();
 /////// END Mason FUNCTIONS ////////////////////////
 
 /*//////////////////////////////////////////////////
-	David Functions		####################
-*///////////////////////////////////////////////////
+  David Functions		####################
+  *///////////////////////////////////////////////////
 
 void david_func();
 
 /////// End David Functions/////////////////////////
 
 /*//////////////////////////////////////////////////
- 	JACOB FUNCTIONS			############
-*///////////////////////////////////////////////////
+  JACOB FUNCTIONS			############
+  *///////////////////////////////////////////////////
 
 void jacob_func();
-
+void initWalls();
 /////// End Jacob Functions/////////////////////////
 
 /*//////////////////////////////////////////////////
- 	TAYLOR FUNCTIONS			############
-*///////////////////////////////////////////////////
+  TAYLOR FUNCTIONS			############
+  *///////////////////////////////////////////////////
 
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
