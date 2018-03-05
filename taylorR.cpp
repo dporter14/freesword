@@ -29,8 +29,8 @@ void Enemy::attackPlayer()
 	VecSub(g.player.pos, pos, toPlayer);
 	lookAt(g.player.pos[0], g.player.pos[1]);
 	float len = VecLen(toPlayer);
-	if(len>0){
-		addVelocity(toPlayer[0]/len*0.5,toPlayer[1]/len*0.5);
+	if(len>100){
+		addVelocity(toPlayer[0]/len,toPlayer[1]/len);
 	} else if (VecLen(vel)>0) {
 		addVelocity(vel[0]*-0.5,vel[1]*-0.5);
 	}

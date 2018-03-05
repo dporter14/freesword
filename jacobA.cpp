@@ -8,7 +8,7 @@ void jacob_func(){
 	g.title.text_color = 0x00ffffff;
 }
 
-#define PLAYER_MAX_SPEED 15
+#define PLAYER_MAX_SPEED 10
 
 //init player
 void Player::init()
