@@ -495,7 +495,7 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
-
+			(void)lbutton;
 			if(g.player.anim_handler==NULL){
 				Animation *act = &g.anims[g.nanims++];
 				act->init();
