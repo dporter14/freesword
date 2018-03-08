@@ -47,7 +47,7 @@ void DisplayTime1() {
 	r.center = 0;
 	clock_gettime(CLOCK_REALTIME, &ftimeend);
 
-	double t1 = ;
+	double t1 = 2.2;
 
 	ggprint8b(&r, 16, 0x00ff00ff, "Time function1: %lf", t1		    );
 	ggprint8b(&r, 16, 0x00ff00ff, "Time function2: %lf", DisplayTime2() );
