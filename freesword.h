@@ -122,6 +122,10 @@ class mainMenu : public Menu {
 
 };
 
+void DisplayTime1();
+double DisplayTime2();
+void TimeMain();
+
 void mason_func();
 //bool pause();
 

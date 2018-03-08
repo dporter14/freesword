@@ -223,6 +223,7 @@ int main(int argc, char *argv[])
 			physicsCountdown -= physicsRate;
 		}
 		//Always render every frame.
+		DisplayTime1();
 		render();
 		x11.swapBuffers();
 	}

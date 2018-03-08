@@ -1,8 +1,12 @@
 #include <iostream>
+#include <ctime>
+#include <cstdio>
 #include "GL/glx.h"
 #include "fonts.h"
 #include "global.h"
+#include <sys/timeb.h>
 
+//typedef std::chrono::high_resolution_clock Clock;
 
 void mason_func()
 {
@@ -16,6 +20,39 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
+
+double DisplayTime2() {
+    	//timespec ftimestart, ftimeend;
+	//clock_gettime(CLOCK_REALTIME, &ftimestart);
+	
+    	std::clock_t start;
+	start = std::clock();
+
+	int a = 23;
+	int b = 14;
+	// Slow the function down.
+	for(int loop = 1; loop < 4000; loop++) {
+		int d = a / b / loop;	
+	}
+	double t2 = (std::clock() - start);
+	return t2;
+}
+void DisplayTime1() {
+
+    	struct timespec ftimestart, ftimeend;
+	clock_gettime(CLOCK_REALTIME, &ftimestart);
+	Rect r;
+	r.bot = 100;
+	r.left = 10;
+	r.center = 0;
+	clock_gettime(CLOCK_REALTIME, &ftimeend);
+
+	double t1 = ;
+
+	ggprint8b(&r, 16, 0x00ff00ff, "Time function1: %lf", t1		    );
+	ggprint8b(&r, 16, 0x00ff00ff, "Time function2: %lf", DisplayTime2() );
+}
+
 /*
 bool pause() 
 {
