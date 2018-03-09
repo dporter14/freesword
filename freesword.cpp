@@ -28,7 +28,7 @@
 #endif
 
 Global g;
-Image img[1] = {"./images/marble.gif" };
+Image img[1] = {"./images/grillbys-reference.png" };
 
 
 class X11_wrapper {
@@ -159,21 +159,21 @@ double current_time()
  }
  
 const double physicsRate = 1.0 / 60.0;
-//const double oobillion = 1.0 / 1e9;
+const double oobillion = 1.0 / 1e9;
 //struct timespec timeStart, timeCurrent;
 //struct timespec timePause;
 double timeStart, timeCurrent;
 double timePause;
 double physicsCountdown = 0.0;
 double timeSpan = 0.0;
-/*double timeDiff(struct timespec *start, struct timespec *end) {
+double timeDiff(struct timespec *start, struct timespec *end) {
 	return (double)(end->tv_sec - start->tv_sec ) +
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
 void timeCopy(struct timespec *dest, struct timespec *source) {
 	memcpy(dest, source, sizeof(struct timespec));
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -334,7 +334,7 @@ void initOpengl(void)
 	//load the image file into a ppm structure.
 	//
 	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.marbleImage = &img[1];
+	g.bgImage = &img[1];
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.marbleTexture);
@@ -342,8 +342,8 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3,
-			g.marbleImage->width, g.marbleImage->height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
+			g.bgImage->width, g.bgImage->height,
+			0, GL_RGB, GL_UNSIGNED_BYTE, g.bgImage->data);
 }
 
 
@@ -621,7 +621,6 @@ void physics()
 
 void render(void)
 {
-	//Rect r;
 	//--------------------------------------------------------
 	//This code is repeated several times in this program, so
 	//it can be made more generic and cleaner with some work.
@@ -643,16 +642,16 @@ void render(void)
 	
 	//
 	//screen background
-	/*glColor3f(0.5f, 0.5f, 0.5f);
+	glColor3f(0.5f, 0.5f, 0.5f);
 	  glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
 	  glBegin(GL_QUADS);
-	  glTexCoord2f(0.0f, 0.0f); glVertex2i(0,	  0);
-	  glTexCoord2f(0.0f, 1.0f); glVertex2i(0,	  g.yres);
+	  glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
+	  glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
 	  glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
 	  glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
 	  glEnd();
 	  glBindTexture(GL_TEXTURE_2D, 0);
-	  */
+	  
 	/*
 	//draw the main game board in middle of screen
 	glColor3f(0.0f, 0.0f, 0.0f);
@@ -665,8 +664,13 @@ void render(void)
 	
 	*/
 	
-	//draw character
-	g.player.draw();
+	//draw character 
+	Rect r;
+        r.bot = g.yres -20;
+        r.left = 10;
+        r.center=0;
+//lab7 change
+	ggprint8b(&r, 16, 0x00ffff00,"Draw Function:%lf", g.player.draw());
 	//draw border walls #buildthewall
     g.n.draw();
     g.e.draw();
