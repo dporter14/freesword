@@ -16,18 +16,57 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
-/*
-bool pause() 
-{
-	bool paused = true;
-	Rect rects [2];
 
+void draw() {
 
-	static float angle = 0.0;
+	for(int i=0; i<g.nbuttons; i++) {
+        if (g.button[i].over) {
+            //int w=2;
+            glColor3f(1.0f, 1.0f, 0.0f);
+            //draw a highlight around button
+            glLineWidth(3);
+			/*
+            glBegin(GL_LINE_LOOP);
+                glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
+                glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
+                glVertex2i(g.button[i].r.right+w, g.button[i].r.top+w);
+                glVertex2i(g.button[i].r.right+w, g.button[i].r.bot-w);
+                glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
+            glEnd();
+			*/
+            glLineWidth(1);
+        }
+        if (g.button[i].down) {
+            glColor3fv(g.button[i].dcolor);
+        } else {
+            glColor3fv(g.button[i].color);
+        }
+		/*
+        glBegin(GL_QUADS);
+            glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
+            glVertex2i(g.button[i].r.left,  g.button[i].r.top);
+            glVertex2i(g.button[i].r.right, g.button[i].r.top);
+            glVertex2i(g.button[i].r.right, g.button[i].r.bot);
+        glEnd();
+        r.left = g.button[i].r.centerx;
+        r.bot  = g.button[i].r.centery-8;
+        r.center = 1;
+        if (g.button[i].down) {
+            ggprint16(&r, 0, g.button[i].text_color, "Pressed!");
+        } else {
+            ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
+        }*/
+    }
+}
+bool pauseMenu() {
+
+	g.paused = true;
+	//Button menuButt[3];
+
+	//static float angle = 0.0;
 	glColor3ub(0, 255, 0);
 	glPushMatrix();
-	glTranslatef(x, y, 0.0);
-	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(100, 100, 0.0);
 	glTranslatef(-50.0, -50.0, 0);
 	glBegin(GL_QUADS);
 		glVertex2i(0,     0);
@@ -37,5 +76,6 @@ bool pause()
 	glEnd();
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glPopMatrix();	
-}*/
+	glPopMatrix();
+	return g.paused;
+}

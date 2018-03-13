@@ -107,9 +107,11 @@ struct Global {
     int nenemies;
     int gameover;
     int winner;
+	bool paused;
     Image *marbleImage;
     GLuint marbleTexture;
     Button button[MAXBUTTONS];
+	Button menuButt[3];
     int nbuttons;
     Button title;
     Animation anims[MAXANIMATIONS];
@@ -137,7 +139,7 @@ struct Global {
         title.text_color = 0x00ffffff;
 
         savex = savey = 0;
-        for(int i = K_SHIFT; i<K_D; i++){
+        for(int i = K_SHIFT; i<K_D; i++) {
             isPressed[i] = false;
         }
     }

@@ -27,6 +27,9 @@
 	#endif //USE_OPENAL_SOUND
 #endif
 
+
+
+
 Global g;
 Image img[1] = {"./images/marble.gif" };
 
@@ -217,8 +220,9 @@ int main(int argc, char *argv[])
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
 			animation();
-		//	if(pause() == false)
-			physics();
+		    if (g.paused == false) {
+				physics();
+			}
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
 		}
@@ -435,7 +439,8 @@ int checkKeys(XEvent *e)
 				g.isPressed[K_SHIFT]=0;
 			break;
 		case XK_Escape:
-			return 1;
+			pauseMenu();
+			break;
 		case XK_r:
 			resetGame();
 			break;
@@ -675,6 +680,10 @@ void render(void)
 
     for(int i=0; i<g.nenemies; i++){
 		g.enemies[i].draw();
+	}
+
+	for(int loop = 0; loop < 3; loop++) {
+		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
