@@ -162,7 +162,7 @@ double current_time()
  }
  
 const double physicsRate = 1.0 / 60.0;
-//const double oobillion = 1.0 / 1e9;
+const double oobillion = 1.0 / 1e9;
 //struct timespec timeStart, timeCurrent;
 //struct timespec timePause;
 double timeStart, timeCurrent;
@@ -178,6 +178,12 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 }
 */
 //-----------------------------------------------------------------------------
+
+double timeDiff(struct timespec *start, struct timespec *end) 
+{
+    return (double)(end->tv_sec = start->tv_sec) +
+        (double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
 
 int main(int argc, char *argv[])
 {
@@ -569,20 +575,8 @@ void physics()
 		std::cout<<"GAME OVER\n";
 		return;
 	}
-	//
-	//
-	//Is it time to move the snake?
-	/*static struct timespec snakeTime;
-	  static int firsttime=1;
-	  if (firsttime) {
-	  firsttime=0;
-	  clock_gettime(CLOCK_REALTIME, &snakeTime);
-	  }
-	  struct timespec tt;
-	  clock_gettime(CLOCK_REALTIME, &tt);
-	  timeCopy(&snakeTime, &tt);
-	  */
-	Player *p = &g.player;
+	
+    Player *p = &g.player;
 	if (g.isPressed[K_W]) {
 		p->addVelocity(0,1);
 	} else if (g.isPressed[K_S]) {
@@ -602,7 +596,7 @@ void physics()
 	}
 	
 	//update player position
-	p->move();
+    p->move();
 	//look at last known mouse pos if not attacking
 	if(g.anims[0].done){
 		g.player.lookAt(g.savex,g.savey);
@@ -673,10 +667,14 @@ void render(void)
 	//draw character
 	g.player.draw();
 	//draw border walls #buildthewall
-    g.n.draw();
-    g.e.draw();
-    g.w.draw();
-    g.s.draw();
+    //lab7
+    Rect t;
+    t.left = 0;
+    t.bot = g.yres - 50;
+    t.center = 0;
+        
+    ggprint8b(&t, 16, 0x00ffffff, "Wall Draw function:1%f", g.n.draw()
+            +g.e.draw()+g.s.draw()+g.w.draw());
 
     for(int i=0; i<g.nenemies; i++){
 		g.enemies[i].draw();
