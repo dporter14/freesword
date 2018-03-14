@@ -107,11 +107,11 @@ struct Global {
     int nenemies;
     int gameover;
     int winner;
-	bool paused;
-    Image *marbleImage;
+    Image *bgImage;
+	  bool paused;
     GLuint marbleTexture;
     Button button[MAXBUTTONS];
-	Button menuButt[3];
+	  Button menuButt[3];
     int nbuttons;
     Button title;
     Animation anims[MAXANIMATIONS];
@@ -130,7 +130,7 @@ struct Global {
         nbuttons = 
             nanims =
             nenemies = 0;
-        marbleImage=NULL;
+        bgImage=NULL;
 
         title.r.left = xres/2;
         title.r.bot	= yres-100;

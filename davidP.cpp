@@ -1,16 +1,25 @@
 //Author: David Porter
 
-#include <iostream>
-
+#include <iostream>     
+#include <ctime>
 #include "global.h"
 
-
-void david_func(){
+//lab7 prototype function
+double timeDiff(struct timespec*, struct timespec*);
+void david_func()
+{
 	strcpy(g.title.text,"This is a David Print");
 	g.title.text_color = 0x00ff0000;
 }
 
-void Character::draw(){
+
+
+double Character::draw()
+{
+        //lab7 profiling
+        static double tix = 0.0;
+        struct timespec startTime, endTime;
+        clock_gettime(CLOCK_REALTIME, &startTime);
 //draw player
 	glColor3f(color[0],color[1],color[2]);
 	
@@ -81,6 +90,10 @@ void Character::draw(){
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
+//return time spent
+        clock_gettime(CLOCK_REALTIME, &endTime);
+        tix += timeDiff(&startTime,&endTime);
+        return tix;
 }
 
 /*
