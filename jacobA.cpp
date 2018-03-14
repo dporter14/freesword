@@ -1,7 +1,9 @@
 #include <iostream>
 #include <math.h>
-
+#include <ctime>
 #include "global.h"
+
+double timeDiff(struct timespec*, struct timespec*);
 
 void jacob_func(){
 	strcpy(g.title.text,"Jacob test");
@@ -29,9 +31,9 @@ void Player::init()
 //move player according to its velocity
 void Character::move()
 {
-	pos[0] += vel[0]; 
+    pos[0] += vel[0]; 
 	pos[1] += vel[1];
-}
+} 
 
 //manually move player
 void Character::setPosition(Flt x, Flt y)
@@ -100,7 +102,13 @@ void initWalls()
     g.w.y = g.yres/2;
 }
 
-void Wall::draw(){
+double Wall::draw(){
+   
+	//lab7 changes
+    static double runt = 0.0;
+    struct timespec startTime, endTime;
+    clock_gettime(CLOCK_REALTIME, &startTime);
+   
     glColor3f(1.0, 0.0, 0.0);
 
     glPushMatrix();
@@ -112,4 +120,9 @@ void Wall::draw(){
     glVertex2f(width/2, height/2);
     glEnd();
     glPopMatrix();
+    
+    clock_gettime(CLOCK_REALTIME, &endTime);
+    runt += timeDiff(&startTime, &endTime);
+
+    return(runt);
 }

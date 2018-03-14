@@ -98,7 +98,7 @@ class Wall {
         //coordinates for center of wall
         Flt x, y;
         
-        void draw();
+        double draw(); //lab7
 };
 
 
@@ -123,7 +123,7 @@ class mainMenu : public Menu {
 };
 
 void mason_func();
-//bool pause();
+bool pauseMenu();
 
 /////// END Mason FUNCTIONS ////////////////////////
 

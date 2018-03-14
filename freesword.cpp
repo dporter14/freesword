@@ -27,6 +27,9 @@
 	#endif //USE_OPENAL_SOUND
 #endif
 
+
+
+
 Global g;
 Image img[1] = {"./images/grillbys-reference.png" };
 
@@ -176,6 +179,12 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 //-----------------------------------------------------------------------------
 
+double timeDiff(struct timespec *start, struct timespec *end) 
+{
+    return (double)(end->tv_sec = start->tv_sec) +
+        (double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc) {}
@@ -217,8 +226,9 @@ int main(int argc, char *argv[])
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
 			animation();
-		//	if(pause() == false)
-			physics();
+		    if (g.paused == false) {
+				physics();
+			}
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
 		}
@@ -435,7 +445,8 @@ int checkKeys(XEvent *e)
 				g.isPressed[K_SHIFT]=0;
 			break;
 		case XK_Escape:
-			return 1;
+			pauseMenu();
+			break;
 		case XK_r:
 			resetGame();
 			break;
@@ -564,20 +575,8 @@ void physics()
 		std::cout<<"GAME OVER\n";
 		return;
 	}
-	//
-	//
-	//Is it time to move the snake?
-	/*static struct timespec snakeTime;
-	  static int firsttime=1;
-	  if (firsttime) {
-	  firsttime=0;
-	  clock_gettime(CLOCK_REALTIME, &snakeTime);
-	  }
-	  struct timespec tt;
-	  clock_gettime(CLOCK_REALTIME, &tt);
-	  timeCopy(&snakeTime, &tt);
-	  */
-	Player *p = &g.player;
+	
+    Player *p = &g.player;
 	if (g.isPressed[K_W]) {
 		p->addVelocity(0,1);
 	} else if (g.isPressed[K_S]) {
@@ -597,7 +596,7 @@ void physics()
 	}
 	
 	//update player position
-	p->move();
+    p->move();
 	//look at last known mouse pos if not attacking
 	if(g.anims[0].done){
 		g.player.lookAt(g.savex,g.savey);
@@ -672,13 +671,21 @@ void render(void)
 //lab7 change
 	ggprint8b(&r, 16, 0x00ffff00,"Draw Function:%lf", g.player.draw());
 	//draw border walls #buildthewall
-    g.n.draw();
-    g.e.draw();
-    g.w.draw();
-    g.s.draw();
+    //lab7
+    Rect t;
+    t.left = 0;
+    t.bot = g.yres - 50;
+    t.center = 0;
+        
+    ggprint8b(&t, 16, 0x00ffffff, "Wall Draw function:1%f", g.n.draw()
+            +g.e.draw()+g.s.draw()+g.w.draw());
 
     for(int i=0; i<g.nenemies; i++){
 		g.enemies[i].draw();
+	}
+
+	for(int loop = 0; loop < 3; loop++) {
+		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
