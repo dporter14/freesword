@@ -1,38 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
-#include <math.h>
-#include <iostream>
 
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-
-#include "log.h"
-#include "fonts.h"
 #include "global.h"
 
-#define USE_OPENAL_SOUND	
-#ifdef __MACH__
-	#include <mach/clock.h>
-	#include <mach/mach.h>
-	#include <mach/mach_init.h>
-	#include <mach/mach_time.h>
-	#include <AL/alut.h>
-#else
-	#ifdef USE_OPENAL_SOUND
-		#include </usr/include/AL/alut.h>
-	#endif //USE_OPENAL_SOUND
-#endif
-
-
-
-
 Global g;
-Image img[1] = {"./images/grillbys-reference.png" };
-
+Image img[1] = {"./images/grillbys-reference4.png" };				
+//Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
 	private:
@@ -54,7 +25,7 @@ class X11_wrapper {
 			if (vi == NULL) {
 				printf("\n\tno appropriate visual found\n\n");
 				exit(EXIT_FAILURE);
-			} 
+			}
 			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 			swa.colormap = cmap;
 			swa.event_mask = ExposureMask |
@@ -141,26 +112,25 @@ void playSound(ALuint source);
 //Setup timers
 
 double current_time()
- {
-	 struct timespec now;
-	
-	//https://gist.github.com/jbenet/1087739	 
+{
+	struct timespec now;
+
+	//https://gist.github.com/jbenet/1087739
 	#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-	  clock_serv_t cclock;
-	  mach_timespec_t mts;
-	  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-	  clock_get_time(cclock, &mts);
-	  mach_port_deallocate(mach_task_self(), cclock);
-	  now.tv_sec = mts.tv_sec;
-	  now.tv_nsec = mts.tv_nsec;
+		clock_serv_t cclock;
+		mach_timespec_t mts;
+		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+		clock_get_time(cclock, &mts);
+		mach_port_deallocate(mach_task_self(), cclock);
+		now.tv_sec = mts.tv_sec;
+		now.tv_nsec = mts.tv_nsec;
 	#else
-	  clock_gettime(CLOCK_REALTIME, &now);
+		clock_gettime(CLOCK_REALTIME, &now);
 	#endif
-	
-	
-	 return now.tv_sec + now.tv_nsec*1e-9;
- }
- 
+
+	return now.tv_sec + now.tv_nsec*1e-9;
+}
+
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 //struct timespec timeStart, timeCurrent;
@@ -179,7 +149,7 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 //-----------------------------------------------------------------------------
 /*
-double timeDiff(struct timespec *start, struct timespec *end) 
+double timeDiff(struct timespec *start, struct timespec *end)
 {
     return (double)(end->tv_sec = start->tv_sec) +
         (double)(end->tv_nsec - start->tv_nsec) * oobillion;
@@ -215,7 +185,7 @@ int main(int argc, char *argv[])
 		timeStart=timeCurrent;
 		//4. Add time-span to our countdown amount.
 		physicsCountdown += timeSpan;
-		//5. Has countdown gone beyond our physics rate? 
+		//5. Has countdown gone beyond our physics rate?
 		//	   if yes,
 		//		   In a loop...
 		//			  Apply physics
@@ -225,9 +195,9 @@ int main(int argc, char *argv[])
 		//		   Apply no physics this frame.
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
-			animation();
-		    if (g.paused == false) {
-				physics();
+			if (!g.state[S_PAUSED]) {
+				animation();
+		    	physics();
 			}
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
@@ -241,10 +211,9 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-#ifdef USE_OPENAL_SOUND
 
 /*======================================================
-   SOUND =================================================	
+   SOUND =================================================
   ======================================================*/
 void initSound()
 {
@@ -292,6 +261,7 @@ void initSound()
 		return;
 	}
 	#endif //USE_OPENAL_SOUND
+	return;
 }
 
 void cleanupSound()
@@ -315,13 +285,16 @@ void cleanupSound()
 	//Close device.
 	alcCloseDevice(Device);
 	#endif //USE_OPENAL_SOUND
+	return;
 }
 
 void playSound(ALuint source)
 {
-	alSourcePlay(source);	
+	#ifdef USE_OPENAL_SOUND
+		alSourcePlay(source);
+	#endif //USE_OPENAL_SOUND
+	return;
 }
-#endif //USE_OPENAL_SOUND
 
 void initOpengl(void)
 {
@@ -343,17 +316,19 @@ void initOpengl(void)
 	//
 	//load the image file into a ppm structure.
 	//
-	//g.marbleImage = ppm6GetImage("./images/marble.ppm");
-	g.bgImage = &img[1];
+	g.bgImage = &img[0];
+	Log("Dimensions: %d %d\n", g.bgImage->width, g.bgImage->height);
+				
 	//
 	//create opengl texture elements
-	glGenTextures(1, &g.marbleTexture);
-	glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
+	glGenTextures(1, &g.bgTexture);
+	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
 			g.bgImage->width, g.bgImage->height,
 			0, GL_RGB, GL_UNSIGNED_BYTE, g.bgImage->data);
+	
 }
 
 
@@ -419,13 +394,13 @@ void init()
 void resetGame()
 {
 	g.player.init();
-	g.gameover  = 0;
-	g.winner	= 0;
+	g.state[S_GAMEOVER] = 0;
+	g.state[S_WINNER]	= 0;
 }
 
 void gameUpdate()
 {
-	if(g.nenemies<5){
+	if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}
 }
@@ -435,7 +410,7 @@ int checkKeys(XEvent *e)
 	if (e->type != KeyRelease && e->type != KeyPress)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
-		
+
 	switch (key) {
 		case XK_Shift_L:
 		case XK_Shift_R:
@@ -445,8 +420,7 @@ int checkKeys(XEvent *e)
 				g.isPressed[K_SHIFT]=0;
 			break;
 		case XK_Escape:
-			pauseMenu();
-			break;
+			return 1;
 		case XK_r:
 			resetGame();
 			break;
@@ -466,7 +440,7 @@ int checkKeys(XEvent *e)
 			else
 				g.isPressed[K_D]=0;
 			break;
-		case XK_w:	
+		case XK_w:
 			if (e->type == KeyPress)
 				g.isPressed[K_W]=1;
 			else
@@ -477,6 +451,14 @@ int checkKeys(XEvent *e)
 				g.isPressed[K_S]=1;
 			else
 				g.isPressed[K_S]=0;
+			break;
+		case XK_p:
+			if (e->type == KeyPress)
+				g.state[S_PAUSED] ^= 1;
+			break;
+		case XK_o:
+			if (e->type == KeyPress)
+				g.state[S_INFO] ^= 1;
 			break;
 		case XK_1:
 			david_func();
@@ -508,7 +490,7 @@ int checkMouse(XEvent *e)
 			lbutton=1;
 			(void)lbutton;
 			if(g.player.anim_handler==NULL){
-				Animation *act = &g.anims[g.nanims++];
+				Animation *act = &g.anims[g.number[N_ANIMS]++];
 				act->init();
 				act->add_actor(&g.player);
 				act->set_duration(0.15);
@@ -524,6 +506,7 @@ int checkMouse(XEvent *e)
 	x = e->xbutton.x;
 	y = e->xbutton.y;
 	y = g.yres - y;
+	//printf("%d %d\n",x,y);
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
 		//Mouse moved
 		g.savex = x;
@@ -558,11 +541,11 @@ int checkMouse(XEvent *e)
 
 void animation(){
 	int i=0;
-	while ( i<g.nanims ) {
+	while ( i<g.number[N_ANIMS] ) {
 		g.anims[i].play();
 		if(g.anims[i].done){
 			//g.anims[i].clear();
-			g.anims[i]=g.anims[--g.nanims];
+			g.anims[i]=g.anims[--g.number[N_ANIMS]];
 		} else {
 			i++;
 		}
@@ -571,11 +554,11 @@ void animation(){
 
 void physics()
 {
-	if (g.gameover) {
+	if (g.state[S_GAMEOVER]) {
 		std::cout<<"GAME OVER\n";
 		return;
 	}
-	
+
     Player *p = &g.player;
 	if (g.isPressed[K_W]) {
 		p->addVelocity(0,1);
@@ -585,7 +568,7 @@ void physics()
 		//keep player from maintaining velocity
 		p->addVelocity(0,SGN(p->vel[1])*-0.5);
 	}
-	
+
 	if (g.isPressed[K_D]) {
 		p->addVelocity(1,0);
 	} else if (g.isPressed[K_A]) {
@@ -594,15 +577,15 @@ void physics()
 		//keep player from maintaining velocity
 		p->addVelocity(SGN(p->vel[0])*-0.5,0);
 	}
-	
+
 	//update player position
     p->move();
 	//look at last known mouse pos if not attacking
 	if(g.anims[0].done){
 		g.player.lookAt(g.savex,g.savey);
 	}
-	
-	for(int i=0; i<g.nenemies; i++){
+
+	for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].attackPlayer();
 		g.enemies[i].move();
 	}
@@ -628,7 +611,7 @@ void render(void)
 	//--------------------------------------------------------
 	//start the opengl stuff
 	//set the viewing area on screen
-	glViewport(0, 0, g.xres, g.yres);
+	glViewport(0, 0, g.xres-1, g.yres-1);
 	//clear color buffer
 	glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -638,49 +621,71 @@ void render(void)
 	//this sets to 2D mode (no perspective)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 
-	
+
 	//
 	//screen background
-	glColor3f(0.5f, 0.5f, 0.5f);
-	  glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
-	  glBegin(GL_QUADS);
-	  glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
-	  glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
-	  glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
-	  glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
+	glColor3f(0.7f, 0.7f, 0.7f);
+	  glBindTexture(GL_TEXTURE_2D, g.bgTexture);
+	  glBegin(GL_TRIANGLE_FAN);
+	  glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      g.yres);
+	  glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, g.yres);
+	  glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, 0);
+	  glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      0);
 	  glEnd();
 	  glBindTexture(GL_TEXTURE_2D, 0);
-	  
+	
+	
 	/*
-	//draw the main game board in middle of screen
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glBegin(GL_QUADS);
-	glVertex2i(s0-b2, s1-b2);
-	glVertex2i(s0-b2, s1+b2);
-	glVertex2i(s0+b2, s1+b2);
-	glVertex2i(s0+b2, s1-b2);
+	glColor3f(.2,.2,.2);
+	glBegin(GL_POLYGON);
+		glVertex2i(500, 100);
+		glVertex2i(1000, 100);
+		glVertex2i(1000, 200);
+		glVertex2i(500, 200);
 	glEnd();
 	
+	glBegin(GL_POINTS);
+	for (int y=130; y<170; y++){
+		for (int x=570; x<1000; x++){
+			glColor3f(float((x%6)<3),float((x+2)%6<3),float((x+4)%6<3));
+			glVertex2i(x,y);
+		}
+	}
 	*/
 	
-	//draw character 
-	Rect r;
-        r.bot = g.yres -20;
-        r.left = 10;
-        r.center=0;
-//lab7 change
-	ggprint8b(&r, 16, 0x00ffff00,"Draw Function:%lf", g.player.draw());
+	/*
+	glBegin(GL_POINTS);
+	for (int y=0; y<g.yres/2; y++){
+		for (int x=0; x<g.xres; x++){
+			float c[3];
+			float ind = round(float(y)/(g.yres-1)*img[0].height)*img[0].width*3;
+			Log("%f ",ind);
+			ind += round(float(x)/(g.xres-1)*img[0].width)*3;
+			Log("%f\n",ind);
+			for (int i=0;i<3;i++){
+				c[i]=img[0].data[int(ind+i)]/255.0f;
+			}
+			
+			glColor3f(c[0],c[1],c[2]);
+			glVertex2i(x,g.yres-y);
+		}
+	}
+	*/
+	
+	glEnd();
+	
+	
+	//draw character
+	g.player.draw();
+	
 	//draw border walls #buildthewall
     //lab7
-    Rect t;
-    t.left = 0;
-    t.bot = g.yres - 50;
-    t.center = 0;
-        
-    ggprint8b(&t, 16, 0x00ffffff, "Wall Draw function:1%f", g.n.draw()
-            +g.e.draw()+g.s.draw()+g.w.draw());
+    g.n.draw();
+    g.e.draw();
+    g.s.draw();
+    g.w.draw();
 
-    for(int i=0; i<g.nenemies; i++){
+    for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
 	}
 
@@ -688,6 +693,10 @@ void render(void)
 		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-
+	if (g.state[S_INFO])
+		g.info.draw();
+	if (g.state[S_PAUSED])
+		pauseMenu();
+			
 }
 

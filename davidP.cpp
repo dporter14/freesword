@@ -4,8 +4,7 @@
 #include <ctime>
 #include "global.h"
 
-//lab7 prototype function
-double timeDiff(struct timespec*, struct timespec*);
+
 void david_func()
 {
 	strcpy(g.title.text,"This is a David Print");
@@ -13,14 +12,14 @@ void david_func()
 }
 
 
-
-double Character::draw()
+void Character::draw()
 {
-        //lab7 profiling
-        static double tix = 0.0;
-        struct timespec startTime, endTime;
-        clock_gettime(CLOCK_REALTIME, &startTime);
-//draw player
+	//lab7 profiling
+	static double tix = 0.0;
+	static char* info_here = g.info.get_place();
+	double startTime, endTime;
+	startTime = current_time();
+	//draw player
 	glColor3f(color[0],color[1],color[2]);
 	
 	glPushMatrix();
@@ -90,10 +89,11 @@ double Character::draw()
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
-//return time spent
-        clock_gettime(CLOCK_REALTIME, &endTime);
-        tix += timeDiff(&startTime,&endTime);
-        return tix;
+
+	//return time spent
+	endTime = current_time();
+	tix += endTime - startTime;
+	sprintf(info_here, "Character Draw Function: %f", tix);
 }
 
 /*

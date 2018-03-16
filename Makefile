@@ -1,4 +1,4 @@
-CFLAGS = -I ./include
+CFLAGS = -I ./include -Wall -Wextra -c -g
 LFLAGS = -lX11 -lGLU -lGL -lm
 
 ifeq ($(OS),Windows_NT)
@@ -36,19 +36,23 @@ else
     endif
 endif
 
-all: freesword snake
+TARGET := freesword
+FILES := $(patsubst %.cpp,%.o, $(filter-out snake.cpp, $(wildcard *.cpp)))
+HEADERS := global.h defs.h
 
-freesword: freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp
-	g++ $(CFLAGS) -g freesword.cpp log.cpp jacobA.cpp taylorR.cpp davidP.cpp masonP.cpp  \
-	-Wall -Wextra $(LFLAGS) -o freesword
+all: $(TARGET)
 
+$(TARGET): $(FILES)
+	g++ $(FILES) $(LFLAGS) -o $(TARGET)
+
+%.o: %.cpp $(HEADERS)
+	g++ $(CFLAGS) $<
 
 snake: snake.cpp log.cpp
 	g++ $(CFLAGS) snake.cpp log.cpp  \
 	-Wall -Wextra $(LFLAGS) -o snake
 
 clean:
-
 	rm -f snake
 	rm -f freesword
 	rm -f *.o

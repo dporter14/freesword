@@ -12,7 +12,7 @@ void taylor_func()
 }
 
 void spawnEnemy(Flt x, Flt y){
-	Enemy *e = &g.enemies[g.nenemies++];
+	Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
 	VecMake(x, y, 0, e->pos);
 	VecMake(1.0, 0.2, 0.2, e->color);
 	e->pradius = 30;
@@ -47,8 +47,8 @@ void Animation::init()
 	frame=0;
 	done=0;
 }
-		
-void Animation::play() 
+
+void Animation::play()
 {
 	switch(type) {
 		case A_SWORD_SLASH:
@@ -65,7 +65,7 @@ void Animation::play()
 		}
 	}
 }
-	
+
 void Animation::set_frames(int frames)
 {
 	nframes = frames;
@@ -76,8 +76,13 @@ void Animation::set_duration(float duration)
 	nframes = duration * 60;
 }
 
-void Animation::sword_slash() 
+void Animation::sword_slash()
 {
+	static double tix = 0.0;
+	static char* info_here = g.info.get_place();
+	double startTime, endTime;
+	startTime = current_time();
+	
 	Player* actor = (Player*)actors[0];
 	static Vec orig_pos;
 	static Vec orig_dir;
@@ -86,7 +91,7 @@ void Animation::sword_slash()
 		VecCopy(actor->rhand_dir, orig_dir);
 		//actor->rhand_pos[0] = 50;
 		actor->rhand_pos[1] = 35;
-		
+
 	}
 	if (frame==nframes+1) {
 		VecCopy(orig_pos, actor->rhand_pos);
@@ -97,15 +102,30 @@ void Animation::sword_slash()
 		float angle = (PI/2/float(nframes))*float(frame)+(PI/3);
 		actor->rhand_dir[0] = cosf(angle);
 		actor->rhand_dir[1] = sinf(angle);
-		
+
 		//cout << (-100/28)*frame+50 << endl;
 	}
 	frame++;
+	
+	//return time spent
+	endTime = current_time();
+	tix += endTime - startTime;
+	sprintf(info_here, "Sword Slash Animation: %f", tix);
 }
 
 void Animation::test()
 {
 	//do stuff
+}
+
+void Info::draw(){
+	Rect t;
+    t.left = 10;
+    t.bot = g.yres - 30;
+    t.center = 0;
+    for(int i=0; i<nstats; i++){
+		ggprint8b(&t, 16, 0x00ffffff, stats[i]);
+	}
 }
 
 

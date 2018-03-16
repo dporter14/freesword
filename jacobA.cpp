@@ -3,8 +3,6 @@
 #include <ctime>
 #include "global.h"
 
-double timeDiff(struct timespec*, struct timespec*);
-
 void jacob_func(){
 	strcpy(g.title.text,"Jacob test");
 	g.title.text_color = 0x00ffffff;
@@ -24,43 +22,43 @@ void Player::init()
 	VecMake(0.5, 0.0, 0.5, color);
 	VecMake(35,0,0,rhand_pos);
 	VecMake(0,1,0,rhand_dir);
-	
-	
+
+
 }
 
 //move player according to its velocity
 void Character::move()
 {
-    pos[0] += vel[0]; 
+    pos[0] += vel[0];
 	pos[1] += vel[1];
-} 
+}
 
 //manually move player
 void Character::setPosition(Flt x, Flt y)
 {
-	pos[0] = x; 
+	pos[0] = x;
 	pos[1] = y;
 }
 
 //manually change velocity
 void Character::setVelocity(Flt x, Flt y)
 {
-	vel[0] = x; 
+	vel[0] = x;
 	vel[1] = y;
-	
+
 	//make sure velocity is within speed bounds
-	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED); 
+	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 }
 
 //relatively change velocity
 void Character::addVelocity(Flt x, Flt y)
 {
-	vel[0] += x; 
+	vel[0] += x;
 	vel[1] += y;
-	
+
 	//make sure velocity is within speed bounds
-	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED); 
+	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
 }
 
@@ -78,9 +76,9 @@ void Character::lookAt(Flt x, Flt y)
 		dir[0]=0;
 	}
 }
-    
+
 void initWalls()
-{   
+{
     g.n.width = g.xres;
     g.n.height = 5;
     g.n.x = g.xres/2;
@@ -102,13 +100,14 @@ void initWalls()
     g.w.y = g.yres/2;
 }
 
-double Wall::draw(){
-   
+void Wall::draw(){
+
 	//lab7 changes
     static double runt = 0.0;
-    struct timespec startTime, endTime;
-    clock_gettime(CLOCK_REALTIME, &startTime);
-   
+    static char* info_here = g.info.get_place();
+    double startTime, endTime;
+    startTime = current_time();
+
     glColor3f(1.0, 0.0, 0.0);
 
     glPushMatrix();
@@ -120,9 +119,9 @@ double Wall::draw(){
     glVertex2f(width/2, height/2);
     glEnd();
     glPopMatrix();
-    
-    clock_gettime(CLOCK_REALTIME, &endTime);
-    runt += timeDiff(&startTime, &endTime);
 
-    return(runt);
+    endTime = current_time();
+    runt += endTime - startTime;
+	sprintf(info_here, "Wall Draw function: %f", runt);
+	
 }
