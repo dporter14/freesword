@@ -71,7 +71,7 @@ class Character : public Object{
 		void setPosition(Flt x, Flt y);
 		void setVelocity(Flt x, Flt y);
 		void addVelocity(Flt x, Flt y);
-		void draw();
+		double draw();  //change for lab7
 	private:
 
 };
@@ -143,7 +143,7 @@ bool pauseMenu();
 /////// END Mason FUNCTIONS ////////////////////////
 
 /*//////////////////////////////////////////////////
-  David Functions		####################
+  David Functions	                ############
   *///////////////////////////////////////////////////
 
 void david_func();
