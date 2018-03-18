@@ -124,6 +124,9 @@ int checkKeys(XEvent *e);
 void init();
 void initSounds(void);
 
+void interactDoor();
+void collide(Door);
+
 void gameUpdate();
 void animation(void);
 void physics(void);
@@ -362,6 +365,8 @@ void init()
 {
 	g.player.init();
     initWalls();
+    g.doors[0].initDoor();
+    
     //
 	//initialize buttons...
 	/*
@@ -518,7 +523,10 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==3) {
 			//Right button is down
 			rbutton=1;
-			if (rbutton){}
+			if (rbutton) {
+                interactDoor();
+            }
+
 		}
 	}
 	x = e->xbutton.x;
@@ -607,14 +615,20 @@ void physics()
 		g.enemies[i].move();
 	}
 
-    if(g.player.pos[0] > g.xres)
+    if (g.player.pos[0] > g.xres)
         g.player.pos[0] = g.xres-5;
-    if(g.player.pos[0] < 0)
+    if (g.player.pos[0] < 0)
         g.player.pos[0] = 5;
-    if(g.player.pos[1] > g.yres)
+    if (g.player.pos[1] > g.yres)
         g.player.pos[1] = g.yres-5;
-    if(g.player.pos[1] < 0)
+    if (g.player.pos[1] < 0)
         g.player.pos[1] = 5;
+
+    //player collision
+    for (int i=0; i<4; i++) {
+        collide(g.doors[i]);
+   }
+
 }
 
 
@@ -684,6 +698,8 @@ void render(void)
 		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+
+    g.doors[0].draw();
 
 }
 
