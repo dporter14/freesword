@@ -97,11 +97,26 @@ class Wall {
         Flt width, height;
         //coordinates for center of wall
         Flt x, y;
-        
+        Flt left, right, top, bot;      
+
         double draw(); //lab7
 };
 
+class Door {
 
+    public:
+        Flt width, height;
+        //center
+        Flt x, y;
+        Flt left, right, top, bot;
+
+        bool isOpen;
+
+        void draw();
+        //function to open/close door
+        void swing();
+        void initDoor();        
+};
 
 /*//////////////////////////////////////////////////
   MASON FUNCTIONS			############
@@ -141,6 +156,8 @@ void david_func();
 
 void jacob_func();
 void initWalls();
+void interactDoor();
+void collide(Door);
 /////// End Jacob Functions/////////////////////////
 
 /*//////////////////////////////////////////////////
