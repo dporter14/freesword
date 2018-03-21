@@ -118,7 +118,8 @@ struct Global {
     int nanims;
     bool isPressed[5];
     Wall n, e, s, w;
-    Door doors[4];
+    int currentLevel;
+    Level level1;
     //
     ALuint alBufferDrip, alBufferTick;
     ALuint alSourceDrip, alSourceTick;
@@ -146,5 +147,6 @@ struct Global {
     }
 };
 extern Global g;
+
 
 #endif

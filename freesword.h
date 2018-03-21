@@ -100,6 +100,7 @@ class Wall {
         Flt left, right, top, bot;      
 
         double draw(); //lab7
+        void initWall(Flt, Flt, Flt, Flt);
 };
 
 class Door {
@@ -109,13 +110,24 @@ class Door {
         //center
         Flt x, y;
         Flt left, right, top, bot;
-
+        
+        bool isHoriz;
         bool isOpen;
 
         void draw();
         //function to open/close door
         void swing();
-        void initDoor();        
+        void initDoor(Flt, Flt, Flt, Flt, bool);
+};
+
+class Level {
+    public:
+        Enemy enemies[100];
+        Wall walls[100];
+        Door doors[100];
+
+        void buildLevel1();
+    private:
 };
 
 /*//////////////////////////////////////////////////
@@ -158,6 +170,7 @@ void jacob_func();
 void initWalls();
 void interactDoor();
 void collide(Door);
+void buildLevel1();
 /////// End Jacob Functions/////////////////////////
 
 /*//////////////////////////////////////////////////

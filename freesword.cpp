@@ -125,7 +125,10 @@ void init();
 void initSounds(void);
 
 void interactDoor();
-void collide(Door);
+void doorCollision(Door, Enemy, int);
+void doorCollision(Door, Player);
+void wallCollision(Wall, Enemy, int);
+void wallCollision(Wall, Player);
 
 void gameUpdate();
 void animation(void);
@@ -364,9 +367,9 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-    initWalls();
-    g.doors[0].initDoor();
-    
+    g.currentLevel = 1;
+    g.level1.buildLevel1();
+
     //
 	//initialize buttons...
 	/*
@@ -625,9 +628,15 @@ void physics()
         g.player.pos[1] = 5;
 
     //player collision
-    for (int i=0; i<4; i++) {
-        collide(g.doors[i]);
-   }
+    for (int i=0; i<100; i++) {
+        for (int j=0; j<g.nenemies; j++) {
+            doorCollision(g.level1.doors[i], g.enemies[j], j);
+            wallCollision(g.level1.walls[i], g.enemies[j], j);
+        }
+        
+        wallCollision(g.level1.walls[i], g.player);
+        doorCollision(g.level1.doors[i], g.player);
+    }
 
 }
 
@@ -702,8 +711,12 @@ void render(void)
 		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-
-    g.doors[0].draw();
+    
+    //draw level objects
+    for (int i=0; i<100; i++) {
+        g.level1.walls[i].draw();
+        g.level1.doors[i].draw();
+    }
 
 }
 
