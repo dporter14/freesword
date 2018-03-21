@@ -134,7 +134,7 @@ void Animation::sword_slash()
 	if (frame==4) {
 		VecAddS(60, actor->dir, actor->pos, g.attacks[0].pos);
 		g.attacks[0].height =
-		g.attacks[0].width = 30;
+		g.attacks[0].width = 40;
 		g.attacks[0].active = 1;
 		g.number[N_ATTACKS]++;
 	} else if (frame>=7 && g.attacks[0].active) {

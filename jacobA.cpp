@@ -198,13 +198,13 @@ void collide(Door object)
     if (g.player.pos[0] >= object.left-10 && g.player.pos[0] <= object.right+10
         && g.player.pos[1] <= object.top+10 && g.player.pos[1] >= object.bot-10) {
         if (g.player.pos[0] < object.left+5)
-            g.player.pos[0] = object.left-10;
+            g.player.setPos(object.left-10, g.player.pos[1]);
         else if (g.player.pos[0] > object.right-5) 
-            g.player.pos[0] = object.right+10;
+            g.player.setPos(object.right+10, g.player.pos[1]);
         if (g.player.pos[1] < object.bot+5)
-            g.player.pos[1] = object.bot-10;
+            g.player.setPos(g.player.pos[0], object.bot-10);
         else if (g.player.pos[1] > object.top-5)
-            g.player.pos[1] = object.top+10;
+            g.player.setPos(g.player.pos[0], object.top+10);
     }
     
 }

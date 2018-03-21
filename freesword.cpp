@@ -610,6 +610,10 @@ void physics()
         g.player.setPos(g.player.pos[0], g.yres-5);
     if(g.player.pos[1] < 0)
         g.player.setPos(g.player.pos[0], 5);
+    
+    for (int i=0; i<4; i++) {
+        collide(g.doors[i]);
+   }
 }
 
 
