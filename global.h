@@ -58,9 +58,35 @@ class Weapon {
 
 class Animation;
 
+//enum obj_type {O_PLAYER, O_ENEMY};
+
 class Object {
 	public:
 		Animation* anim_handler; //
+		//obj_type type;
+};
+
+class Hitbox {
+	public:
+		Vec pos;
+		Flt width, height;
+		bool active;
+		Hitbox () {}
+		Hitbox (Vec p, Flt w, Flt h) {
+			VecCopy(p,pos);
+			width=w;
+			height=h;
+			active = 1;
+		}
+		 
+		bool intersect(Hitbox other) {
+			return (
+				pos[0]+width >= other.pos[0]-width &&
+				pos[0]-width <= other.pos[0]+width &&
+				pos[1]+height >= other.pos[1]-height &&
+				pos[1]-height <= other.pos[1]+height
+			);
+		}
 };
 
 enum anim_type {A_SWORD_SLASH, A_TEST};
@@ -70,17 +96,17 @@ class Animation {
 		int frame, nframes;
 		bool done;
 
-		anim_type type;
+		int type;
 
 		Object *actors[2];
 		int nactors;
 
-		void init();
+		void init(int);
 		void play();
 		void add_actor(Object* actor);
 		void set_frames(int frames);
 		void set_duration(float duration);
-
+		void cancel();
 
 		Animation(){};
 		~Animation(){};
@@ -91,7 +117,9 @@ class Animation {
 
 };
 
-class Character : public Object{
+enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING};
+		
+class Character : public Object {
 	public:
 		//define color and radius of circle until we have sprite
 		//char* sprite_file;
@@ -103,18 +131,21 @@ class Character : public Object{
 		Vec dir; // char's orientation
 		Vec rhand_pos; //pos of right hand
 		Vec rhand_dir; //orientation of right hadn
-		bool status; //0 alive 1 dead
-
+		
+		int state; //0 alive 1 dead
+		
+		Hitbox hitbox;
 		//constructor
 		Character(){
 			anim_handler=NULL;
+			state=S_CHAR_ALIVE;
 		}
 		~Character(){} //destructor
 		void move();
 		void lookAt(Flt x, Flt y);
-		void setPosition(Flt x, Flt y);
-		void setVelocity(Flt x, Flt y);
-		void addVelocity(Flt x, Flt y);
+		void setPos(Flt x, Flt y);
+		void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
 		void draw();
 	private:
 
@@ -131,6 +162,7 @@ class Player : public Character {
 class Enemy : public Character {
     public:
         void attackPlayer();
+        void kill();
     private:
 };
 
@@ -195,6 +227,7 @@ class Info {
 		int nstats;
 		
 };
+
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 
@@ -202,8 +235,16 @@ void spawnEnemy(Flt x, Flt y);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_DEAD, S_INFO, S_};
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_INFO, S_};
+/*
+	paused: game paused?
+	gameover: gameover?
+	player:
+		0 - idle
+		1 - dead
+		2 - attacking
+*/	
+enum NumberOf {N_ENEMIES, N_ANIMS, N_ATTACKS, N_BUTTONS, N_WALLS, N_};
 
 struct Global {
 	// screen res
@@ -213,7 +254,8 @@ struct Global {
 	Player player;
 	Enemy enemies[MAXENEMIES];
 	Animation anims[MAXANIMATIONS];
-	
+	// will change to support multiple attacks at once
+	Hitbox attacks[1];
 	
 	Image *bgImage;
 	GLuint bgTexture;
@@ -227,8 +269,10 @@ struct Global {
 	Wall n, e, s, w;
 	Info info;
 	//
-	ALuint alBufferDrip, alBufferTick;
-	ALuint alSourceDrip, alSourceTick;
+	#ifdef USE_OPENAL_SOUND
+		ALuint alBufferDrip, alBufferTick;
+		ALuint alSourceDrip, alSourceTick;
+	#endif
 	Global() {
 		xres = 1200;		yres = 900;
 //		xres = 1087; yres = 800;

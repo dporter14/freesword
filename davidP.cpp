@@ -50,8 +50,19 @@ void Character::draw()
 		x = c * x - s * y;
 		y = s * t + c * y;
 	} 
-	glEnd();  
-
+	glEnd();
+	
+	if (g.state[S_INFO]) {
+		glColor3f(0,0,1);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(hitbox.width, hitbox.height);
+		glVertex2f(-hitbox.width, hitbox.height);
+		glVertex2f(-hitbox.width, -hitbox.height);
+		glVertex2f(hitbox.width, -hitbox.height);
+		glEnd();
+		
+	}
+	
 	//player direction
 	Vec up, upz, cross;
 	VecMake(0, 1, 0, up);
@@ -88,8 +99,10 @@ void Character::draw()
 	glVertex2f(3.0f, 60.0f);
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
+	
+	
 	glPopMatrix();
-
+	
 	//return time spent
 	endTime = current_time();
 	tix += endTime - startTime;

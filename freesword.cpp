@@ -400,6 +400,11 @@ void resetGame()
 
 void gameUpdate()
 {
+	for(int i=0; i<g.number[N_ENEMIES]; i++){
+		if (g.enemies[i].state == S_CHAR_DEAD) {
+			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
+		}
+	}
 	if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}
@@ -491,10 +496,8 @@ int checkMouse(XEvent *e)
 			(void)lbutton;
 			if(g.player.anim_handler==NULL){
 				Animation *act = &g.anims[g.number[N_ANIMS]++];
-				act->init();
+				act->init(A_SWORD_SLASH);
 				act->add_actor(&g.player);
-				act->set_duration(0.15);
-				act->type = A_SWORD_SLASH;
 			}
 		}
 		if (e->xbutton.button==3) {
@@ -561,21 +564,21 @@ void physics()
 
     Player *p = &g.player;
 	if (g.isPressed[K_W]) {
-		p->addVelocity(0,1);
+		p->addVel(0,1);
 	} else if (g.isPressed[K_S]) {
-		p->addVelocity(0,-1);
+		p->addVel(0,-1);
 	} else if (ABS(g.player.vel[1]) > 0) {
 		//keep player from maintaining velocity
-		p->addVelocity(0,SGN(p->vel[1])*-0.5);
+		p->addVel(0,SGN(p->vel[1])*-0.5);
 	}
 
 	if (g.isPressed[K_D]) {
-		p->addVelocity(1,0);
+		p->addVel(1,0);
 	} else if (g.isPressed[K_A]) {
-		p->addVelocity(-1,0);
+		p->addVel(-1,0);
 	} else if (ABS(g.player.vel[0]) > 0) {
 		//keep player from maintaining velocity
-		p->addVelocity(SGN(p->vel[0])*-0.5,0);
+		p->addVel(SGN(p->vel[0])*-0.5,0);
 	}
 
 	//update player position
@@ -591,13 +594,13 @@ void physics()
 	}
 
     if(g.player.pos[0] > g.xres)
-        g.player.pos[0] = g.xres-5;
+        g.player.setPos(g.xres-5, g.player.pos[1]);
     if(g.player.pos[0] < 0)
-        g.player.pos[0] = 5;
+        g.player.setPos(5, g.player.pos[1]);
     if(g.player.pos[1] > g.yres)
-        g.player.pos[1] = g.yres-5;
+        g.player.setPos(g.player.pos[0], g.yres-5);
     if(g.player.pos[1] < 0)
-        g.player.pos[1] = 5;
+        g.player.setPos(g.player.pos[0], 5);
 }
 
 
@@ -677,6 +680,18 @@ void render(void)
 	
 	//draw character
 	g.player.draw();
+	
+	if (g.state[S_INFO]) {
+		for(int i=0; i<g.number[N_ATTACKS]; i++){
+			glColor3f(1,1,0);
+			glBegin(GL_LINE_LOOP);
+			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
+			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
+			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
+			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
+			glEnd();
+		}
+	}
 	
 	//draw border walls #buildthewall
     //lab7

@@ -15,14 +15,16 @@ void Player::init()
 {
 	//player shape radius
 	pradius = 30;
-	status = 0;
+	state = 0;
 	VecMake(0,1,0,dir);
 	VecMake(0,0,0,vel);
 	VecMake(50,50,0,pos);
 	VecMake(0.5, 0.0, 0.5, color);
 	VecMake(35,0,0,rhand_pos);
 	VecMake(0,1,0,rhand_dir);
-
+	
+	VecCopy(pos, hitbox.pos);
+	hitbox.width = hitbox.height = pradius/1.41;
 
 }
 
@@ -31,17 +33,21 @@ void Character::move()
 {
     pos[0] += vel[0];
 	pos[1] += vel[1];
+	VecCopy(pos, hitbox.pos);
+	
 }
 
 //manually move player
-void Character::setPosition(Flt x, Flt y)
+void Character::setPos(Flt x, Flt y)
 {
 	pos[0] = x;
 	pos[1] = y;
+	VecCopy(pos, hitbox.pos);
+	
 }
 
 //manually change velocity
-void Character::setVelocity(Flt x, Flt y)
+void Character::setVel(Flt x, Flt y)
 {
 	vel[0] = x;
 	vel[1] = y;
@@ -52,7 +58,7 @@ void Character::setVelocity(Flt x, Flt y)
 }
 
 //relatively change velocity
-void Character::addVelocity(Flt x, Flt y)
+void Character::addVel(Flt x, Flt y)
 {
 	vel[0] += x;
 	vel[1] += y;

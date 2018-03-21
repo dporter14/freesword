@@ -46,11 +46,10 @@ $(TARGET): $(FILES)
 	g++ $(FILES) $(LFLAGS) -o $(TARGET)
 
 %.o: %.cpp $(HEADERS)
-	g++ $(CFLAGS) $<
+	g++ $(CFLAGS) $< -o $@
 
 snake: snake.cpp log.cpp
-	g++ $(CFLAGS) snake.cpp log.cpp  \
-	-Wall -Wextra $(LFLAGS) -o snake
+	g++ $(CFLAGS) snake.cpp log.cpp $(LFLAGS) -o snake
 
 clean:
 	rm -f snake

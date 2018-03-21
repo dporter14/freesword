@@ -16,11 +16,14 @@ void spawnEnemy(Flt x, Flt y){
 	VecMake(x, y, 0, e->pos);
 	VecMake(1.0, 0.2, 0.2, e->color);
 	e->pradius = 30;
-	e->status = 0;
+	e->state = 0;
 	VecMake(0,1,0,e->dir);
 	VecMake(0,0,0,e->vel);
 	VecMake(0,30,0,e->rhand_pos);
 	VecMake(0,1,0,e->rhand_dir);
+	
+	e->hitbox.width = e->hitbox.height = e->pradius;
+
 }
 
 void Enemy::attackPlayer()
@@ -29,11 +32,18 @@ void Enemy::attackPlayer()
 	VecSub(g.player.pos, pos, toPlayer);
 	lookAt(g.player.pos[0], g.player.pos[1]);
 	float len = VecLen(toPlayer);
-	if(len>100){
-		addVelocity(toPlayer[0]/len,toPlayer[1]/len);
+	if (len>100){
+		if (acos(VecDot(toPlayer, vel)/(len*VecLen(vel)))>(PI/4)){
+			addVel(vel[0]*-0.5,vel[1]*-0.5);
+		}
+		addVel(toPlayer[0]/len,toPlayer[1]/len);
 	} else if (VecLen(vel)>0) {
-		addVelocity(vel[0]*-0.5,vel[1]*-0.5);
+		addVel(vel[0]*-0.5,vel[1]*-0.5);
 	}
+}
+
+void Enemy::kill(){
+	state = S_CHAR_DEAD;
 }
 
 void Animation::add_actor(Object* actor)
@@ -42,10 +52,19 @@ void Animation::add_actor(Object* actor)
 	actor->anim_handler = this;
 }
 
-void Animation::init()
+void Animation::init(int t)
 {
 	frame=0;
 	done=0;
+	type = t;
+	switch(type) {
+		case A_SWORD_SLASH:
+			set_duration(0.15);
+			break;
+		case A_TEST:
+			test();
+			break;
+	}
 }
 
 void Animation::play()
@@ -64,6 +83,12 @@ void Animation::play()
 			actors[nactors]->anim_handler=NULL;
 		}
 	}
+}
+
+void Animation::cancel()
+{
+	frame = nframes;
+	play();
 }
 
 void Animation::set_frames(int frames)
@@ -104,6 +129,17 @@ void Animation::sword_slash()
 		actor->rhand_dir[1] = sinf(angle);
 
 		//cout << (-100/28)*frame+50 << endl;
+	}
+	
+	if (frame==4) {
+		VecAddS(60, actor->dir, actor->pos, g.attacks[0].pos);
+		g.attacks[0].height =
+		g.attacks[0].width = 30;
+		g.attacks[0].active = 1;
+		g.number[N_ATTACKS]++;
+	} else if (frame>=7 && g.attacks[0].active) {
+		g.attacks[0].active = 0;
+		g.number[N_ATTACKS]--;
 	}
 	frame++;
 	
