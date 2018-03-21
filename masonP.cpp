@@ -10,16 +10,16 @@ void mason_func()
 	g.title.text_color = 0x00ff00ff;
 }
 
-Menu::Menu() 
+Menu::Menu()
 {
 	m_height = 0;
 	m_width = 0;
 	m_buttonTitle = "";
 }
 
-void draw() {
+void Menu::draw() {
 
-	for(int i=0; i<g.nbuttons; i++) {
+	for(int i=0; i<g.number[N_BUTTONS]; i++) {
         if (g.button[i].over) {
             //int w=2;
             glColor3f(1.0f, 1.0f, 0.0f);
@@ -58,24 +58,29 @@ void draw() {
         }*/
     }
 }
-bool pauseMenu() {
-
-	g.paused = true;
+void pauseMenu() {
+	static double tix = 0.0;
+	static char* info_here = g.info.get_place();
+	double startTime, endTime;
+	startTime = current_time();
+	
+	g.state[S_PAUSED] = true;
 	//Button menuButt[3];
 
 	//static float angle = 0.0;
 	glColor3ub(0, 255, 0);
 	glPushMatrix();
-	glTranslatef(100, 100, 0.0);
-	glTranslatef(-50.0, -50.0, 0);
+	glTranslatef(g.xres/2, g.yres/2, 0.0);
 	glBegin(GL_QUADS);
-		glVertex2i(0,     0);
-		glVertex2i(0,   200);
-		glVertex2i(200, 100);
-		glVertex2i(200,   0);
+		glVertex2i(-100, -200);
+		glVertex2i(-100,  200);
+		glVertex2i(100, 200);
+		glVertex2i(100, -200);
 	glEnd();
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	glPopMatrix();
-	return g.paused;
+	
+	//return time spent
+	endTime = current_time();
+	tix += endTime - startTime;
+	sprintf(info_here, "Pause Menu Function: %f", tix);
 }

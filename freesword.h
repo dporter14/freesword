@@ -171,6 +171,7 @@ void initWalls();
 void interactDoor();
 void collide(Door);
 void buildLevel1();
+
 /////// End Jacob Functions/////////////////////////
 
 /*//////////////////////////////////////////////////
