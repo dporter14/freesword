@@ -64,7 +64,7 @@ void pauseMenu() {
 	double startTime, endTime;
 	startTime = current_time();
 	
-	//g.state[S_PAUSED] = true;
+	g.state[S_PAUSED] = true;
 	//Button menuButt[3];
 
 	//static float angle = 0.0;
