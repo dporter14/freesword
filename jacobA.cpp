@@ -131,3 +131,81 @@ void Wall::draw(){
 	sprintf(info_here, "Wall Draw function: %f", runt);
 	
 }
+
+void Door::swing()
+{
+    if (isOpen) {
+        x = x - (height/2) + (width/2);
+        y = y - (height/2) + (width/2);
+    } else {
+        x = x + (width/2) - (height/2);
+        y = y + (width/2) - (height/2);
+    }
+    
+    Flt tmp = height;
+    height = width;
+    width = tmp;
+    left = x-(width/2);
+    right = x+(width/2);
+    top = y+(height/2);
+    bot = y-(height/2);
+    isOpen = !isOpen;
+    
+}
+
+void Door::draw()
+{
+    glColor3f(1.0, 0.0, 0.0);
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    glBegin(GL_POLYGON);
+    glVertex2f(-(width/2), height/2);
+    glVertex2f(-(width/2), -(height/2));
+    glVertex2f(width/2, -(height/2));
+    glVertex2f(width/2, height/2);
+    glEnd();
+    glPopMatrix();
+}
+
+void Door::initDoor()
+{
+    x = g.xres/2;
+    y = g.yres/2;
+    width = 500;
+    height = 50;
+    isOpen = false;
+    left = x-(width/2);
+    right = x+(width/2);
+    top = y+(height/2);
+    bot = y-(height/2);
+}
+
+void interactDoor()
+{
+    for (int i=0; i<4; i++) {
+        if (g.player.pos[0] <= g.doors[i].right+50 && 
+                g.player.pos[0] >= g.doors[i].left-50) {
+            if (g.player.pos[1] <= g.doors[i].top+50 &&
+                    g.player.pos[1] >= g.doors[i].bot-50) {
+                g.doors[i].swing();
+            }
+        }
+    }
+}
+
+void collide(Door object)
+{
+    if (g.player.pos[0] >= object.left-10 && g.player.pos[0] <= object.right+10
+        && g.player.pos[1] <= object.top+10 && g.player.pos[1] >= object.bot-10) {
+        if (g.player.pos[0] < object.left+5)
+            g.player.pos[0] = object.left-10;
+        else if (g.player.pos[0] > object.right-5) 
+            g.player.pos[0] = object.right+10;
+        if (g.player.pos[1] < object.bot+5)
+            g.player.pos[1] = object.bot-10;
+        else if (g.player.pos[1] > object.top-5)
+            g.player.pos[1] = object.top+10;
+    }
+    
+}
+        
