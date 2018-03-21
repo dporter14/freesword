@@ -1,8 +1,12 @@
 #include <iostream>
+#include <ctime>
+#include <cstdio>
 #include "GL/glx.h"
 #include "fonts.h"
 #include "global.h"
+#include <sys/timeb.h>
 
+//typedef std::chrono::high_resolution_clock Clock;
 
 void mason_func()
 {
@@ -16,7 +20,6 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
-
 void Menu::draw() {
 
 	for(int i=0; i<g.number[N_BUTTONS]; i++) {
