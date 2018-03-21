@@ -52,7 +52,7 @@ void Character::draw()
 	} 
 	glEnd();
 	
-	if (g.state[S_INFO]) {
+	if (g.state[S_DEBUG]) {
 		glColor3f(0,0,1);
 		glBegin(GL_LINE_LOOP);
 		glVertex2f(hitbox.width, hitbox.height);
@@ -60,6 +60,7 @@ void Character::draw()
 		glVertex2f(-hitbox.width, -hitbox.height);
 		glVertex2f(hitbox.width, -hitbox.height);
 		glEnd();
+		
 		
 	}
 	
@@ -103,6 +104,21 @@ void Character::draw()
 	
 	glPopMatrix();
 	
+	if (g.state[S_DEBUG]) {
+		for(int i=0; i<nattacks; i++){
+			glColor3f(1,1,0);
+			glBegin(GL_LINE_LOOP);
+			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
+				attacks[i].pos[1]+attacks[i].height);
+			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
+				attacks[i].pos[1]+attacks[i].height);
+			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
+				attacks[i].pos[1]-attacks[i].height);
+			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
+				attacks[i].pos[1]-attacks[i].height);
+			glEnd();
+		}
+	}
 	//return time spent
 	endTime = current_time();
 	tix += endTime - startTime;

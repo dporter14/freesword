@@ -57,22 +57,30 @@ class Weapon {
 };
 
 class Animation;
-
+class Hitbox;
 //enum obj_type {O_PLAYER, O_ENEMY};
 
 class Object {
 	public:
+		Vec pos;
 		Animation* anim_handler; //
+		Hitbox* hitbox;
 		//obj_type type;
+		virtual void draw() = 0;
 };
+
+enum hit_type {H_HURTBOX, H_ATTACK, H_INTERACT};
 
 class Hitbox {
 	public:
 		Vec pos;
 		Flt width, height;
+		hit_type type;
+		bool collision;
 		bool active;
 		Hitbox () {}
-		Hitbox (Vec p, Flt w, Flt h) {
+		Hitbox (hit_type t, Vec p, Flt w, Flt h) {
+			type = t;
 			VecCopy(p,pos);
 			width=w;
 			height=h;
@@ -126,7 +134,7 @@ class Character : public Object {
 		Vec color;
 		Flt pradius;
 
-		Vec pos; // char's position
+		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
 		Vec dir; // char's orientation
 		Vec rhand_pos; //pos of right hand
@@ -135,6 +143,9 @@ class Character : public Object {
 		int state; //0 alive 1 dead
 		
 		Hitbox hitbox;
+		// will change to support multiple attacks at once
+		Hitbox attacks[1];
+		int nattacks;
 		//constructor
 		Character(){
 			anim_handler=NULL;
@@ -166,25 +177,27 @@ class Enemy : public Character {
     private:
 };
 
-class Wall {
+class Wall : public Object {
 
     public:
         //wall width and height
         Flt width, height;
         //coordinates for center of wall
-        Flt x, y;
+        //Vec pos; // inherited from object
+		
         Flt left, right, top, bot;
 
         void draw(); //lab7
 };
 
-class Door {
+class Door : public Wall {
 
     public:
-        Flt width, height;
+        //Flt width, height; //inherited from wall
         //center
-        Flt x, y;
-        Flt left, right, top, bot;
+        //Vec pos; // inherited from object
+		
+        //Flt left, right, top, bot; //inherited from wall
 
         bool isOpen;
 
@@ -253,7 +266,7 @@ void spawnEnemy(Flt x, Flt y);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_INFO, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -262,7 +275,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_INFO, S_};
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_ATTACKS, N_BUTTONS, N_WALLS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_};
 
 struct Global {
 	// screen res
@@ -272,8 +285,6 @@ struct Global {
 	Player player;
 	Enemy enemies[MAXENEMIES];
 	Animation anims[MAXANIMATIONS];
-	// will change to support multiple attacks at once
-	Hitbox attacks[1];
 	
 	Image *bgImage;
 	GLuint bgTexture;

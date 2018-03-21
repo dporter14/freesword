@@ -87,23 +87,23 @@ void initWalls()
 {
     g.n.width = g.xres;
     g.n.height = 5;
-    g.n.x = g.xres/2;
-    g.n.y = 0;
+    g.n.pos[0]= g.xres/2;
+    g.n.pos[1]= 0;
 
     g.e.width = 5;
     g.e.height = g.yres;
-    g.e.x = g.xres;
-    g.e.y = g.yres/2;
+    g.e.pos[0]= g.xres;
+    g.e.pos[1]= g.yres/2;
 
     g.s.width = g.xres;
     g.s.height = 5;
-    g.s.x = g.xres/2;
-    g.s.y = g.yres;
+    g.s.pos[0]= g.xres/2;
+    g.s.pos[1]= g.yres;
 
     g.w.width = 5;
     g.w.height = g.yres;
-    g.w.x = 0;
-    g.w.y = g.yres/2;
+    g.w.pos[0]= 0;
+    g.w.pos[1]= g.yres/2;
 }
 
 void Wall::draw(){
@@ -117,7 +117,7 @@ void Wall::draw(){
     glColor3f(1.0, 0.0, 0.0);
 
     glPushMatrix();
-    glTranslatef(x, y, 0);
+    glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
     glVertex2f(-(width/2), height/2);
     glVertex2f(-(width/2), -(height/2));
@@ -135,20 +135,20 @@ void Wall::draw(){
 void Door::swing()
 {
     if (isOpen) {
-        x = x - (height/2) + (width/2);
-        y = y - (height/2) + (width/2);
+        pos[0] = pos[0] - (height/2) + (width/2);
+        pos[1] = pos[1] - (height/2) + (width/2);
     } else {
-        x = x + (width/2) - (height/2);
-        y = y + (width/2) - (height/2);
+        pos[0] = pos[0] + (width/2) - (height/2);
+        pos[1] = pos[1] + (width/2) - (height/2);
     }
     
     Flt tmp = height;
     height = width;
     width = tmp;
-    left = x-(width/2);
-    right = x+(width/2);
-    top = y+(height/2);
-    bot = y-(height/2);
+    left = pos[0]-(width/2);
+    right = pos[0]+(width/2);
+    top = pos[1]+(height/2);
+    bot = pos[1]-(height/2);
     isOpen = !isOpen;
     
 }
@@ -157,7 +157,7 @@ void Door::draw()
 {
     glColor3f(1.0, 0.0, 0.0);
     glPushMatrix();
-    glTranslatef(x, y, 0);
+    glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
     glVertex2f(-(width/2), height/2);
     glVertex2f(-(width/2), -(height/2));
@@ -169,15 +169,15 @@ void Door::draw()
 
 void Door::initDoor()
 {
-    x = g.xres/2;
-    y = g.yres/2;
+    pos[0] = g.xres/2;
+    pos[1] = g.yres/2;
     width = 500;
     height = 50;
     isOpen = false;
-    left = x-(width/2);
-    right = x+(width/2);
-    top = y+(height/2);
-    bot = y-(height/2);
+    left = pos[0]-(width/2);
+    right = pos[0]+(width/2);
+    top = pos[1]+(height/2);
+    bot = pos[1]-(height/2);
 }
 
 void interactDoor()

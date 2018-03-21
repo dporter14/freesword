@@ -2,7 +2,7 @@
 #include "global.h"
 
 Global g;
-Image img[1] = {"./images/grillbys-reference4.png" };				
+Image img[1] = {"./images/grillbys-reference5.png" };				
 //Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
@@ -468,7 +468,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_o:
 			if (e->type == KeyPress)
-				g.state[S_INFO] ^= 1;
+				g.state[S_DEBUG] ^= 1;
 			break;
 		case XK_1:
 			david_func();
@@ -613,7 +613,15 @@ void physics()
     
     for (int i=0; i<4; i++) {
         collide(g.doors[i]);
-   }
+   	}
+	
+	for (int i=0; i<g.player.nattacks; i++){
+		for(int j=0; j<g.number[N_ENEMIES]; j++){
+			if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
+				g.enemies[j].kill();
+			}
+		}
+	}
 }
 
 
@@ -630,7 +638,9 @@ void render(void)
 	glViewport(0, 0, g.xres-1, g.yres-1);
 	//clear color buffer
 	glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	
 	//init matrices
 	glMatrixMode (GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -694,17 +704,6 @@ void render(void)
 	//draw character
 	g.player.draw();
 	
-	if (g.state[S_INFO]) {
-		for(int i=0; i<g.number[N_ATTACKS]; i++){
-			glColor3f(1,1,0);
-			glBegin(GL_LINE_LOOP);
-			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
-			glEnd();
-		}
-	}
 	
 	//draw border walls #buildthewall
     //lab7
@@ -723,14 +722,15 @@ void render(void)
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 
     g.doors[0].draw();
-
-	if (g.state[S_INFO])
+	
+    if (g.state[S_DEBUG])
 		g.info.draw();
 	if (g.state[S_PAUSED])
 		pauseMenu();
 
-
-
+	
+	glDisable(GL_DEPTH_TEST);
+	
 
 }
 
