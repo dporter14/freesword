@@ -1,17 +1,25 @@
 //Author: David Porter
 
-#include <iostream>
-
+#include <iostream>     
+#include <ctime>
 #include "global.h"
 
 
-void david_func(){
+void david_func()
+{
 	strcpy(g.title.text,"This is a David Print");
 	g.title.text_color = 0x00ff0000;
 }
 
-void Character::draw(){
-//draw player
+
+void Character::draw()
+{
+	//lab7 profiling
+	static double tix = 0.0;
+	static char* info_here = g.info.get_place();
+	double startTime, endTime;
+	startTime = current_time();
+	//draw player
 	glColor3f(color[0],color[1],color[2]);
 	
 	glPushMatrix();
@@ -42,8 +50,19 @@ void Character::draw(){
 		x = c * x - s * y;
 		y = s * t + c * y;
 	} 
-	glEnd();  
-
+	glEnd();
+	
+	if (g.state[S_INFO]) {
+		glColor3f(0,0,1);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(hitbox.width, hitbox.height);
+		glVertex2f(-hitbox.width, hitbox.height);
+		glVertex2f(-hitbox.width, -hitbox.height);
+		glVertex2f(hitbox.width, -hitbox.height);
+		glEnd();
+		
+	}
+	
 	//player direction
 	Vec up, upz, cross;
 	VecMake(0, 1, 0, up);
@@ -80,7 +99,14 @@ void Character::draw(){
 	glVertex2f(3.0f, 60.0f);
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
+	
+	
 	glPopMatrix();
+	
+	//return time spent
+	endTime = current_time();
+	tix += endTime - startTime;
+	sprintf(info_here, "Character Draw Function: %f", tix);
 }
 
 /*
