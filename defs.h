@@ -50,6 +50,64 @@ typedef struct Screen2 {
 	Flt fy_res, fx_res;
 } Screen2;
 
+class Image {
+	public:
+		int width, height;
+		unsigned char *data;
+		~Image() { delete [] data; }
+		Image(const char *fname) {
+			if (fname[0] == '\0')
+				return;
+			//printf("fname **%s**\n", fname);
+			int ppmFlag = 0;
+			char name[40];
+			strcpy(name, fname);
+			int slen = strlen(name);
+			char ppmname[80];
+			if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+				ppmFlag = 1;
+			if (ppmFlag) {
+				strcpy(ppmname, name);
+			} else {
+				name[slen-4] = '\0';
+				//printf("name **%s**\n", name);
+				sprintf(ppmname,"%s.ppm", name);
+				//printf("ppmname **%s**\n", ppmname);
+				char ts[100];
+				//system("convert img.jpg img.ppm");
+				sprintf(ts, "convert %s %s", fname, ppmname);
+				system(ts);
+			}
+			//sprintf(ts, "%s", name);
+			FILE *fpi = fopen(ppmname, "r");
+			if (fpi) {
+				char line[200];
+				fgets(line, 200, fpi);
+				fgets(line, 200, fpi);
+				while (line[0] == '#')
+					fgets(line, 200, fpi);
+				sscanf(line, "%i %i", &width, &height);
+				//printf("%d %d\n",width, height);
+				fgets(line, 200, fpi);
+				//get pixel data
+				int n = width * height * 3;
+				data = new unsigned char[n];
+				for (int i=0; i<n; i++){
+					data[i] = fgetc(fpi);
+					//if (i%3==2)
+					//	printf("(%d,%d): %d %d %d\n",(int)floor(i/3)%width,
+					//(int)floor((i/3)/width),data[i-2],data[i-1],data[i]);
+				}
+				fclose(fpi);
+			} else {
+				printf("ERROR opening image: %s\n",ppmname);
+				exit(0);
+			}
+			if (!ppmFlag)
+				unlink(ppmname);
+				
+		}
+};
 
 
 #endif
