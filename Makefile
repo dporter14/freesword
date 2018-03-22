@@ -22,7 +22,7 @@ else
     endif
     ifeq ($(UNAME_S),Darwin)
         CFLAGS += -D OSX -I/opt/X11/include
-        LFLAGS +=  -L/opt/X11/lib -lalut -framework OpenAL m_libggfonts.a
+        LFLAGS +=  -L/opt/X11/lib -lalut -framework OpenAL mac_libggfonts.a
     endif
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
