@@ -63,10 +63,11 @@ class Hitbox;
 class Object {
 	public:
 		Vec pos;
-		Vec dir;
+		Vec scale;
+		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
-		//obj_type type;
+		
 		virtual void draw() = 0;
 };
 
@@ -75,25 +76,26 @@ enum hit_type {H_HURTBOX, H_ATTACK, H_INTERACT};
 class Hitbox {
 	public:
 		Vec pos;
-		Flt width, height;
+		Vec scale;
+		Flt rot;
 		hit_type type;
-		bool collision;
-		bool active;
+		//bool collision; // will this collide with other hitboxes?
+		bool active; // is this thing on?
 		Hitbox () {}
-		Hitbox (hit_type t, Vec p, Flt w, Flt h) {
+		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
 			type = t;
 			VecCopy(p,pos);
-			width=w;
-			height=h;
+			VecCopy(s,scale);
 			active = 1;
+			rot=r;
 		}
 		 
 		bool intersect(Hitbox other) {
 			return (
-				pos[0]+width >= other.pos[0]-width &&
-				pos[0]-width <= other.pos[0]+width &&
-				pos[1]+height >= other.pos[1]-height &&
-				pos[1]-height <= other.pos[1]+height
+				pos[0]+scale[0] >= other.pos[0]-scale[0] &&
+				pos[0]-scale[0] <= other.pos[0]+scale[0] &&
+				pos[1]+scale[1] >= other.pos[1]-scale[1] &&
+				pos[1]-scale[1] <= other.pos[1]+scale[1]
 			);
 		}
 };
@@ -134,7 +136,8 @@ class Character : public Object {
 		//char* sprite_file;
 		Vec color;
 		Flt pradius;
-
+		Flt max_speed;
+        
 		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
 		Vec dir; // char's orientation
@@ -142,7 +145,6 @@ class Character : public Object {
 		Vec rhand_dir; //orientation of right hadn
 		
 		int state; //0 alive 1 dead
-		
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
 		Hitbox attacks[1];
@@ -156,8 +158,8 @@ class Character : public Object {
 		void move();
 		void lookAt(Flt x, Flt y);
 		void setPos(Flt x, Flt y);
-		void setVel(Flt x, Flt y);
-		void addVel(Flt x, Flt y);
+		//void setVel(Flt x, Flt y); //redefined in chilren
+		//void addVel(Flt x, Flt y);
 		void draw();
 	private:
 
@@ -165,15 +167,21 @@ class Character : public Object {
 
 class Player : public Character {
     public:
-        void init();
-        Player(){}
+    	void init();
+        void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		Player(){}
         ~Player(){}
+        
+        
     private:
 };
 
 class Enemy : public Character {
     public:
-        void attackPlayer();
+    	void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		void attackPlayer();
         void kill();
     private:
 };
@@ -215,6 +223,7 @@ class Wall : public Object {
         Flt width, height;
         //coordinates for center of wall
         //Vec pos; // inherited from object
+		Hitbox hitbox;
 		
         Flt left, right, top, bot;
 
@@ -232,7 +241,8 @@ class Door : public Wall {
         //Flt left, right, top, bot; //inherited from wall
 		bool isHoriz;
         bool isOpen;
-
+		Hitbox interact;
+        
         void draw();
         //function to open/close door
         void swing();

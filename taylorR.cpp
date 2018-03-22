@@ -17,12 +17,13 @@ void spawnEnemy(Flt x, Flt y){
 	VecMake(1.0, 0.2, 0.2, e->color);
 	e->pradius = 30;
 	e->state = 0;
+	e->max_speed = 6;
 	VecMake(0,1,0,e->dir);
 	VecMake(0,0,0,e->vel);
 	VecMake(0,30,0,e->rhand_pos);
 	VecMake(0,1,0,e->rhand_dir);
 	
-	e->hitbox.width = e->hitbox.height = e->pradius;
+	e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 
 }
 
@@ -133,8 +134,8 @@ void Animation::sword_slash()
 	
 	if (frame==4) {
 		VecAddS(60, actor->dir, actor->pos, actor->attacks[0].pos);
-		actor->attacks[0].height =
-		actor->attacks[0].width = 40;
+		actor->attacks[0].scale[0] =
+		actor->attacks[0].scale[1] = 40;
 		actor->attacks[0].active = 1;
 		actor->nattacks++;
 	} else if (frame>=7 && actor->attacks[0].active) {
