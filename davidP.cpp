@@ -55,10 +55,10 @@ void Character::draw()
 	if (g.state[S_DEBUG]) {
 		glColor3f(0,0,1);
 		glBegin(GL_LINE_LOOP);
-		glVertex2f(hitbox.width, hitbox.height);
-		glVertex2f(-hitbox.width, hitbox.height);
-		glVertex2f(-hitbox.width, -hitbox.height);
-		glVertex2f(hitbox.width, -hitbox.height);
+		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
+		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
 		glEnd();
 		
 		
@@ -108,14 +108,14 @@ void Character::draw()
 		for(int i=0; i<nattacks; i++){
 			glColor3f(1,1,0);
 			glBegin(GL_LINE_LOOP);
-			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
-				attacks[i].pos[1]+attacks[i].height);
-			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
-				attacks[i].pos[1]+attacks[i].height);
-			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
-				attacks[i].pos[1]-attacks[i].height);
-			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
-				attacks[i].pos[1]-attacks[i].height);
+			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
+				attacks[i].pos[1]+attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
+				attacks[i].pos[1]+attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
+				attacks[i].pos[1]-attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
+				attacks[i].pos[1]-attacks[i].scale[1]);
 			glEnd();
 		}
 	}

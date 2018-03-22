@@ -8,14 +8,13 @@ void jacob_func(){
 	g.title.text_color = 0x00ffffff;
 }
 
-#define PLAYER_MAX_SPEED 10
-
 //init player
 void Player::init()
 {
 	//player shape radius
 	pradius = 30;
 	state = 0;
+	max_speed = 8;
 	VecMake(0,1,0,dir);
 	VecMake(0,0,0,vel);
 	VecMake(50,50,0,pos);
@@ -23,8 +22,9 @@ void Player::init()
 	VecMake(35,0,0,rhand_pos);
 	VecMake(0,1,0,rhand_dir);
 	
+	
 	VecCopy(pos, hitbox.pos);
-	hitbox.width = hitbox.height = pradius/1.41;
+	hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
 
 }
 
@@ -47,25 +47,46 @@ void Character::setPos(Flt x, Flt y)
 }
 
 //manually change velocity
-void Character::setVel(Flt x, Flt y)
+void Player::setVel(Flt x, Flt y)
 {
 	vel[0] = x;
 	vel[1] = y;
 
 	//make sure velocity is within speed bounds
-	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
-	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
+	vel[0] = CLAMP(vel[0], -this->max_speed, this->max_speed);
+	vel[1] = CLAMP(vel[1], -this->max_speed, this->max_speed);
 }
 
 //relatively change velocity
-void Character::addVel(Flt x, Flt y)
+void Player::addVel(Flt x, Flt y)
 {
 	vel[0] += x;
 	vel[1] += y;
 
 	//make sure velocity is within speed bounds
-	vel[0] = CLAMP(vel[0], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
-	vel[1] = CLAMP(vel[1], -PLAYER_MAX_SPEED, PLAYER_MAX_SPEED);
+	vel[0] = CLAMP(vel[0], -this->max_speed, this->max_speed);
+	vel[1] = CLAMP(vel[1], -this->max_speed, this->max_speed);
+}
+
+void Enemy::setVel(Flt x, Flt y)
+{
+	vel[0] = x;
+	vel[1] = y;
+
+	//make sure velocity is within speed bounds
+	vel[0] = CLAMP(vel[0], -this->max_speed, this->max_speed);
+	vel[1] = CLAMP(vel[1], -this->max_speed, this->max_speed);
+}
+
+//relatively change velocity
+void Enemy::addVel(Flt x, Flt y)
+{
+	vel[0] += x;
+	vel[1] += y;
+
+	//make sure velocity is within speed bounds
+	vel[0] = CLAMP(vel[0], -this->max_speed, this->max_speed);
+	vel[1] = CLAMP(vel[1], -this->max_speed, this->max_speed);
 }
 
 void Character::lookAt(Flt x, Flt y)
@@ -83,36 +104,36 @@ void Character::lookAt(Flt x, Flt y)
 	}
 }
     
-void Wall::initWall(Flt initx, Flt inity, Flt initWidth, Flt initHeight)
+void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
-/*  g.n.width = g.xres;
-    g.n.height = 5;
+/*  g.n.scale[0] = g.xres;
+    g.n.scale[1] = 5;
     g.n.pos[0]= g.xres/2;
     g.n.pos[1]= 0;
 
-    g.e.width = 5;
-    g.e.height = g.yres;
+    g.e.scale[0] = 5;
+    g.e.scale[1] = g.yres;
     g.e.pos[0]= g.xres;
     g.e.pos[1]= g.yres/2;
 
-    g.s.width = g.xres;
-    g.s.height = 5;
+    g.s.scale[0] = g.xres;
+    g.s.scale[1] = 5;
     g.s.pos[0]= g.xres/2;
     g.s.pos[1]= g.yres;
 
-    g.w.width = 5;
-    g.w.height = g.yres;
+    g.w.scale[0] = 5;
+    g.w.scale[1] = g.yres;
     g.w.x = 0;
     g.w.y = g.yres/2;
 */
     pos[0] = initx;
     pos[1] = inity;
-    width = initWidth;
-    height = initHeight;
-    left = pos[0]-(width/2);
-    right = pos[0]+(width/2);
-    top = pos[1]+(height/2);
-    bot = pos[1]-(height/2);
+    scale[0] = width;
+    scale[1] = height;
+    left = pos[0]-(scale[0]/2);
+    right = pos[0]+(scale[0]/2);
+    top = pos[1]+(scale[1]/2);
+    bot = pos[1]-(scale[1]/2);
 
 }
 
@@ -129,10 +150,10 @@ void Wall::draw(){
     glPushMatrix();
     glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
-    glVertex2f(-(width/2), height/2);
-    glVertex2f(-(width/2), -(height/2));
-    glVertex2f(width/2, -(height/2));
-    glVertex2f(width/2, height/2);
+    glVertex2f(-(scale[0]/2), scale[1]/2);
+    glVertex2f(-(scale[0]/2), -(scale[1]/2));
+    glVertex2f(scale[0]/2, -(scale[1]/2));
+    glVertex2f(scale[0]/2, scale[1]/2);
     glEnd();
     glPopMatrix();
 
@@ -178,30 +199,30 @@ void Door::swing()
 {
     if (isHoriz) {
         if (isOpen) {
-            pos[0] = pos[0] - (height/2) + (width/2);
-            pos[1] = pos[1] - (height/2) + (width/2);
+            pos[0] = pos[0] - (scale[1]/2) + (scale[0]/2);
+            pos[1] = pos[1] - (scale[1]/2) + (scale[0]/2);
         } else {
-            pos[0] = pos[0] + (width/2) - (height/2);
-            pos[1] = pos[1] + (width/2) - (height/2);
+            pos[0] = pos[0] + (scale[0]/2) - (scale[1]/2);
+            pos[1] = pos[1] + (scale[0]/2) - (scale[1]/2);
         }
     }
     else {
         if (isOpen) {
-            pos[0] = pos[0] - (width/2) + (height/2);
-            pos[1] = pos[1] - (height/2) + (width/2);
+            pos[0] = pos[0] - (scale[0]/2) + (scale[1]/2);
+            pos[1] = pos[1] - (scale[1]/2) + (scale[0]/2);
         } else {
-            pos[0] = pos[0] - (width/2) + (height/2);
-            pos[1] = pos[1] + (width/2) - (height/2);
+            pos[0] = pos[0] - (scale[0]/2) + (scale[1]/2);
+            pos[1] = pos[1] + (scale[0]/2) - (scale[1]/2);
         }
     }
 
-    Flt tmp = height;
-    height = width;
-    width = tmp;
-    left = pos[0]-(width/2);
-    right = pos[0]+(width/2);
-    top = pos[1]+(height/2);
-    bot = pos[1]-(height/2);
+    Flt tmp = scale[1];
+    scale[1] = scale[0];
+    scale[0] = tmp;
+    left = pos[0]-(scale[0]/2);
+    right = pos[0]+(scale[0]/2);
+    top = pos[1]+(scale[1]/2);
+    bot = pos[1]-(scale[1]/2);
     isOpen = !isOpen;
     
 }
@@ -212,27 +233,27 @@ void Door::draw()
     glPushMatrix();
     glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
-    glVertex2f(-(width/2), height/2);
-    glVertex2f(-(width/2), -(height/2));
-    glVertex2f(width/2, -(height/2));
-    glVertex2f(width/2, height/2);
+    glVertex2f(-(scale[0]/2), scale[1]/2);
+    glVertex2f(-(scale[0]/2), -(scale[1]/2));
+    glVertex2f(scale[0]/2, -(scale[1]/2));
+    glVertex2f(scale[0]/2, scale[1]/2);
     glEnd();
     glPopMatrix();
 }
 
-void Door::initDoor(Flt initx, Flt inity, Flt initWidth, Flt initHeight, bool horz)
+void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 {
     pos[0] = initx;
     pos[1] = inity;
-    width = initWidth;
-    height = initHeight;
+    scale[0] = width;
+    scale[1] = height;
     isHoriz = horz;
 
     isOpen = false;
-    left = pos[0]-(width/2);
-    right = pos[0]+(width/2);
-    top = pos[1]+(height/2);
-    bot = pos[1]-(height/2);
+    left = pos[0]-(scale[0]/2);
+    right = pos[0]+(scale[0]/2);
+    top = pos[1]+(scale[1]/2);
+    bot = pos[1]-(scale[1]/2);
 }
 
 void interactDoor()
