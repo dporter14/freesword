@@ -2,7 +2,7 @@
 #include "global.h"
 
 Global g;
-Image img[1] = {"./images/grillbys-reference4.png" };				
+Image img[1] = {"./images/grillbys-reference5.png" };				
 //Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
@@ -96,7 +96,10 @@ void init();
 void initSounds(void);
 
 void interactDoor();
-void collide(Door);
+void doorCollision(Door, Enemy, int);
+void doorCollision(Door, Player);
+void wallCollision(Wall, Enemy, int);
+void wallCollision(Wall, Player);
 
 void gameUpdate();
 void animation(void);
@@ -340,9 +343,9 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-    initWalls();
-    g.doors[0].initDoor();
-    
+    g.currentLevel = 1;
+    g.level1.buildLevel1();
+
     //
 	//initialize buttons...
 	
@@ -463,13 +466,17 @@ int checkKeys(XEvent *e)
 			else
 				g.isPressed[K_S]=0;
 			break;
+		case XK_e:
+			if (e->type == KeyPress)
+                interactDoor();
+			break;
 		case XK_p:
 			if (e->type == KeyPress)
 				g.state[S_PAUSED] ^= 1;
 			break;
 		case XK_o:
 			if (e->type == KeyPress)
-				g.state[S_INFO] ^= 1;
+				g.state[S_DEBUG] ^= 1;
 			break;
 		case XK_1:
 			david_func();
@@ -509,10 +516,7 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==3) {
 			//Right button is down
 			rbutton=1;
-			if (rbutton) {
-                interactDoor();
-            }
-
+			
 		}
 	}
 	x = e->xbutton.x;
@@ -603,18 +607,25 @@ void physics()
 	}
 
 
-    if(g.player.pos[0] > g.xres)
-        g.player.setPos(g.xres-5, g.player.pos[1]);
-    if(g.player.pos[0] < 0)
-        g.player.setPos(5, g.player.pos[1]);
-    if(g.player.pos[1] > g.yres)
-        g.player.setPos(g.player.pos[0], g.yres-5);
-    if(g.player.pos[1] < 0)
-        g.player.setPos(g.player.pos[0], 5);
-    
-    for (int i=0; i<4; i++) {
-        collide(g.doors[i]);
-   }
+    //player collision
+    for (int i=0; i<100; i++) {
+        for (int j=0; j<g.number[N_ENEMIES]; j++) {
+            doorCollision(g.level1.doors[i], g.enemies[j], j);
+            wallCollision(g.level1.walls[i], g.enemies[j], j);
+        }
+        
+        wallCollision(g.level1.walls[i], g.player);
+        doorCollision(g.level1.doors[i], g.player);
+    }
+
+	
+	for (int i=0; i<g.player.nattacks; i++){
+		for(int j=0; j<g.number[N_ENEMIES]; j++){
+			if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
+				g.enemies[j].kill();
+			}
+		}
+	}
 }
 
 
@@ -631,7 +642,9 @@ void render(void)
 	glViewport(0, 0, g.xres-1, g.yres-1);
 	//clear color buffer
 	glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glEnable(GL_DEPTH_TEST);
+	
 	//init matrices
 	glMatrixMode (GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -695,17 +708,6 @@ void render(void)
 	//draw character
 	g.player.draw();
 	
-	if (g.state[S_INFO]) {
-		for(int i=0; i<g.number[N_ATTACKS]; i++){
-			glColor3f(1,1,0);
-			glBegin(GL_LINE_LOOP);
-			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]+g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]-g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
-			glVertex2f(g.attacks[0].pos[0]+g.attacks[0].width, g.attacks[0].pos[1]-g.attacks[0].height);
-			glEnd();
-		}
-	}
 	
 	//draw border walls #buildthewall
     //lab7
@@ -722,16 +724,21 @@ void render(void)
 		//g.menuButt[ loop ].draw();
 	}
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-
-    g.doors[0].draw();
-
-	if (g.state[S_INFO])
+    
+    //draw level objects
+    for (int i=0; i<100; i++) {
+        g.level1.walls[i].draw();
+        g.level1.doors[i].draw();
+    }
+	
+    if (g.state[S_DEBUG])
 		g.info.draw();
 	if (g.state[S_PAUSED])
 		pauseMenu();
 
-
-
+	
+	//glDisable(GL_DEPTH_TEST);
+	
 
 }
 

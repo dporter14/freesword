@@ -82,28 +82,38 @@ void Character::lookAt(Flt x, Flt y)
 		dir[0]=0;
 	}
 }
-
-void initWalls()
-{
-    g.n.width = g.xres;
+    
+void Wall::initWall(Flt initx, Flt inity, Flt initWidth, Flt initHeight)
+{   
+/*  g.n.width = g.xres;
     g.n.height = 5;
-    g.n.x = g.xres/2;
-    g.n.y = 0;
+    g.n.pos[0]= g.xres/2;
+    g.n.pos[1]= 0;
 
     g.e.width = 5;
     g.e.height = g.yres;
-    g.e.x = g.xres;
-    g.e.y = g.yres/2;
+    g.e.pos[0]= g.xres;
+    g.e.pos[1]= g.yres/2;
 
     g.s.width = g.xres;
     g.s.height = 5;
-    g.s.x = g.xres/2;
-    g.s.y = g.yres;
+    g.s.pos[0]= g.xres/2;
+    g.s.pos[1]= g.yres;
 
     g.w.width = 5;
     g.w.height = g.yres;
     g.w.x = 0;
     g.w.y = g.yres/2;
+*/
+    pos[0] = initx;
+    pos[1] = inity;
+    width = initWidth;
+    height = initHeight;
+    left = pos[0]-(width/2);
+    right = pos[0]+(width/2);
+    top = pos[1]+(height/2);
+    bot = pos[1]-(height/2);
+
 }
 
 void Wall::draw(){
@@ -117,7 +127,7 @@ void Wall::draw(){
     glColor3f(1.0, 0.0, 0.0);
 
     glPushMatrix();
-    glTranslatef(x, y, 0);
+    glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
     glVertex2f(-(width/2), height/2);
     glVertex2f(-(width/2), -(height/2));
@@ -132,23 +142,66 @@ void Wall::draw(){
 	
 }
 
-void Door::swing()
+void wallCollision(Wall object, Enemy being, int num)
 {
-    if (isOpen) {
-        x = x - (height/2) + (width/2);
-        y = y - (height/2) + (width/2);
-    } else {
-        x = x + (width/2) - (height/2);
-        y = y + (width/2) - (height/2);
+    if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+        && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+        if (being.pos[0] < object.left+5)
+            g.enemies[num].pos[0] = object.left-10;
+        else if (being.pos[0] > object.right-5) 
+            g.enemies[num].pos[0] = object.right+10;
+        if (being.pos[1] < object.bot+5)
+            g.enemies[num].pos[1] = object.bot-10;
+        else if (being.pos[1] > object.top-5)
+            g.enemies[num].pos[1] = object.top+10;
     }
     
+}
+
+void wallCollision(Wall object, Player being)
+{
+    if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+        && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+        if (being.pos[0] < object.left+5)
+            g.player.pos[0] = object.left-10;
+        else if (being.pos[0] > object.right-5) 
+            g.player.pos[0] = object.right+10;
+        if (being.pos[1] < object.bot+5)
+            g.player.pos[1] = object.bot-10;
+        else if (being.pos[1] > object.top-5)
+            g.player.pos[1] = object.top+10;
+    }
+    
+}
+
+void Door::swing()
+{
+    if (isHoriz) {
+        if (isOpen) {
+            pos[0] = pos[0] - (height/2) + (width/2);
+            pos[1] = pos[1] - (height/2) + (width/2);
+        } else {
+            pos[0] = pos[0] + (width/2) - (height/2);
+            pos[1] = pos[1] + (width/2) - (height/2);
+        }
+    }
+    else {
+        if (isOpen) {
+            pos[0] = pos[0] - (width/2) + (height/2);
+            pos[1] = pos[1] - (height/2) + (width/2);
+        } else {
+            pos[0] = pos[0] - (width/2) + (height/2);
+            pos[1] = pos[1] + (width/2) - (height/2);
+        }
+    }
+
     Flt tmp = height;
     height = width;
     width = tmp;
-    left = x-(width/2);
-    right = x+(width/2);
-    top = y+(height/2);
-    bot = y-(height/2);
+    left = pos[0]-(width/2);
+    right = pos[0]+(width/2);
+    top = pos[1]+(height/2);
+    bot = pos[1]-(height/2);
     isOpen = !isOpen;
     
 }
@@ -157,7 +210,7 @@ void Door::draw()
 {
     glColor3f(1.0, 0.0, 0.0);
     glPushMatrix();
-    glTranslatef(x, y, 0);
+    glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
     glVertex2f(-(width/2), height/2);
     glVertex2f(-(width/2), -(height/2));
@@ -167,45 +220,69 @@ void Door::draw()
     glPopMatrix();
 }
 
-void Door::initDoor()
+void Door::initDoor(Flt initx, Flt inity, Flt initWidth, Flt initHeight, bool horz)
 {
-    x = g.xres/2;
-    y = g.yres/2;
-    width = 500;
-    height = 50;
+    pos[0] = initx;
+    pos[1] = inity;
+    width = initWidth;
+    height = initHeight;
+    isHoriz = horz;
+
     isOpen = false;
-    left = x-(width/2);
-    right = x+(width/2);
-    top = y+(height/2);
-    bot = y-(height/2);
+    left = pos[0]-(width/2);
+    right = pos[0]+(width/2);
+    top = pos[1]+(height/2);
+    bot = pos[1]-(height/2);
 }
 
 void interactDoor()
 {
-    for (int i=0; i<4; i++) {
-        if (g.player.pos[0] <= g.doors[i].right+50 && 
-                g.player.pos[0] >= g.doors[i].left-50) {
-            if (g.player.pos[1] <= g.doors[i].top+50 &&
-                    g.player.pos[1] >= g.doors[i].bot-50) {
-                g.doors[i].swing();
+    for (int i=0; i<100; i++) {
+        if (g.player.pos[0] <= g.level1.doors[i].right+50 && 
+                g.player.pos[0] >= g.level1.doors[i].left-50) {
+            if (g.player.pos[1] <= g.level1.doors[i].top+50 &&
+                    g.player.pos[1] >= g.level1.doors[i].bot-50) {
+                g.level1.doors[i].swing();
             }
         }
     }
 }
 
-void collide(Door object)
+void doorCollision(Door object, Enemy being, int num)
 {
-    if (g.player.pos[0] >= object.left-10 && g.player.pos[0] <= object.right+10
-        && g.player.pos[1] <= object.top+10 && g.player.pos[1] >= object.bot-10) {
-        if (g.player.pos[0] < object.left+5)
-            g.player.setPos(object.left-10, g.player.pos[1]);
-        else if (g.player.pos[0] > object.right-5) 
-            g.player.setPos(object.right+10, g.player.pos[1]);
-        if (g.player.pos[1] < object.bot+5)
-            g.player.setPos(g.player.pos[0], object.bot-10);
-        else if (g.player.pos[1] > object.top-5)
-            g.player.setPos(g.player.pos[0], object.top+10);
+    if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+        && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+        if (being.pos[0] < object.left+5)
+            g.enemies[num].pos[0] = object.left-10;
+        else if (being.pos[0] > object.right-5) 
+            g.enemies[num].pos[0] = object.right+10;
+        if (being.pos[1] < object.bot+5)
+            g.enemies[num].pos[1] = object.bot-10;
+        else if (being.pos[1] > object.top-5)
+            g.enemies[num].pos[1] = object.top+10;
     }
     
 }
-        
+
+void doorCollision(Door object, Player being)
+{
+    if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+        && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+        if (being.pos[0] < object.left+5)
+            g.player.pos[0] = object.left-10;
+        else if (being.pos[0] > object.right-5) 
+            g.player.pos[0] = object.right+10;
+        if (being.pos[1] < object.bot+5)
+            g.player.pos[1] = object.bot-10;
+        else if (being.pos[1] > object.top-5)
+            g.player.pos[1] = object.top+10;
+    }
+    
+}
+       
+void Level::buildLevel1()
+{
+    walls[0].initWall(0.0, 750.0, 45.0, 300.0);
+    doors[0].initDoor(92.5, 615.0, 140.0, 30.0, true);
+    doors[1].initDoor(g.xres/2, g.yres/2, 20.0, 200.0, false);
+} 

@@ -57,22 +57,31 @@ class Weapon {
 };
 
 class Animation;
-
+class Hitbox;
 //enum obj_type {O_PLAYER, O_ENEMY};
 
 class Object {
 	public:
+		Vec pos;
+		Vec dir;
 		Animation* anim_handler; //
+		Hitbox* hitbox;
 		//obj_type type;
+		virtual void draw() = 0;
 };
+
+enum hit_type {H_HURTBOX, H_ATTACK, H_INTERACT};
 
 class Hitbox {
 	public:
 		Vec pos;
 		Flt width, height;
+		hit_type type;
+		bool collision;
 		bool active;
 		Hitbox () {}
-		Hitbox (Vec p, Flt w, Flt h) {
+		Hitbox (hit_type t, Vec p, Flt w, Flt h) {
+			type = t;
 			VecCopy(p,pos);
 			width=w;
 			height=h;
@@ -126,7 +135,7 @@ class Character : public Object {
 		Vec color;
 		Flt pradius;
 
-		Vec pos; // char's position
+		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
 		Vec dir; // char's orientation
 		Vec rhand_pos; //pos of right hand
@@ -135,6 +144,9 @@ class Character : public Object {
 		int state; //0 alive 1 dead
 		
 		Hitbox hitbox;
+		// will change to support multiple attacks at once
+		Hitbox attacks[1];
+		int nattacks;
 		//constructor
 		Character(){
 			anim_handler=NULL;
@@ -166,33 +178,7 @@ class Enemy : public Character {
     private:
 };
 
-class Wall {
 
-    public:
-        //wall width and height
-        Flt width, height;
-        //coordinates for center of wall
-        Flt x, y;
-        Flt left, right, top, bot;
-
-        void draw(); //lab7
-};
-
-class Door {
-
-    public:
-        Flt width, height;
-        //center
-        Flt x, y;
-        Flt left, right, top, bot;
-
-        bool isOpen;
-
-        void draw();
-        //function to open/close door
-        void swing();
-        void initDoor();        
-};
 
 /*//////////// MASON FUNCTIONS ///////////////////////////////*/
 class Menu {
@@ -222,10 +208,52 @@ void david_func();
 
 /*///////////   JACOB FUNCTIONS	/////////////////////////////*/
 
+class Wall : public Object {
+
+    public:
+        //wall width and height
+        Flt width, height;
+        //coordinates for center of wall
+        //Vec pos; // inherited from object
+		
+        Flt left, right, top, bot;
+
+        void draw();
+        void initWall(Flt, Flt, Flt, Flt);
+};
+
+class Door : public Wall {
+
+    public:
+        //Flt width, height; //inherited from wall
+        //center
+        //Vec pos; // inherited from object
+		
+        //Flt left, right, top, bot; //inherited from wall
+		bool isHoriz;
+        bool isOpen;
+
+        void draw();
+        //function to open/close door
+        void swing();
+        void initDoor(Flt, Flt, Flt, Flt, bool);
+};
+
+class Level {
+    public:
+        Enemy enemies[100];
+        Wall walls[100];
+        Door doors[100];
+
+        void buildLevel1();
+    private:
+};
+
 void jacob_func();
 void initWalls();
 void interactDoor();
 void collide(Door);
+void buildLevel1();
 
 /*/////////////    TAYLOR FUNCTIONS     ////////////////////*/
 
@@ -253,7 +281,7 @@ void spawnEnemy(Flt x, Flt y);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_INFO, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -262,7 +290,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_INFO, S_};
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_ATTACKS, N_BUTTONS, N_WALLS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_};
 
 struct Global {
 	// screen res
@@ -272,8 +300,6 @@ struct Global {
 	Player player;
 	Enemy enemies[MAXENEMIES];
 	Animation anims[MAXANIMATIONS];
-	// will change to support multiple attacks at once
-	Hitbox attacks[1];
 	
 	Image *bgImage;
 	GLuint bgTexture;
@@ -288,6 +314,9 @@ struct Global {
 	Door doors[4];
 	Info info;
 	//
+	int currentLevel;
+    Level level1;
+
 	#ifdef USE_OPENAL_SOUND
 		ALuint alBufferDrip, alBufferTick;
 		ALuint alSourceDrip, alSourceTick;
