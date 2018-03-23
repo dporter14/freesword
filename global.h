@@ -98,7 +98,7 @@ class Hitbox {
 		}
 };
 
-enum anim_type {A_SWORD_SLASH, A_TEST};
+enum anim_type {A_SWORD_SLASH, A_TEST, A_SWORD_STAB};
 
 class Animation {
 	public:
@@ -121,6 +121,7 @@ class Animation {
 		~Animation(){};
 
 		void sword_slash();
+//                void sword_stab();
 		void test();
 
 

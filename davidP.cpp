@@ -10,8 +10,23 @@ void david_func()
 	strcpy(g.title.text,"This is a David Print");
 	g.title.text_color = 0x00ff0000;
 }
+/*
+void Animation::sword_stab()
+{
+        static double tix = 0.0;
+        static char * info_here = g.info.get_place();
+        double startTime, endTime;
+        startTime = current_time();
 
-
+        Player* actor = (Player*)actors[0];
+        static Vec orig_pos;
+        static Vec orig_dir;
+        if (frame == 0) {
+                VecCopy(actor->rhand_pos, orig_pos);
+                VecCopy(actor->rhand_dir, orig_dir);
+        }
+}
+*/
 void Character::draw()
 {
 	//lab7 profiling

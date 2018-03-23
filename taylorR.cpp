@@ -61,6 +61,9 @@ void Animation::init(int t)
 		case A_SWORD_SLASH:
 			set_duration(0.15);
 			break;
+                case A_SWORD_STAB:
+                        set_frames(15);
+                        break;
 		case A_TEST:
 			test();
 			break;
@@ -73,6 +76,9 @@ void Animation::play()
 		case A_SWORD_SLASH:
 			sword_slash();
 			break;
+//                case A_SWORD_STAB:
+//                      sword_stab();
+//                        break;
 		case A_TEST:
 			test();
 			break;
