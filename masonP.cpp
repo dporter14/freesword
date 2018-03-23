@@ -44,7 +44,7 @@ void Menu::draw() {
         } else {
             glColor3fv(g.button[i].color);
         }
-		/*
+		
         glBegin(GL_QUADS);
             glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
             glVertex2i(g.button[i].r.left,  g.button[i].r.top);
@@ -58,7 +58,7 @@ void Menu::draw() {
             ggprint16(&r, 0, g.button[i].text_color, "Pressed!");
         } else {
             ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
-        }*/
+        }
     }
 }
 void pauseMenu() {

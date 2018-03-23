@@ -345,32 +345,32 @@ void init()
     
     //
 	//initialize buttons...
-	/*
-	   g.nbuttons=0;
+	
+	   N_BUTTONS =0;
 	//size and position
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 320;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top =
-	g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx =
-	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery =
-	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Reset");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.4f;
-	g.button[g.nbuttons].color[1] = 0.4f;
-	g.button[g.nbuttons].color[2] = 0.7f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
+	g.button[g.N_BUTTONS].r.width = 140;
+	g.button[g.N_BUTTONS].r.height = 60;
+	g.button[g.N_BUTTONS].r.left = 20;
+	g.button[g.N_BUTTONS].r.bot = 320;
+	g.button[g.N_BUTTONS].r.right =
+	g.button[g.N_BUTTONS].r.left + g.button[g.N_BUTTONS].r.width;
+	g.button[g.N_BUTTONS].r.top =
+	g.button[g.N_BUTTONS].r.bot + g.button[g.N_BUTTONS].r.height;
+	g.button[g.N_BUTTONS].r.centerx =
+	(g.button[g.N_BUTTONS].r.left + g.button[g.N_BUTTONS].r.right) / 2;
+	g.button[g.N_BUTTONS].r.centery =
+	(g.button[g.N_BUTTONS].r.bot + g.button[g.N_BUTTONS].r.top) / 2;
+	strcpy(g.button[g.N_BUTTONS].text, "Reset");
+	g.button[g.N_BUTTONS].down = 0;
+	g.button[g.N_BUTTONS].click = 0;
+	g.button[g.N_BUTTONS].color[0] = 0.4f;
+	g.button[g.N_BUTTONS].color[1] = 0.4f;
+	g.button[g.N_BUTTONS].color[2] = 0.7f;
+	g.button[g.N_BUTTONS].dcolor[0] = g.button[g.N_BUTTONS].color[0] * 0.5f;
+	g.button[g.N_BUTTONS].dcolor[1] = g.button[g.N_BUTTONS].color[1] * 0.5f;
+	g.button[g.nbuttons].dcolor[2] = g.button[g.N_BUTTONS].color[2] * 0.5f;
+	g.button[g.N_BUTTONS].text_color = 0x00ffffff;
+	N_BUTTONS++;
 	g.button[g.nbuttons].r.width = 140;
 	g.button[g.nbuttons].r.height = 60;
 	g.button[g.nbuttons].r.left = 20;
@@ -394,7 +394,7 @@ void init()
 	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
 	g.button[g.nbuttons].text_color = 0x00ffffff;
 	g.nbuttons++;
-	*/
+	
 }
 
 void resetGame()

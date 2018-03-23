@@ -114,13 +114,6 @@ class Menu {
         double m_height, m_width;
         std::string m_buttonTitle;		
 };
-class mainMenu : public Menu {
-
-    public:
-
-    private:
-
-};
 
 void DisplayTime1();
 double DisplayTime2();
