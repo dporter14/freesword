@@ -232,6 +232,8 @@ class Door : public Wall {
         //Flt left, right, top, bot; //inherited from wall
 		bool isHoriz;
         bool isOpen;
+        //false -> left/up true -> right/down
+        bool openedFrom;
 
         void draw();
         //function to open/close door
