@@ -180,7 +180,7 @@ void Door::swing()
     if (isHoriz) {
         if (isOpen) {
             if (openedFrom == false) {
-                pos[0] = pos[0] + (height/2) - (width/2);
+                pos[0] = pos[0] - (height/2) + (width/2);
                 pos[1] = pos[1] + (height/2) - (width/2);
             } else {
                 pos[0] = pos[0] + (width/2) - (height/2);
@@ -188,7 +188,7 @@ void Door::swing()
             }
         } else {
             if (g.player.pos[1] > pos[1]) {
-                pos[0] = pos[0] + (height/2) - (width/2);
+                pos[0] = pos[0] - (height/2) + (width/2);
                 pos[1] = pos[1] + (height/2) - (width/2);
                 openedFrom = false;
             } else {
@@ -201,15 +201,15 @@ void Door::swing()
         if (isOpen) {
             if (openedFrom == false) {
                 pos[0] = pos[0] - (width/2) + (height/2);
-                pos[1] = pos[1] - (height/2) + (width/2);
+                pos[1] = pos[1] - (width/2) + (height/2);
             } else {
                 pos[0] = pos[0] + (width/2) - (height/2);
-                pos[1] = pos[1] + (height/2) - (width/2);
+                pos[1] = pos[1] - (width/2) + (height/2);
             }
         } else {
             if (g.player.pos[0] < pos[0]) {
                 pos[0] = pos[0] - (width/2) + (height/2);
-                pos[1] = pos[1] + (width/2) - (height/2);
+                pos[1] = pos[1] - (width/2) + (height/2);
                 openedFrom = false;
             } else {
                 pos[0] = pos[0] + (width/2) - (height/2);
