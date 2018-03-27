@@ -18,11 +18,12 @@ void spawnEnemy(Flt x, Flt y){
 	e->pradius = 30;
 	e->state = 0;
 	e->max_speed = 6;
-	VecMake(0,1,0,e->dir);
+	//VecMake(0,1,0,e->dir);
+	e->rot=0;
 	VecMake(0,0,0,e->vel);
 	VecMake(0,30,0,e->rhand_pos);
-	VecMake(0,1,0,e->rhand_dir);
-	
+	//VecMake(0,1,0,e->rhand_dir);
+	e->rhand_rot=0;
 	e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 
 }
@@ -111,29 +112,35 @@ void Animation::sword_slash()
 	
 	Player* actor = (Player*)actors[0];
 	static Vec orig_pos;
-	static Vec orig_dir;
+	static Flt orig_rot;
 	if(frame==0){
 		VecCopy(actor->rhand_pos, orig_pos);
-		VecCopy(actor->rhand_dir, orig_dir);
+		//VecCopy(actor->rhand_dir, orig_dir);
+		orig_rot = actor->rhand_rot;
 		//actor->rhand_pos[0] = 50;
 		actor->rhand_pos[1] = 35;
 
 	}
 	if (frame==nframes+1) {
 		VecCopy(orig_pos, actor->rhand_pos);
-		VecCopy(orig_dir, actor->rhand_dir);
+		//VecCopy(orig_dir, actor->rhand_dir);
+		actor->rhand_rot = orig_rot;
 		done=1;
 	} else {
 		actor->rhand_pos[0] = (-100/float(nframes))*float(frame)+50;
-		float angle = (PI/2/float(nframes))*float(frame)+(PI/3);
-		actor->rhand_dir[0] = cosf(angle);
-		actor->rhand_dir[1] = sinf(angle);
-
+		float angle = (90/float(nframes))*float(frame)+(-30);
+		//actor->rhand_dir[0] = cosf(angle);
+		//actor->rhand_dir[1] = sinf(angle);
+		actor->rhand_rot = angle;
 		//cout << (-100/28)*frame+50 << endl;
 	}
 	
 	if (frame==4) {
-		VecAddS(60, actor->dir, actor->pos, actor->attacks[0].pos);
+		Vec dir;
+		VecMake(-sin(actor->rot*PI/180), cos(actor->rot*PI/180), 0, dir);
+		static char* info_here = g.info.get_place();
+		sprintf(info_here, "Dir: %f %f %f", actor->rot, dir[0], dir[1]);
+		VecAddS(60, dir, actor->pos, actor->attacks[0].pos);
 		actor->attacks[0].scale[0] =
 		actor->attacks[0].scale[1] = 40;
 		actor->attacks[0].active = 1;

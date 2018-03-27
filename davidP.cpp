@@ -65,14 +65,21 @@ void Character::draw()
 	}
 	
 	//player direction
-	Vec up, upz, cross;
+	/*Vec up, upz, cross;
 	VecMake(0, 1, 0, up);
 	VecMake(0, 0, 1, upz);
 	float angl = acos(VecDot(dir, up));	
 	VecCross(up, dir, cross);
 	if (VecDot(upz, cross)<0)
 		angl = -angl;	
-	glRotatef(angl*180/PI,0,0,1);
+	angl = angl*180/PI;
+	*/
+	static char* derp = g.info.get_place();
+	
+	if(this == &g.player)
+		sprintf(derp, "dir: %f", rot);
+	
+	glRotatef(rot,0,0,1);
 	
 	/*//head triangle 
 	glPushMatrix();
@@ -87,12 +94,15 @@ void Character::draw()
 	//hand stuff
 	glColor3f(0.6f, 0.6f, 0.6f);
 	glTranslatef(rhand_pos[0], rhand_pos[1], 0.0);
-		
+	
+	/*
 	angl = acos(VecDot(rhand_dir, up));	
 	VecCross(up, rhand_dir, cross);
 	if (VecDot(upz, cross)<0)
 		angl = -angl;	
-	glRotatef(angl*180/PI,0,0,1);
+	angl = angl*180/PI;
+	*/
+	glRotatef(rhand_rot,0,0,1);
 	
 	glBegin(GL_POLYGON);
 	glVertex2f(-3.0f, 0.0f);

@@ -140,9 +140,9 @@ class Character : public Object {
         
 		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
-		Vec dir; // char's orientation
+		//Vec dir; // char's orientation
 		Vec rhand_pos; //pos of right hand
-		Vec rhand_dir; //orientation of right hadn
+		Flt rhand_rot; //orientation of right hand
 		
 		int state; //0 alive 1 dead
 		Hitbox hitbox;
@@ -254,6 +254,9 @@ class Level {
         Enemy enemies[100];
         Wall walls[100];
         Door doors[100];
+        nenemies;
+        nwalls;
+        ndoors;
 
         void buildLevel1();
     private:
