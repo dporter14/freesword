@@ -95,12 +95,6 @@ int checkKeys(XEvent *e);
 void init();
 void initSounds(void);
 
-void interactDoor();
-void doorCollision(Door, Enemy, int);
-void doorCollision(Door, Player);
-void wallCollision(Wall, Enemy, int);
-void wallCollision(Wall, Player);
-
 void gameUpdate();
 void animation(void);
 void physics(void);
@@ -507,8 +501,15 @@ int checkMouse(XEvent *e)
 			lbutton=1;
 			(void)lbutton;
 			if(g.player.anim_handler==NULL){
+				g.player.setVel(0,0);
 				Animation *act = &g.anims[g.number[N_ANIMS]++];
 				act->init(A_SWORD_SLASH);
+				act->add_actor(&g.player);
+			} else if (g.player.anim_handler->type == A_SWORD_SLASH
+				&& g.player.anim_handler->can_cancel) {
+				Animation *act = g.player.anim_handler;
+				act->cancel();
+				act->init(A_SWORD_SLASH2);
 				act->add_actor(&g.player);
 			}
 		}
@@ -579,24 +580,29 @@ void physics()
 		p->addVel(0,1);
 	} else if (g.isPressed[K_S]) {
 		p->addVel(0,-1);
-	} else if (ABS(g.player.vel[1]) > 0) {
+	} else if (ABS(g.player.vel[1]) > 0.1) {
 		//keep player from maintaining velocity
-		p->addVel(0,SGN(p->vel[1])*-0.5);
+		p->setVel(p->vel[0],p->vel[1]*0.9);
+	} else {
+		p->setVel(p->vel[0],0);
 	}
 
 	if (g.isPressed[K_D]) {
 		p->addVel(1,0);
 	} else if (g.isPressed[K_A]) {
 		p->addVel(-1,0);
-	} else if (ABS(g.player.vel[0]) > 0) {
+	} else if (ABS(g.player.vel[0]) > 0.1) {
 		//keep player from maintaining velocity
-		p->addVel(SGN(p->vel[0])*-0.5,0);
+		p->setVel(p->vel[0]*0.9,p->vel[1]);
+	} else {
+		p->setVel(0,p->vel[1]);
 	}
-
-	//update player position
-    p->move();
-	//look at last known mouse pos if not attacking
-	if(g.anims[0].done){
+	
+	// if not attacking
+	if(g.anims[0].can_cancel || g.anims[0].done){
+		//update player position
+		p->move();
+		//look at last known mouse pos
 		g.player.lookAt(g.savex,g.savey);
 	}
 
@@ -609,14 +615,21 @@ void physics()
     //player collision
     for (int i=0; i<100; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            doorCollision(g.level1.doors[i], g.enemies[j], j);
+            doorCollision(g.level1.doors[i], g.enemies[j]);
             wallCollision(g.level1.walls[i], g.enemies[j], j);
         }
         
         wallCollision(g.level1.walls[i], g.player);
         doorCollision(g.level1.doors[i], g.player);
     }
-
+    
+	for (int i=0; i<g.number[N_ENEMIES]; i++) {
+		for (int j=0; j<g.number[N_ENEMIES]; j++) {
+			if (i!=j)
+	        	object_collision(g.enemies[i], g.enemies[j]);
+        }
+        object_collision(g.enemies[i], g.player);
+    }
 	
 	for (int i=0; i<g.player.nattacks; i++){
 		for(int j=0; j<g.number[N_ENEMIES]; j++){
@@ -654,54 +667,15 @@ void render(void)
 	//
 	//screen background
 	glColor3f(0.7f, 0.7f, 0.7f);
-	  glBindTexture(GL_TEXTURE_2D, g.bgTexture);
-	  glBegin(GL_TRIANGLE_FAN);
-	  glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      g.yres);
-	  glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, g.yres);
-	  glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, 0);
-	  glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      0);
-	  glEnd();
-	  glBindTexture(GL_TEXTURE_2D, 0);
-	
-	
-	/*
-	glColor3f(.2,.2,.2);
-	glBegin(GL_POLYGON);
-		glVertex2i(500, 100);
-		glVertex2i(1000, 100);
-		glVertex2i(1000, 200);
-		glVertex2i(500, 200);
+	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
+	glBegin(GL_TRIANGLE_FAN);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      g.yres);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, g.yres);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, 0);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      0);
 	glEnd();
-	
-	glBegin(GL_POINTS);
-	for (int y=130; y<170; y++){
-		for (int x=570; x<1000; x++){
-			glColor3f(float((x%6)<3),float((x+2)%6<3),float((x+4)%6<3));
-			glVertex2i(x,y);
-		}
-	}
-	*/
-	
-	/*
-	glBegin(GL_POINTS);
-	for (int y=0; y<g.yres/2; y++){
-		for (int x=0; x<g.xres; x++){
-			float c[3];
-			float ind = round(float(y)/(g.yres-1)*img[0].height)*img[0].width*3;
-			Log("%f ",ind);
-			ind += round(float(x)/(g.xres-1)*img[0].width)*3;
-			Log("%f\n",ind);
-			for (int i=0;i<3;i++){
-				c[i]=img[0].data[int(ind+i)]/255.0f;
-			}
-			
-			glColor3f(c[0],c[1],c[2]);
-			glVertex2i(x,g.yres-y);
-		}
-	}
-	*/
-	
-	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	
 	
 	//draw character

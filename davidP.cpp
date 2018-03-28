@@ -74,10 +74,6 @@ void Character::draw()
 		angl = -angl;	
 	angl = angl*180/PI;
 	*/
-	static char* derp = g.info.get_place();
-	
-	if(this == &g.player)
-		sprintf(derp, "dir: %f", rot);
 	
 	glRotatef(rot,0,0,1);
 	

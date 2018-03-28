@@ -71,7 +71,7 @@ class Object {
 		virtual void draw() = 0;
 };
 
-enum hit_type {H_HURTBOX, H_ATTACK, H_INTERACT};
+enum hit_type {H_HURTBOX, H_ATTACK, H_TRIGGER};
 
 class Hitbox {
 	public:
@@ -81,6 +81,7 @@ class Hitbox {
 		hit_type type;
 		//bool collision; // will this collide with other hitboxes?
 		bool active; // is this thing on?
+		bool dynamic; // can it move?
 		Hitbox () {}
 		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
 			type = t;
@@ -92,21 +93,22 @@ class Hitbox {
 		 
 		bool intersect(Hitbox other) {
 			return (
-				pos[0]+scale[0] >= other.pos[0]-scale[0] &&
-				pos[0]-scale[0] <= other.pos[0]+scale[0] &&
-				pos[1]+scale[1] >= other.pos[1]-scale[1] &&
-				pos[1]-scale[1] <= other.pos[1]+scale[1]
+				pos[0]+scale[0] > other.pos[0]-other.scale[0] &&
+				pos[0]-scale[0] < other.pos[0]+other.scale[0] &&
+				pos[1]+scale[1] > other.pos[1]-other.scale[1] &&
+				pos[1]-scale[1] < other.pos[1]+other.scale[1]
 			);
 		}
 };
 
-enum anim_type {A_SWORD_SLASH, A_TEST};
+enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
 class Animation {
 	public:
 		int frame, nframes;
 		bool done;
-
+		bool can_cancel;
+		
 		int type;
 
 		Object *actors[2];
@@ -123,6 +125,7 @@ class Animation {
 		~Animation(){};
 
 		void sword_slash();
+		void sword_slash2();
 		void test();
 
 
@@ -158,8 +161,9 @@ class Character : public Object {
 		void move();
 		void lookAt(Flt x, Flt y);
 		void setPos(Flt x, Flt y);
-		//void setVel(Flt x, Flt y); //redefined in chilren
-		//void addVel(Flt x, Flt y);
+		void addPos(Flt x, Flt y);
+		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
+		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
 	private:
 
@@ -229,6 +233,7 @@ class Wall : public Object {
 
         void draw();
         void initWall(Flt, Flt, Flt, Flt);
+        Wall(){hitbox.dynamic=0;}
 };
 
 class Door : public Wall {
@@ -241,12 +246,13 @@ class Door : public Wall {
         //Flt left, right, top, bot; //inherited from wall
 		bool isHoriz;
         bool isOpen;
-		Hitbox interact;
+		Hitbox trigger;
         
         void draw();
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
+        Door(){trigger.dynamic=0;}
 };
 
 class Level {
@@ -254,9 +260,9 @@ class Level {
         Enemy enemies[100];
         Wall walls[100];
         Door doors[100];
-        nenemies;
-        nwalls;
-        ndoors;
+        int nenemies;
+        int nwalls;
+        int ndoors;
 
         void buildLevel1();
     private:
@@ -267,6 +273,13 @@ void initWalls();
 void interactDoor();
 void collide(Door);
 void buildLevel1();
+
+void interactDoor();
+void doorCollision(Door, Enemy&);
+void doorCollision(Door, Player);
+void wallCollision(Wall, Enemy, int);
+void wallCollision(Wall, Player);
+
 
 /*/////////////    TAYLOR FUNCTIONS     ////////////////////*/
 
@@ -289,6 +302,7 @@ class Info {
 
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
+void object_collision(Character&, Character&);
 
 /*/////////////    END FUNCTIONS     ////////////////////*/
 

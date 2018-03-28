@@ -26,6 +26,7 @@ void Player::init()
 	
 	VecCopy(pos, hitbox.pos);
 	hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
+	hitbox.dynamic=1;
 
 }
 
@@ -43,6 +44,15 @@ void Character::setPos(Flt x, Flt y)
 {
 	pos[0] = x;
 	pos[1] = y;
+	VecCopy(pos, hitbox.pos);
+	
+}
+
+//relatively move player
+void Character::addPos(Flt x, Flt y)
+{
+	pos[0] += x;
+	pos[1] += y;
 	VecCopy(pos, hitbox.pos);
 	
 }
@@ -236,6 +246,15 @@ void Door::swing()
     bot = pos[1]-(scale[1]);
     isOpen = !isOpen;
     
+    VecCopy(pos, hitbox.pos);
+    VecCopy(scale, hitbox.scale);
+    Vec temp;
+    VecMake(20, 20, 0, temp);
+    VecAdd(temp, hitbox.scale, temp);
+    VecCopy(pos, trigger.pos);
+    VecCopy(temp, trigger.scale);
+    
+    
 }
 
 void Door::draw()
@@ -243,14 +262,14 @@ void Door::draw()
     Wall::draw();
     
     glPushMatrix();
-    glTranslatef(interact.pos[0], interact.pos[1], 0);
+    glTranslatef(trigger.pos[0], trigger.pos[1], 0);
     if (g.state[S_DEBUG]) {
 		glColor3f(0,1,1);
 		glBegin(GL_LINE_LOOP);
-		glVertex2f(interact.scale[0], interact.scale[1]);
-		glVertex2f(-interact.scale[0], interact.scale[1]);
-		glVertex2f(-interact.scale[0], -interact.scale[1]);
-		glVertex2f(interact.scale[0], -interact.scale[1]);
+		glVertex2f(trigger.scale[0], trigger.scale[1]);
+		glVertex2f(-trigger.scale[0], trigger.scale[1]);
+		glVertex2f(-trigger.scale[0], -trigger.scale[1]);
+		glVertex2f(trigger.scale[0], -trigger.scale[1]);
 		glEnd();
 	}
 	glPopMatrix();
@@ -266,9 +285,9 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
     VecMake(20, 20, 0, temp);
     VecAdd(temp, scale, temp);
     
-    interact.type = H_INTERACT;
-    VecCopy(pos, interact.pos);
-    VecCopy(temp, interact.scale); 
+    trigger.type = H_TRIGGER;
+    VecCopy(pos, trigger.pos);
+    VecCopy(temp, trigger.scale); 
 }
 
 void interactDoor()
@@ -284,18 +303,18 @@ void interactDoor()
     }
 }
 
-void doorCollision(Door object, Enemy being, int num)
+void doorCollision(Door object, Enemy& being)
 {
     if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
         && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
         if (being.pos[0] < object.left+5)
-            g.enemies[num].pos[0] = object.left-10;
+            being.pos[0] = object.left-10;
         else if (being.pos[0] > object.right-5) 
-            g.enemies[num].pos[0] = object.right+10;
+            being.pos[0] = object.right+10;
         if (being.pos[1] < object.bot+5)
-            g.enemies[num].pos[1] = object.bot-10;
+            being.pos[1] = object.bot-10;
         else if (being.pos[1] > object.top-5)
-            g.enemies[num].pos[1] = object.top+10;
+            being.pos[1] = object.top+10;
     }
     
 }
