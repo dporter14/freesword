@@ -19,6 +19,9 @@ typedef Flt	Matrix[4][4];
 #define VecZero(v) (v)[0]=0.0;(v)[1]=0.0;v[2]=0.0
 #define ABS(a) (((a)<0)?(-(a)):(a))
 #define SGN(a) (((a)<0)?(-1):(1))
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define SWP(a,b) (a)^=(b);(b)^=(a);(a)^=(b);
 #define SGND(a) (((a)<0.0)?(-1.0):(1.0))
 #define CLAMP(a,b,c) ((a)<(b)?(b):((a)>(c)?(c):(a)))
 #define RND() (double)rand()/(double)RAND_MAX
