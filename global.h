@@ -62,49 +62,54 @@ class Hitbox;
 
 class Object {
 	public:
+		Vec color;
 		Vec pos;
-		Vec dir;
+		Vec scale;
+		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
-		//obj_type type;
+		
 		virtual void draw() = 0;
 };
 
-enum hit_type {H_HURTBOX, H_ATTACK, H_INTERACT};
+enum hit_type {H_HURTBOX, H_ATTACK, H_TRIGGER};
 
 class Hitbox {
 	public:
 		Vec pos;
-		Flt width, height;
+		Vec scale;
+		Flt rot;
 		hit_type type;
-		bool collision;
-		bool active;
+		//bool collision; // will this collide with other hitboxes?
+		bool active; // is this thing on?
+		bool dynamic; // can it move?
 		Hitbox () {}
-		Hitbox (hit_type t, Vec p, Flt w, Flt h) {
+		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
 			type = t;
 			VecCopy(p,pos);
-			width=w;
-			height=h;
+			VecCopy(s,scale);
 			active = 1;
+			rot=r;
 		}
 		 
 		bool intersect(Hitbox other) {
 			return (
-				pos[0]+width >= other.pos[0]-width &&
-				pos[0]-width <= other.pos[0]+width &&
-				pos[1]+height >= other.pos[1]-height &&
-				pos[1]-height <= other.pos[1]+height
+				pos[0]+scale[0] > other.pos[0]-other.scale[0] &&
+				pos[0]-scale[0] < other.pos[0]+other.scale[0] &&
+				pos[1]+scale[1] > other.pos[1]-other.scale[1] &&
+				pos[1]-scale[1] < other.pos[1]+other.scale[1]
 			);
 		}
 };
 
-enum anim_type {A_SWORD_SLASH, A_TEST, A_SWORD_STAB};
+enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
 class Animation {
 	public:
 		int frame, nframes;
 		bool done;
-
+		bool can_cancel;
+		
 		int type;
 
 		Object *actors[2];
@@ -121,7 +126,7 @@ class Animation {
 		~Animation(){};
 
 		void sword_slash();
-//                void sword_stab();
+		void sword_slash2();
 		void test();
 
 
@@ -133,17 +138,17 @@ class Character : public Object {
 	public:
 		//define color and radius of circle until we have sprite
 		//char* sprite_file;
-		Vec color;
+		//Vec color; //inherit from object
 		Flt pradius;
-
+		Flt max_speed;
+        
 		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
-		Vec dir; // char's orientation
+		//Vec dir; // char's orientation
 		Vec rhand_pos; //pos of right hand
-		Vec rhand_dir; //orientation of right hadn
+		Flt rhand_rot; //orientation of right hand
 		
 		int state; //0 alive 1 dead
-		
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
 		Hitbox attacks[1];
@@ -157,8 +162,9 @@ class Character : public Object {
 		void move();
 		void lookAt(Flt x, Flt y);
 		void setPos(Flt x, Flt y);
-		void setVel(Flt x, Flt y);
-		void addVel(Flt x, Flt y);
+		void addPos(Flt x, Flt y);
+		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
+		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
 	private:
 
@@ -166,15 +172,21 @@ class Character : public Object {
 
 class Player : public Character {
     public:
-        void init();
-        Player(){}
+    	void init();
+        void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		Player(){}
         ~Player(){}
+        
+        
     private:
 };
 
 class Enemy : public Character {
     public:
-        void attackPlayer();
+    	void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		void attackPlayer();
         void kill();
     private:
 };
@@ -213,11 +225,15 @@ class Wall : public Object {
 
     public:
         Flt width, height;
+        //coordinates for center of wall
+        //Vec pos; // inherited from object
+		Hitbox hitbox;
 		
         Flt left, right, top, bot;
 
         void draw();
         void initWall(Flt, Flt, Flt, Flt);
+        Wall(){hitbox.dynamic=0;}
 };
 
 class Door : public Wall {
@@ -233,10 +249,13 @@ class Door : public Wall {
         //false -> left/up true -> right/down
         bool openedFrom;
 
+		Hitbox trigger;
+        
         void draw();
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
+        Door(){trigger.dynamic=0;}
 };
 
 class Level {
@@ -244,6 +263,9 @@ class Level {
         Enemy enemies[100];
         Wall walls[100];
         Door doors[100];
+        int nenemies;
+        int nwalls;
+        int ndoors;
 
         void buildLevel1();
     private:
@@ -255,6 +277,12 @@ void interactDoor();
 void collide(Door);
 void buildLevel1();
 void createWall(int, int);
+
+void interactDoor();
+void doorCollision(Door, Enemy&);
+void doorCollision(Door, Player);
+void wallCollision(Wall, Enemy, int);
+void wallCollision(Wall, Player);
 
 /* TAYLOR FUNCTIONS */
 
@@ -277,6 +305,7 @@ class Info {
 
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
+void object_collision(Character&, Character&);
 
 /* END FUNCTIONS */
 

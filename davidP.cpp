@@ -70,24 +70,27 @@ void Character::draw()
 	if (g.state[S_DEBUG]) {
 		glColor3f(0,0,1);
 		glBegin(GL_LINE_LOOP);
-		glVertex2f(hitbox.width, hitbox.height);
-		glVertex2f(-hitbox.width, hitbox.height);
-		glVertex2f(-hitbox.width, -hitbox.height);
-		glVertex2f(hitbox.width, -hitbox.height);
+		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
+		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
 		glEnd();
 		
 		
 	}
 	
 	//player direction
-	Vec up, upz, cross;
+	/*Vec up, upz, cross;
 	VecMake(0, 1, 0, up);
 	VecMake(0, 0, 1, upz);
 	float angl = acos(VecDot(dir, up));	
 	VecCross(up, dir, cross);
 	if (VecDot(upz, cross)<0)
 		angl = -angl;	
-	glRotatef(angl*180/PI,0,0,1);
+	angl = angl*180/PI;
+	*/
+	
+	glRotatef(rot,0,0,1);
 	
 	/*//head triangle 
 	glPushMatrix();
@@ -102,12 +105,15 @@ void Character::draw()
 	//hand stuff
 	glColor3f(0.6f, 0.6f, 0.6f);
 	glTranslatef(rhand_pos[0], rhand_pos[1], 0.0);
-		
+	
+	/*
 	angl = acos(VecDot(rhand_dir, up));	
 	VecCross(up, rhand_dir, cross);
 	if (VecDot(upz, cross)<0)
 		angl = -angl;	
-	glRotatef(angl*180/PI,0,0,1);
+	angl = angl*180/PI;
+	*/
+	glRotatef(rhand_rot,0,0,1);
 	
 	glBegin(GL_POLYGON);
 	glVertex2f(-3.0f, 0.0f);
@@ -123,14 +129,14 @@ void Character::draw()
 		for(int i=0; i<nattacks; i++){
 			glColor3f(1,1,0);
 			glBegin(GL_LINE_LOOP);
-			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
-				attacks[i].pos[1]+attacks[i].height);
-			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
-				attacks[i].pos[1]+attacks[i].height);
-			glVertex2f(attacks[i].pos[0]-attacks[i].width, 
-				attacks[i].pos[1]-attacks[i].height);
-			glVertex2f(attacks[i].pos[0]+attacks[i].width, 
-				attacks[i].pos[1]-attacks[i].height);
+			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
+				attacks[i].pos[1]+attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
+				attacks[i].pos[1]+attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
+				attacks[i].pos[1]-attacks[i].scale[1]);
+			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
+				attacks[i].pos[1]-attacks[i].scale[1]);
 			glEnd();
 		}
 	}

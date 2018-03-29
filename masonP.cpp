@@ -58,6 +58,7 @@ void Menu::draw() {
         }*/
     }
 }
+
 void pauseMenu() {
 	static double tix = 0.0;
 	static char* info_here = g.info.get_place();
