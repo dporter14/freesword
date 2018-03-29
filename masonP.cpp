@@ -100,8 +100,8 @@ void displayEnemiesKilled() {
 	ggprint8b(&killedRect, 16, 0x0000ff00, "Enemies Slain: %i", g.eKilled);
 
 
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 		glVertex2i(killedRect.bot, killedRect.left);
 		glVertex21(killedRect.);
-	glEnd();
+	glEnd();*/
 }

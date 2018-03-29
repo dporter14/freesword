@@ -477,7 +477,7 @@ int checkKeys(XEvent *e)
             createWall(g.savex, g.savey);
             static char* info_here = g.info.get_place();
 			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
-			break
+			break;
 		case XK_1:
 			david_func();
 			break;
