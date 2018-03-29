@@ -477,6 +477,9 @@ int checkKeys(XEvent *e)
 			if (e->type == KeyPress)
 				g.state[S_DEBUG] ^= 1;
 			break;
+        case XK_z:
+            createWall(g.savex, g.savey);
+            printf("create wall\n");
 		case XK_1:
 			david_func();
 			break;

@@ -181,7 +181,7 @@ class Enemy : public Character {
 
 
 
-/*//////////// MASON FUNCTIONS ///////////////////////////////*/
+/* MASON FUNCTIONS */
 class Menu {
 
     public:
@@ -203,19 +203,16 @@ class mainMenu : public Menu {
 void mason_func();
 void pauseMenu();
 
-/*//////////   David FUNCTIONS	//////////////////////////////*/
+/* David FUNCTIONS	*/
 
 void david_func();
 
-/*///////////   JACOB FUNCTIONS	/////////////////////////////*/
+/* JACOB FUNCTIONS */
 
 class Wall : public Object {
 
     public:
-        //wall width and height
         Flt width, height;
-        //coordinates for center of wall
-        //Vec pos; // inherited from object
 		
         Flt left, right, top, bot;
 
@@ -257,8 +254,9 @@ void initWalls();
 void interactDoor();
 void collide(Door);
 void buildLevel1();
+void createWall(int, int);
 
-/*/////////////    TAYLOR FUNCTIONS     ////////////////////*/
+/* TAYLOR FUNCTIONS */
 
 double current_time();
 class Info {
@@ -280,7 +278,7 @@ class Info {
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 
-/*/////////////    END FUNCTIONS     ////////////////////*/
+/* END FUNCTIONS */
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};

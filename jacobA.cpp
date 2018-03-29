@@ -232,7 +232,7 @@ void Door::swing()
 
 void Door::draw()
 {
-    glColor3f(1.0, 0.0, 0.0);
+    glColor3f(0.0, 0.0, 1.0);
     glPushMatrix();
     glTranslatef(pos[0], pos[1], 0);
     glBegin(GL_POLYGON);
@@ -300,13 +300,18 @@ void doorCollision(Door object, Player being)
             g.player.pos[1] = object.bot-10;
         else if (being.pos[1] > object.top-5)
             g.player.pos[1] = object.top+10;
-    }
+                                                                                    }
 
 }
 
 void Level::buildLevel1()
 {
-    walls[0].initWall(0.0, 750.0, 45.0, 300.0);
-    doors[0].initDoor(92.5, 615.0, 140.0, 30.0, true);
-    doors[1].initDoor(g.xres/2, g.yres/2, 20.0, 200.0, false);
-} 
+    walls[0].initWall(15.0, 750.0, 30.0, 300.0);
+    doors[0].initDoor(104.0, 607.5, 150.0, 15.0, true);
+}
+
+void createWall(int mousex, int mousey) 
+{
+    g.number[N_WALLS]++;
+    g.level1.walls[N_WALLS].initWall(mousex, mousey, 50.0, 50.0);
+}
