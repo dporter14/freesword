@@ -473,7 +473,9 @@ int checkKeys(XEvent *e)
 			break;
         case XK_z:
             createWall(g.savex, g.savey);
-            printf("create wall\n");
+            static char* info_here = g.info.get_place();
+			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+			break
 		case XK_1:
 			david_func();
 			break;
@@ -618,20 +620,20 @@ void physics()
     //player collision
     for (int i=0; i<100; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            doorCollision(g.level1.doors[i], g.enemies[j]);
-            wallCollision(g.level1.walls[i], g.enemies[j], j);
+            wallCollision(g.level1.doors[i], g.enemies[j]);
+            wallCollision(g.level1.walls[i], g.enemies[j]);
         }
         
         wallCollision(g.level1.walls[i], g.player);
-        doorCollision(g.level1.doors[i], g.player);
+        wallCollision(g.level1.doors[i], g.player);
     }
     
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
 		for (int j=0; j<g.number[N_ENEMIES]; j++) {
 			if (i!=j)
-	        	object_collision(g.enemies[i], g.enemies[j]);
+	        	characterCollision(g.enemies[i], g.enemies[j]);
         }
-        object_collision(g.enemies[i], g.player);
+        characterCollision(g.enemies[i], g.player);
     }
 	
 	for (int i=0; i<g.player.nattacks; i++){

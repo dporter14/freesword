@@ -188,6 +188,8 @@ void Wall::draw(){
 
 }
 
+//
+/*
 void wallCollision(Wall object, Enemy being, int num)
 {
     if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
@@ -219,6 +221,63 @@ void wallCollision(Wall object, Player being)
             g.player.pos[1] = object.top+10;
     }
 
+}
+*/
+
+void wallCollision(Wall& o1, Character& o2){
+	/*static char* derp = g.info.get_place();
+	if(&g.player == &o2)
+		sprintf(derp, "col: %0.2f", g.player.vel[0]);
+	*/
+	Hitbox h1 = o1.hitbox, h2 = o2.hitbox;
+	//Log("Dimensions: %0.3f %0.3f\n", h1.scale[0], h2.scale[0]);
+	float t = 0;
+	bool flag=0;
+	float xt1, xt2, yt1, yt2, xt, yt;
+	if(h1.intersect(h2)){ 
+		
+		// magic
+		if (ABS(o2.vel[0]) > 1e-8) {
+			flag = 1;
+			xt1 = ((h1.pos[0]-h1.scale[0]) - 
+				(h2.pos[0]+h2.scale[0])) / (o2.vel[0]);
+			xt2 = ((h1.pos[0]+h1.scale[0]) - 
+				(h2.pos[0]-h2.scale[0])) / (o2.vel[0]);
+			//Log("Dimensions: %0.3f %0.3f\n", xt1, xt2);
+		} else {
+			xt1 = xt2 = 1e10;
+		}
+		
+		if (ABS(o2.vel[1]) > 1e-8) {
+			flag = 1;
+			yt1 = ((h1.pos[1]-h1.scale[1]) - 
+				(h2.pos[1]+h2.scale[1])) / (o2.vel[1]);
+			yt2 = ((h1.pos[1]+h1.scale[1]) - 
+				(h2.pos[1]-h2.scale[1])) / (o2.vel[1]);
+		} else {
+			yt1 = yt2 = 1e10;
+		}
+		
+		if (flag) {
+			xt =  (ABS(xt1) < ABS(xt2)) ? xt1 : xt2;
+			yt =  (ABS(yt1) < ABS(yt2)) ? yt1 : yt2;
+			t =  (ABS(xt) < ABS(yt)) ? xt : yt;
+			t = CLAMP(t * 1.0001, -1.5, 1.5); //magic
+			//Log("Dimensions: %0.3f %0.3f\n", xt, yt);
+			
+			if (ABS(xt) < ABS(yt)) {
+				o2.addPos(o2.vel[0]*t, 0);
+				
+				float temp = -o2.vel[0];
+				o2.setVel(temp*0.2, o2.vel[1]);
+			} else {
+				o2.addPos(0, o2.vel[1]*t);
+				
+				float temp = -o2.vel[1];
+				o2.setVel(o2.vel[0], temp*0.2);
+			}
+		}
+	}
 }
 
 void Door::swing()
@@ -322,6 +381,9 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 void interactDoor()
 {
     for (int i=0; i<100; i++) {
+    	if(g.player.hitbox.intersect(g.level1.doors[i].trigger))
+	    	g.level1.doors[i].swing();
+    /*
         if (g.player.pos[0] <= g.level1.doors[i].right+50 && 
                 g.player.pos[0] >= g.level1.doors[i].left-50) {
             if (g.player.pos[1] <= g.level1.doors[i].top+50 &&
@@ -329,9 +391,11 @@ void interactDoor()
                 g.level1.doors[i].swing();
             }
         }
+        */
     }
 }
 
+/* //handled by wall collision
 void doorCollision(Door object, Enemy& being)
 {
     if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
@@ -363,6 +427,8 @@ void doorCollision(Door object, Player being)
     }
 
 }
+*/
+
 
 void Level::buildLevel1()
 {

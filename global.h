@@ -279,10 +279,11 @@ void buildLevel1();
 void createWall(int, int);
 
 void interactDoor();
-void doorCollision(Door, Enemy&);
+/*void doorCollision(Door, Enemy&);
 void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
-void wallCollision(Wall, Player);
+*/
+void wallCollision(Wall&, Character&);
 
 /* TAYLOR FUNCTIONS */
 
@@ -305,7 +306,7 @@ class Info {
 
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
-void object_collision(Character&, Character&);
+void characterCollision(Character&, Character&);
 
 /* END FUNCTIONS */
 
