@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 			physicsCountdown -= physicsRate;
 		}
 		//Always render every frame.
-		DisplayTime1();
+	///	DisplayTime1();
 		render();
 		x11.swapBuffers();
 	}
@@ -349,23 +349,24 @@ void init()
     //
 	//initialize buttons...
 	
-	   N_BUTTONS =0;
+	   g.number[N_BUTTONS] =0;
 	//size and position
-	g.button[g.N_BUTTONS].r.width = 140;
-	g.button[g.N_BUTTONS].r.height = 60;
-	g.button[g.N_BUTTONS].r.left = 20;
-	g.button[g.N_BUTTONS].r.bot = 320;
-	g.button[g.N_BUTTONS].r.right =
-	g.button[g.N_BUTTONS].r.left + g.button[g.N_BUTTONS].r.width;
-	g.button[g.N_BUTTONS].r.top =
-	g.button[g.N_BUTTONS].r.bot + g.button[g.N_BUTTONS].r.height;
-	g.button[g.N_BUTTONS].r.centerx =
-	(g.button[g.N_BUTTONS].r.left + g.button[g.N_BUTTONS].r.right) / 2;
-	g.button[g.N_BUTTONS].r.centery =
-	(g.button[g.N_BUTTONS].r.bot + g.button[g.N_BUTTONS].r.top) / 2;
-	strcpy(g.button[g.N_BUTTONS].text, "Reset");
-	g.button[g.N_BUTTONS].down = 0;
-	g.button[g.N_BUTTONS].click = 0;
+	/*
+	g.button[g.number[ N_BUTTONS] ].r.width = 140;
+	g.button[g.number[ N_BUTTONS] ].r.height = 60;
+	g.button[g.number[ N_BUTTONS] ].r.left = 20;
+	g.button[g.number[ N_BUTTONS] ].r.bot = 320;
+	g.button[g.number[ N_BUTTONS] ].r.right =
+	g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.width;
+	g.button[g.number[ N_BUTTONS] ].r.top =
+	g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[ N_BUTTONS] ].r.height;
+	g.button[g.number[ N_BUTTONS] ].r.centerx =
+	(g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.right) / 2;
+	g.button[g.number[ N_BUTTONS] ].r.centery =
+	(g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.N_BUTTONS].r.top) / 2;
+	strcpy(g.button[g.number[ N_BUTTONS]].text, "Reset");
+	g.button[g.number[ N_BUTTONS]].down = 0;
+	g.button[g.number[ N_BUTTONS]].click = 0;
 	g.button[g.N_BUTTONS].color[0] = 0.4f;
 	g.button[g.N_BUTTONS].color[1] = 0.4f;
 	g.button[g.N_BUTTONS].color[2] = 0.7f;
@@ -397,7 +398,7 @@ void init()
 	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
 	g.button[g.nbuttons].text_color = 0x00ffffff;
 	g.nbuttons++;
-	
+	*/
 }
 
 void resetGame()
@@ -739,6 +740,6 @@ void render(void)
 	
 	//glDisable(GL_DEPTH_TEST);
 	
-
+	displayEnemiesKilled();
 }
 

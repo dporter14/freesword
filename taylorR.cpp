@@ -43,6 +43,7 @@ void Enemy::attackPlayer()
 }
 
 void Enemy::kill(){
+	g.eKilled++;
 	state = S_CHAR_DEAD;
 }
 

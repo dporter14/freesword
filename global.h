@@ -201,6 +201,7 @@ class mainMenu : public Menu {
 
 void mason_func();
 void pauseMenu();
+void displayEnemiesKilled();
 
 /*//////////   David FUNCTIONS	//////////////////////////////*/
 
@@ -310,6 +311,7 @@ struct Global {
 	bool isPressed[K_];
 	int state[S_];
 	int number[N_];
+	int eKilled;
 	Wall n, e, s, w;
 	Door doors[4];
 	Info info;
@@ -327,6 +329,7 @@ struct Global {
 		savex = savey = 0;
 		
 		bgImage=NULL;
+		eKilled = 0;
 
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;

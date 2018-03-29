@@ -24,11 +24,11 @@ void Menu::draw() {
 
 	for(int i=0; i<g.number[N_BUTTONS]; i++) {
         if (g.button[i].over) {
-            //int w=2;
+            int w=2;
             glColor3f(1.0f, 1.0f, 0.0f);
             //draw a highlight around button
             glLineWidth(3);
-			/*
+			
             glBegin(GL_LINE_LOOP);
                 glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
                 glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
@@ -36,7 +36,7 @@ void Menu::draw() {
                 glVertex2i(g.button[i].r.right+w, g.button[i].r.bot-w);
                 glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
             glEnd();
-			*/
+
             glLineWidth(1);
         }
         if (g.button[i].down) {
@@ -44,7 +44,7 @@ void Menu::draw() {
         } else {
             glColor3fv(g.button[i].color);
         }
-		
+		/*	
         glBegin(GL_QUADS);
             glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
             glVertex2i(g.button[i].r.left,  g.button[i].r.top);
@@ -59,6 +59,7 @@ void Menu::draw() {
         } else {
             ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
         }
+		*/
     }
 }
 void pauseMenu() {
@@ -68,7 +69,7 @@ void pauseMenu() {
 	startTime = current_time();
 	
 	g.state[S_PAUSED] = true;
-	//Button menuButt[3];
+	Button menuButt[3];
 
 	//static float angle = 0.0;
 	glColor3ub(0, 255, 0);
@@ -86,4 +87,20 @@ void pauseMenu() {
 	endTime = current_time();
 	tix += endTime - startTime;
 	sprintf(info_here, "Pause Menu Function: %f", tix);
+}
+void displayEnemiesKilled() {
+
+	Rect killedRect;
+	killedRect.bot  = 0;
+	killedRect.right = g.xres;
+	killedRect.top = 20.0;
+	killedRect.left = g.xres - 80.0;
+	
+	ggprint8b(&killedRect, 16, 0x0000ff00, "Enemies Slain: %i", g.eKilled);
+
+
+	glBegin(GL_QUADS);
+		glVertex2i(killedRect.bot, killedRect.left);
+		glVertex21(killedRect.);
+	glEnd();
 }
