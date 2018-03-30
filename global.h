@@ -283,6 +283,7 @@ void doorCollision(Door, Enemy&);
 void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
 void wallCollision(Wall, Player);
+void dragWall(int, int);
 
 /* TAYLOR FUNCTIONS */
 

@@ -502,7 +502,9 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
+            dragWall(e->xbutton.x, e->xbutton.y);
 			(void)lbutton;
+            dragWall(e->xbutton.x, (g.yres - e->xbutton.y));
 			if(g.player.anim_handler==NULL){
 				g.player.setVel(0,0);
 				Animation *act = &g.anims[g.number[N_ANIMS]++];
