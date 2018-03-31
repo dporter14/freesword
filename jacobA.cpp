@@ -3,10 +3,17 @@
 #include <ctime>
 #include "global.h"
 
-void jacob_func() 
+void toggleEditMode() 
 {
-    strcpy(g.title.text,"Jacob test");
-    g.title.text_color = 0x00ffffff;
+    if (g.state[S_LEVELEDIT] != 1) {
+        g.state[S_LEVELEDIT] = 1;
+        strcpy(g.title.text,"Level Editor Enabled");
+        g.title.text_color = 0x39ff14;
+    } else {
+        g.state[S_LEVELEDIT] = 0;
+        strcpy(g.title.text, "Freesword");
+        g.title.text_color = 0x00ffffff;
+    }
 }
 
 //init player
@@ -132,6 +139,11 @@ void Character::lookAt(Flt x, Flt y)
 
 void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
+    initx = floor((initx/25))*25;
+    inity = floor((inity/25))*25;
+
+    printf("initx: %f\n", initx);
+    printf("inity: %f\n", inity);
 
     pos[0] = initx;
     pos[1] = inity;
@@ -376,43 +388,21 @@ void createWall(int mousex, int mousey)
         g.number[N_WALLS]++;
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
     }
-
-    Flt x = g.level1.walls[g.number[N_WALLS]].pos[0];
-    Flt y = g.level1.walls[g.number[N_WALLS]].pos[1];
-
-    printf("x = %f\n", x);
-    printf("y = %f\n", y);
-
-    for (Flt i=0; i<49; i++) {
-        if (x<=(i*25) && x>=((i-1)*25)) {
-            x = ((i*25)-12.5);
-            break;
-        }
-    }
-    for (Flt i=0; i<37; i++) {
-        if (y<=(i*25) && y>=((i-1)*25)) {
-            y = ((i*25)-12.5);
-            break;
-        }
-    }
-
-    printf("x = %f\n", x);
-    printf("y = %f\n", y);
-
-    g.level1.walls[g.number[N_WALLS]].pos[0] = x;
-    g.level1.walls[g.number[N_WALLS]].pos[1] = y;
-
 }
 
 void dragWall(int mousex, int mousey) 
 {
-    for (int i=0; i<g.number[N_WALLS]; i++) {
-        if (mousex<=g.level1.walls[i].pos[0]+12.5 && mousex>=g.level1.walls[i].pos[0]-12.5) {
-            if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
-                g.level1.walls[i].pos[0] = (floor(mousex/25) * 25) - 12.5;
-                g.level1.walls[i].pos[1] = (floor(mousey/25) * 25) - 12.5;
-                break;
+    static int selectedWall;
+    if (g.wallChange == true) {
+        for (int i=0; i<g.number[N_WALLS]; i++) {
+            if (mousex<=g.level1.walls[i].pos[0]+12.5 && mousex>=g.level1.walls[i].pos[0]-12.5) {
+                if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
+                    printf("Wall #%d\n", i);
+                    selectedWall = i;
+                    break;
+                }
             }
         }
     }
+        g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
 }

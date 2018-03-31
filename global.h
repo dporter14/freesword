@@ -271,7 +271,7 @@ class Level {
     private:
 };
 
-void jacob_func();
+void toggleEditMode();
 void initWalls();
 void interactDoor();
 void collide(Door);
@@ -284,6 +284,8 @@ void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
 void wallCollision(Wall, Player);
 void dragWall(int, int);
+
+enum MouseList {M_1, M_2, M_3, M_};
 
 /* TAYLOR FUNCTIONS */
 
@@ -312,7 +314,7 @@ void object_collision(Character&, Character&);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -339,10 +341,11 @@ struct Global {
 	Button title;
 
 	bool isPressed[K_];
+    bool isClicked[M_];
 	int state[S_];
 	int number[N_];
-	Wall n, e, s, w;
-	Door doors[4];
+	bool wallChange;
+    Door doors[4];
 	Info info;
 	//
 	int currentLevel;
@@ -374,7 +377,10 @@ struct Global {
 		for(int i = 0; i<N_; i++) {
 			number[i] = 0;
 		}
-		
+		for (int i=0; i<M_; i++) {
+            isClicked[i] = false;
+        }
+        wallChange = true;
 	}
 };
 extern Global g;
