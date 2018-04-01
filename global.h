@@ -255,6 +255,8 @@ class Door : public Wall {
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
+        //level edit function
+        void rotate();
         Door(){trigger.dynamic=0;}
 };
 
@@ -284,6 +286,9 @@ void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
 void wallCollision(Wall, Player);
 void dragWall(int, int);
+void createDoor(int, int);
+void dragDoor(int, int);
+void rotateDoor(int, int);
 
 enum MouseList {M_1, M_2, M_3, M_};
 
@@ -323,7 +328,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_};
 
 struct Global {
 	// screen res
@@ -344,7 +349,7 @@ struct Global {
     bool isClicked[M_];
 	int state[S_];
 	int number[N_];
-	bool wallChange;
+	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
 	//
@@ -381,6 +386,7 @@ struct Global {
             isClicked[i] = false;
         }
         wallChange = true;
+        doorChange = true;
 	}
 };
 extern Global g;

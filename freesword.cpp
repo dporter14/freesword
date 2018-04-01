@@ -472,8 +472,17 @@ int checkKeys(XEvent *e)
 				g.state[S_DEBUG] ^= 1;
 			break;
         case XK_z:
-            if (g.state[S_LEVELEDIT]) {
-                createWall(g.savex, g.savey);
+			if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createWall(g.savex, g.savey);
+                }
+            }
+            break;
+        case XK_x:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createDoor(g.savex, g.savey);
+                }
             }
             break;
         case XK_l:
@@ -505,6 +514,8 @@ int checkMouse(XEvent *e)
 	if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
+        g.isClicked[M_2] = false;
+        g.doorChange = true;
         return 0;
     }
 	if (e->type == ButtonPress) {
@@ -529,7 +540,9 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==3) {
 			//Right button is down
 			rbutton=1;
-			
+            g.isClicked[M_2] = true;
+            if (g.state[S_LEVELEDIT])
+               rotateDoor(g.savex, g.savey); 
 		}
 	}
 	x = e->xbutton.x;
@@ -537,7 +550,7 @@ int checkMouse(XEvent *e)
 	y = g.yres - y;
     if (g.isClicked[M_1] == true) {
         dragWall(x, y);
-        g.wallChange = false;
+        dragDoor(x, y);
     }
 	//printf("%d %d\n",x,y);
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {

@@ -378,31 +378,103 @@ void doorCollision(Door object, Player being)
 
 void Level::buildLevel1()
 {
-    walls[0].initWall(15.0, 750.0, 15.0, 150.0);
-    doors[0].initDoor(104.0, 607.5, 75.0, 7.5, true);
 }
 
 void createWall(int mousex, int mousey) 
 {
     if (g.number[N_WALLS] < 100) {
-        g.number[N_WALLS]++;
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
+        g.number[N_WALLS]++;
     }
 }
 
 void dragWall(int mousex, int mousey) 
 {
     static int selectedWall;
-    if (g.wallChange == true) {
+    if (g.wallChange == true && g.number[N_WALLS]>0) {
         for (int i=0; i<g.number[N_WALLS]; i++) {
             if (mousex<=g.level1.walls[i].pos[0]+12.5 && mousex>=g.level1.walls[i].pos[0]-12.5) {
                 if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
                     printf("Wall #%d\n", i);
                     selectedWall = i;
+                    g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+                    g.wallChange = false;
+                    return;
+                }
+            }
+        }
+        return;
+    } else if (g.wallChange == false && g.number[N_WALLS]>0) {
+       g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+    }
+}
+
+void createDoor(int mousex, int mousey)
+{
+    if (g.number[N_DOORS] < 100) {
+        g.level1.doors[g.number[N_DOORS]].initDoor(mousex, mousey, 50.0, 12.5, true);
+        g.number[N_DOORS]++;
+    }
+}
+
+void dragDoor(int mousex, int mousey) 
+{
+    static int selectedDoor;
+    if (g.doorChange == true && g.number[N_DOORS]>0) {
+        for (int i=0; i<g.number[N_DOORS]; i++) {
+            if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
+                if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
+                    printf("Door #%d\n", i);
+                    selectedDoor = i;
+                    g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
+                    printf("first off fuck you\n");
+                    g.doorChange = false;
+                    return;
+                }
+            }
+        }
+        return;
+    } else if (g.doorChange == false && g.number[N_DOORS]>0) {
+        printf("fuck you\n");
+        g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
+    }
+}
+
+void rotateDoor(int mousex, int mousey) 
+{
+    int selectedDoor;
+    if (g.number[N_DOORS]>0) {
+        for (int i=0; i<g.number[N_DOORS]; i++) {
+            if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
+                if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
+                    printf("Rotate door #%d\n", i);
+                    selectedDoor = i;
                     break;
                 }
             }
         }
+        g.level1.doors[selectedDoor].rotate();
     }
-        g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+    
+}
+
+void Door::rotate()
+{
+    Flt tmp = scale[1];
+    scale[1] = scale[0];
+    scale[0] = tmp;
+    left = pos[0]-(scale[0]);
+    right = pos[0]+(scale[0]);
+    top = pos[1]+(scale[1]);
+    bot = pos[1]-(scale[1]);
+    isHoriz = !isHoriz;
+
+    VecCopy(pos, hitbox.pos);
+    VecCopy(scale, hitbox.scale);
+    Vec temp;
+    VecMake(20, 20, 0, temp);
+    VecAdd(temp, hitbox.scale, temp);
+    VecCopy(pos, trigger.pos);
+    VecCopy(temp, trigger.scale);
+
 }
