@@ -171,11 +171,6 @@ void Animation::sword_slash()
 
 void Animation::sword_slash2()
 {
-	static double tix = 0.0;
-	static char* info_here = g.info.get_place();
-	double startTime, endTime;
-	startTime = current_time();
-	
 	Player* actor = (Player*)actors[0];
 	static Vec orig_pos;
 	static Flt orig_rot;
@@ -217,10 +212,6 @@ void Animation::sword_slash2()
 	}
 	frame++;
 	
-	//return time spent
-	endTime = current_time();
-	tix += endTime - startTime;
-	sprintf(info_here, "Sword Slash Animation: %f", tix);
 }
 
 void Animation::test()
@@ -238,7 +229,7 @@ void Info::draw(){
 	}
 }
 
-void object_collision(Character& o1, Character& o2){
+void characterCollision(Character& o1, Character& o2){
 	/*static char* derp = g.info.get_place();
 	if(&g.player == &o2)
 		sprintf(derp, "col: %0.2f", g.player.vel[0]);
@@ -249,9 +240,7 @@ void object_collision(Character& o1, Character& o2){
 	bool flag=0;
 	float xt1, xt2, yt1, yt2, xt, yt;
 	if(h1.intersect(h2)){ 
-		static char* derp = g.info.get_place();
-		sprintf(derp, "vel: %f", g.player.vel[0]);
-
+		
 		// magic
 		if (ABS(o1.vel[0] - o2.vel[0]) > 1e-8) {
 			flag = 1;
@@ -299,7 +288,6 @@ void object_collision(Character& o1, Character& o2){
 		}
 	}
 }
-
 
 
 

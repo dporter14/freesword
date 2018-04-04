@@ -279,10 +279,12 @@ void buildLevel1();
 void createWall(int, int);
 
 void interactDoor();
+/*
 void doorCollision(Door, Enemy&);
 void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
 void wallCollision(Wall, Player);
+*/
 void dragWall(int, int);
 void createDoor(int, int);
 void dragDoor(int, int);
@@ -292,6 +294,7 @@ void saveLevel();
 void loadLevel();
 
 enum MouseList {M_1, M_2, M_3, M_};
+void wallCollision(Wall&, Character&);
 
 /* TAYLOR FUNCTIONS */
 
@@ -314,7 +317,7 @@ class Info {
 
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
-void object_collision(Character&, Character&);
+void characterCollision(Character&, Character&);
 
 /* END FUNCTIONS */
 

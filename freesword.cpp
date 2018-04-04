@@ -658,20 +658,20 @@ void physics()
     //player collision
     for (int i=0; i<100; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            doorCollision(g.level1.doors[i], g.enemies[j]);
-            wallCollision(g.level1.walls[i], g.enemies[j], j);
+            wallCollision(g.level1.doors[i], g.enemies[j]);
+            wallCollision(g.level1.walls[i], g.enemies[j]);
         }
         
         wallCollision(g.level1.walls[i], g.player);
-        doorCollision(g.level1.doors[i], g.player);
+        wallCollision(g.level1.doors[i], g.player);
     }
     
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
 		for (int j=0; j<g.number[N_ENEMIES]; j++) {
 			if (i!=j)
-	        	object_collision(g.enemies[i], g.enemies[j]);
+	        	characterCollision(g.enemies[i], g.enemies[j]);
         }
-        object_collision(g.enemies[i], g.player);
+        characterCollision(g.enemies[i], g.player);
     }
 	
 	for (int i=0; i<g.player.nattacks; i++){
