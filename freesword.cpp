@@ -485,6 +485,20 @@ int checkKeys(XEvent *e)
                 }
             }
             break;
+        case XK_b: 
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    saveLevel();
+                }
+            }
+            break;
+        case XK_f:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    loadLevel();
+                }
+            }
+            break;
         case XK_l:
             if (e->type == KeyPress)
     			toggleEditMode();

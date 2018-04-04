@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 #include "defs.h"
 #include "fonts.h"
@@ -265,9 +266,6 @@ class Level {
         Enemy enemies[100];
         Wall walls[100];
         Door doors[100];
-        int nenemies;
-        int nwalls;
-        int ndoors;
 
         void buildLevel1();
     private:
@@ -289,6 +287,9 @@ void dragWall(int, int);
 void createDoor(int, int);
 void dragDoor(int, int);
 void rotateDoor(int, int);
+void saveLevel();
+void saveLevel();
+void loadLevel();
 
 enum MouseList {M_1, M_2, M_3, M_};
 

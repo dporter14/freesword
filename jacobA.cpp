@@ -158,6 +158,7 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
     hitbox.type = H_HURTBOX;
     VecCopy(pos, hitbox.pos);
     VecCopy(scale, hitbox.scale);
+
 }
 
 void Wall::draw(){
@@ -293,7 +294,6 @@ void Door::swing()
     VecAdd(temp, hitbox.scale, temp);
     VecCopy(pos, trigger.pos);
     VecCopy(temp, trigger.scale);
-
 }
 
 void Door::draw()
@@ -329,6 +329,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
     trigger.type = H_TRIGGER;
     VecCopy(pos, trigger.pos);
     VecCopy(temp, trigger.scale); 
+
 }
 
 void interactDoor()
@@ -384,7 +385,7 @@ void createWall(int mousex, int mousey)
 {
     if (g.number[N_WALLS] < 100) {
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
-        g.number[N_WALLS]++;
+        g.number[N_WALLS]++;   
     }
 }
 
@@ -405,7 +406,7 @@ void dragWall(int mousex, int mousey)
         }
         return;
     } else if (g.wallChange == false && g.number[N_WALLS]>0) {
-       g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+        g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
     }
 }
 
@@ -427,7 +428,6 @@ void dragDoor(int mousex, int mousey)
                     printf("Door #%d\n", i);
                     selectedDoor = i;
                     g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
-                    printf("first off fuck you\n");
                     g.doorChange = false;
                     return;
                 }
@@ -435,7 +435,6 @@ void dragDoor(int mousex, int mousey)
         }
         return;
     } else if (g.doorChange == false && g.number[N_DOORS]>0) {
-        printf("fuck you\n");
         g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
     }
 }
@@ -455,7 +454,7 @@ void rotateDoor(int mousex, int mousey)
         }
         g.level1.doors[selectedDoor].rotate();
     }
-    
+
 }
 
 void Door::rotate()
@@ -478,3 +477,50 @@ void Door::rotate()
     VecCopy(temp, trigger.scale);
 
 }
+
+void saveLevel()
+{
+    std::ofstream testlevel;
+    testlevel.open ("testlevel");
+    for (int i=0; i<g.number[N_WALLS]; i++) {
+        testlevel << "wall " << g.level1.walls[i].pos[0] << " " << g.level1.walls[i].pos[1] << "\n";
+        printf("Saved Wall to testlevel\n");
+    }
+    for (int i=0; i<g.number[N_DOORS]; i++) {
+        testlevel << "door " << g.level1.doors[i].pos[0] << " " << g.level1.doors[i].pos[1] << " " << g.level1.doors[i].isHoriz << "\n";
+        printf("Saved Door to testlevel\n");
+    }
+    testlevel.close();
+}
+
+void loadLevel()
+{
+    std::ifstream levelread;
+    levelread.open ("testlevel");
+    if (levelread.is_open()) {
+            char object[5];
+            int x, y, horiz;
+        while(!levelread.eof()) {
+            std::cout << "maybe" << std::endl;
+            levelread >> object;
+            std::cout << object << std::endl;
+            if (!strcmp("wall", object)) {
+                levelread >> x;
+                levelread >> y;
+                g.level1.walls[g.number[N_WALLS]].initWall(x, y, 12.5, 12.5); 
+                g.number[N_WALLS]++;   
+            } else if (!strcmp("door", object)) {
+                levelread >> x;
+                levelread >> y;
+                levelread >> horiz;
+                g.level1.doors[g.number[N_DOORS]].initDoor(x, y, 50.0, 12.5, horiz);
+                g.number[N_DOORS]++;   
+            }    
+        }
+    } else {
+        printf("Unable to open file\n");
+    }
+    levelread.close();
+}
+
+
