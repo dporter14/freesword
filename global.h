@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 #include "defs.h"
 #include "fonts.h"
@@ -255,6 +256,8 @@ class Door : public Wall {
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
+        //level edit function
+        void rotate();
         Door(){trigger.dynamic=0;}
 };
 
@@ -263,15 +266,12 @@ class Level {
         Enemy enemies[100];
         Wall walls[100];
         Door doors[100];
-        int nenemies;
-        int nwalls;
-        int ndoors;
 
         void buildLevel1();
     private:
 };
 
-void jacob_func();
+void toggleEditMode();
 void initWalls();
 void interactDoor();
 void collide(Door);
@@ -279,10 +279,21 @@ void buildLevel1();
 void createWall(int, int);
 
 void interactDoor();
-/*void doorCollision(Door, Enemy&);
+/*
+void doorCollision(Door, Enemy&);
 void doorCollision(Door, Player);
 void wallCollision(Wall, Enemy, int);
+void wallCollision(Wall, Player);
 */
+void dragWall(int, int);
+void createDoor(int, int);
+void dragDoor(int, int);
+void rotateDoor(int, int);
+void saveLevel();
+void saveLevel();
+void loadLevel();
+
+enum MouseList {M_1, M_2, M_3, M_};
 void wallCollision(Wall&, Character&);
 
 /* TAYLOR FUNCTIONS */
@@ -312,7 +323,7 @@ void characterCollision(Character&, Character&);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -321,7 +332,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_};
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_};
 
 struct Global {
 	// screen res
@@ -339,10 +350,11 @@ struct Global {
 	Button title;
 
 	bool isPressed[K_];
+    bool isClicked[M_];
 	int state[S_];
 	int number[N_];
-	Wall n, e, s, w;
-	Door doors[4];
+	bool wallChange, doorChange;
+    Door doors[4];
 	Info info;
 	//
 	int currentLevel;
@@ -374,7 +386,11 @@ struct Global {
 		for(int i = 0; i<N_; i++) {
 			number[i] = 0;
 		}
-		
+		for (int i=0; i<M_; i++) {
+            isClicked[i] = false;
+        }
+        wallChange = true;
+        doorChange = true;
 	}
 };
 extern Global g;

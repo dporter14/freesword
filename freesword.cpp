@@ -407,9 +407,9 @@ void gameUpdate()
 			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
 		}
 	}
-	if(g.number[N_ENEMIES]<5){
+	/*if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
-	}
+	}*/
 }
 
 int checkKeys(XEvent *e)
@@ -472,10 +472,37 @@ int checkKeys(XEvent *e)
 				g.state[S_DEBUG] ^= 1;
 			break;
         case XK_z:
-            createWall(g.savex, g.savey);
-            static char* info_here = g.info.get_place();
-			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
-			break
+			if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createWall(g.savex, g.savey);
+                }
+            }
+            break;
+        case XK_x:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createDoor(g.savex, g.savey);
+                }
+            }
+            break;
+        case XK_b: 
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    saveLevel();
+                }
+            }
+            break;
+        case XK_f:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    loadLevel();
+                }
+            }
+            break;
+        case XK_l:
+            if (e->type == KeyPress)
+    			toggleEditMode();
+            break;
 		case XK_1:
 			david_func();
 			break;
@@ -486,7 +513,7 @@ int checkKeys(XEvent *e)
 			mason_func();
 			break;
 		case XK_4:
-			jacob_func();
+		    spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 			break;
 	}
 	return 0;
@@ -498,12 +525,18 @@ int checkMouse(XEvent *e)
 	int lbutton=0;
 	int rbutton=0;
 	//
-	if (e->type == ButtonRelease)
-		return 0;
+	if (e->type == ButtonRelease) {
+        g.isClicked[M_1] = false;
+        g.wallChange = true;
+        g.isClicked[M_2] = false;
+        g.doorChange = true;
+        return 0;
+    }
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
 			//Left button is down
 			lbutton=1;
+            g.isClicked[M_1] = true;
 			(void)lbutton;
 			if(g.player.anim_handler==NULL){
 				g.player.setVel(0,0);
@@ -521,19 +554,24 @@ int checkMouse(XEvent *e)
 		if (e->xbutton.button==3) {
 			//Right button is down
 			rbutton=1;
-			
+            g.isClicked[M_2] = true;
+            if (g.state[S_LEVELEDIT])
+               rotateDoor(g.savex, g.savey); 
 		}
 	}
 	x = e->xbutton.x;
 	y = e->xbutton.y;
 	y = g.yres - y;
+    if (g.isClicked[M_1] == true) {
+        dragWall(x, y);
+        dragDoor(x, y);
+    }
 	//printf("%d %d\n",x,y);
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
 		//Mouse moved
 		g.savex = x;
 		g.savey = y;
 	}
-
 	//for menu buttons
 	/*for (i=0; i<g.nbuttons; i++) {
 		g.button[i].over=0;
@@ -686,14 +724,6 @@ void render(void)
 	//draw character
 	g.player.draw();
 	
-	
-	//draw border walls #buildthewall
-    //lab7
-    g.n.draw();
-    g.e.draw();
-    g.s.draw();
-    g.w.draw();
-
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
 	}
