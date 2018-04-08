@@ -1,5 +1,11 @@
-wall 325 500
-wall 600 500
-wall 925 475
-door 425 350 1
-door 750 325 1
+wall 450 500
+wall 525 500
+wall 700 500
+wall 725 400
+wall 925 550
+door 400 325 1
+door 950 425 1
+enemy 92.9848 129.037
+enemy 140.651 67.7812
+wall 500 500
+end

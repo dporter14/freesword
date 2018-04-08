@@ -556,6 +556,11 @@ void saveLevel()
         testlevel << "door " << g.level1.doors[i].pos[0] << " " << g.level1.doors[i].pos[1] << " " << g.level1.doors[i].isHoriz << "\n";
         printf("Saved Door to testlevel\n");
     }
+    for (int i=0; i<g.number[N_ENEMIES]; i++) {
+        testlevel << "enemy" << " " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
+        printf("Saved enemy to testlevel\n");
+    }
+    testlevel << "end\n";
     testlevel.close();
 }
 
@@ -564,10 +569,9 @@ void loadLevel()
     std::ifstream levelread;
     levelread.open ("testlevel");
     if (levelread.is_open()) {
-            char object[5];
-            int x, y, horiz;
+            char object[6];
+            Flt x, y, horiz;
         while(!levelread.eof()) {
-            std::cout << "maybe" << std::endl;
             levelread >> object;
             std::cout << object << std::endl;
             if (!strcmp("wall", object)) {
@@ -575,13 +579,26 @@ void loadLevel()
                 levelread >> y;
                 g.level1.walls[g.number[N_WALLS]].initWall(x, y, 12.5, 12.5); 
                 g.number[N_WALLS]++;   
+                std::cout << "Spawned wall\n" << std::endl;
             } else if (!strcmp("door", object)) {
                 levelread >> x;
                 levelread >> y;
                 levelread >> horiz;
                 g.level1.doors[g.number[N_DOORS]].initDoor(x, y, 50.0, 12.5, horiz);
-                g.number[N_DOORS]++;   
-            }    
+                g.number[N_DOORS]++; 
+                std::cout << "Spawned door\n" << std::endl;  
+            } else if (!strcmp("enemy", object)) {
+                levelread >> x;
+                levelread >> y;
+                spawnEnemy(x, y);
+                std::cout << "Spawned enemy" << std::endl;
+            } else if (!strcmp("end", object)) {
+                break;
+            } else {
+                std::cout << "Error: Unrecognized data\n" << std::endl;
+                exit(1);
+            }
+                
         }
     } else {
         printf("Unable to open file\n");
