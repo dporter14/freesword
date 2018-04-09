@@ -343,9 +343,8 @@ void init()
     //
 	//initialize buttons...
 	
-	   g.number[N_BUTTONS] =0;
+	g.number[N_BUTTONS] =0;
 	//size and position
-	/*
 	g.button[g.number[ N_BUTTONS] ].r.width = 140;
 	g.button[g.number[ N_BUTTONS] ].r.height = 60;
 	g.button[g.number[ N_BUTTONS] ].r.left = 20;
@@ -361,38 +360,37 @@ void init()
 	strcpy(g.button[g.number[ N_BUTTONS]].text, "Reset");
 	g.button[g.number[ N_BUTTONS]].down = 0;
 	g.button[g.number[ N_BUTTONS]].click = 0;
-	g.button[g.N_BUTTONS].color[0] = 0.4f;
-	g.button[g.N_BUTTONS].color[1] = 0.4f;
-	g.button[g.N_BUTTONS].color[2] = 0.7f;
-	g.button[g.N_BUTTONS].dcolor[0] = g.button[g.N_BUTTONS].color[0] * 0.5f;
-	g.button[g.N_BUTTONS].dcolor[1] = g.button[g.N_BUTTONS].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.N_BUTTONS].color[2] * 0.5f;
+	g.button[g.number[N_BUTTONS]].color[0] = 0.4f;
+	g.button[g.number[N_BUTTONS]].color[1] = 0.4f;
+	g.button[g.number[N_BUTTONS]].color[2] = 0.7f;
+	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.N_BUTTONS].color[1] * 0.5f;
+	g.button[g.number[N_buttons]].dcolor[2] = g.button[g.N_BUTTONS].color[2] * 0.5f;
 	g.button[g.N_BUTTONS].text_color = 0x00ffffff;
 	N_BUTTONS++;
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 160;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
-	g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Quit");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.3f;
-	g.button[g.nbuttons].color[1] = 0.3f;
-	g.button[g.nbuttons].color[2] = 0.6f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
-	*/
+	g.button[g.number[N_BUTTONS]].r.width = 140;
+	g.button[g.number[N_BUTTONS]].r.height = 60;
+	g.button[g.number[N_BUTTONS]].r.left = 20;
+	g.button[g.number[N_BUTTONS]].r.bot = 160;
+	g.button[g.number[N_BUTTONS]].r.right =
+	g.button[g.number[N_BUTTONS]].r.left + g.button[g.number[N_BUTTONS]].r.width;
+	g.button[g.number[N_BUTTONS]].r.top = g.button[g.number[N_BUTTONS]].r.bot +
+	g.button[g.number[N_BUTTONS]].r.height;
+	g.button[g.number[N_BUTTONS]].r.centerx = (g.button[g.number[N_BUTTONS]].r.left +
+	g.button[g.number[N_BUTTONS]].r.right) / 2;
+	g.button[g.number[N_BUTTONS]].r.centery = (g.button[g.number[N_BUTTONS]].r.bot +
+	g.button[g.number[N_BUTTONS]].r.top) / 2;
+	strcpy(g.button[g.number[N_BUTTONS]].text, "Quit");
+	g.button[g.number[N_BUTTONS]].down = 0;
+	g.button[g.number[N_BUTTONS]].click = 0;
+	g.button[g.number[N_BUTTONS]].color[0] = 0.3f;
+	g.button[g.number[N_BUTTONS]].color[1] = 0.3f;
+	g.button[g.number[N_BUTTONS]].color[2] = 0.6f;
+	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
+	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
+	g.number[N_BUTTONS]++;
 }
 
 void resetGame()
@@ -502,6 +500,10 @@ int checkMouse(XEvent *e)
 	//
 	if (e->type == ButtonRelease)
 		return 0;
+	
+			
+		//Resume Button
+	}
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
 			//Left button is down
@@ -537,27 +539,29 @@ int checkMouse(XEvent *e)
 	}
 
 	//for menu buttons
-	/*for (i=0; i<g.nbuttons; i++) {
-		g.button[i].over=0;
-		if (x >= g.button[i].r.left &&
-				x <= g.button[i].r.right &&
-				y >= g.button[i].r.bot &&
-				y <= g.button[i].r.top) {
-			g.button[i].over=1;
-			if (g.button[i].over) {
-				if (lbutton) {
-					switch (i) {
-						case 0:
-							resetGame();
-							break;
-						case 1:
-							printf("Quit was clicked!\n");
-							return 1;
+	if(g.state[ S_PAUSED ]) {
+		for (i=0; i<g.number[N_BUTTONS]; i++) {
+			g.button[i].over=0;
+			if (x >= g.button[i].r.left &&
+					x <= g.button[i].r.right &&
+					y >= g.button[i].r.bot &&
+					y <= g.button[i].r.top) {
+				g.button[i].over=1;
+				if (g.button[i].over) {
+					if (lbutton) {
+						switch (i) {
+							case 0:
+								resetGame();
+								break;
+							case 1:
+								printf("Quit was clicked!\n");
+								return 1;
+						}
 					}
 				}
 			}
 		}
-	}*/
+	}
 	return 0;
 }
 

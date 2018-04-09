@@ -6,8 +6,6 @@
 #include "global.h"
 #include <sys/timeb.h>
 
-//typedef std::chrono::high_resolution_clock Clock;
-
 void mason_func()
 {
 	strcpy(g.title.text,"Mason: Test test");
@@ -20,7 +18,7 @@ Menu::Menu()
 	m_width = 0;
 	m_buttonTitle = "";
 }
-void Menu::draw() {
+void Button::draw() {
 
 	for(int i=0; i<g.number[N_BUTTONS]; i++) {
         if (g.button[i].over) {
@@ -28,7 +26,7 @@ void Menu::draw() {
             glColor3f(1.0f, 1.0f, 0.0f);
             //draw a highlight around button
             glLineWidth(3);
-			
+
             glBegin(GL_LINE_LOOP);
                 glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
                 glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
@@ -44,7 +42,7 @@ void Menu::draw() {
         } else {
             glColor3fv(g.button[i].color);
         }
-		/*	
+
         glBegin(GL_QUADS);
             glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
             glVertex2i(g.button[i].r.left,  g.button[i].r.top);
@@ -59,21 +57,22 @@ void Menu::draw() {
         } else {
             ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
         }
-		*/
+
     }
 }
 
 void pauseMenu() {
 	static double tix = 0.0;
+	static float angle = 0.0;
 	static char* info_here = g.info.get_place();
 	double startTime, endTime;
 	startTime = current_time();
 	
+	
 	g.state[S_PAUSED] = true;
-	Button menuButt[3];
+	menuButt[0].draw();	
 
-	//static float angle = 0.0;
-	glColor3ub(0, 255, 0);
+	glColor3ub(0, 153, 0);
 	glPushMatrix();
 	glTranslatef(g.xres/2, g.yres/2, 0.0);
 	glBegin(GL_QUADS);
@@ -82,6 +81,14 @@ void pauseMenu() {
 		glVertex2i(100, 200);
 		glVertex2i(100, -200);
 	glEnd();
+	
+	glTranslatef(-50, 50.0, 0.0);
+	Rect r;
+	r.bot = 50;
+	r.left = 50;
+	r.center = 1;
+	ggprint8b(&r, 16, 0x00000000, "Pause Menu");
+
 	glPopMatrix();
 	
 	//return time spent
@@ -95,13 +102,19 @@ void displayEnemiesKilled() {
 	killedRect.bot  = 0;
 	killedRect.right = g.xres;
 	killedRect.top = 20.0;
-	killedRect.left = g.xres - 80.0;
+	killedRect.left = g.xres;
 	
+	glColor3f(255,0,0);
+	glPushMatrix();
+	glTranslatef(-50.0, 0.0, 0.0);
+	
+	glBegin(GL_QUADS);
+		glVertex2i(killedRect.left-50.0, killedRect.bot);
+		glVertex2i(killedRect.left-50.0, killedRect.top);
+		glVertex2i(killedRect.right+50.0, killedRect.top);
+		glVertex2i(killedRect.right+50.0, killedRect.bot);
+	glEnd();
+
 	ggprint8b(&killedRect, 16, 0x0000ff00, "Enemies Slain: %i", g.eKilled);
-
-
-	/*glBegin(GL_QUADS);
-		glVertex2i(killedRect.bot, killedRect.left);
-		glVertex21(killedRect.);
-	glEnd();*/
+	glPopMatrix();
 }
