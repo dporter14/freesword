@@ -263,9 +263,9 @@ class Door : public Wall {
 
 class Level {
     public:
-        Enemy enemies[100];
-        Wall walls[100];
-        Door doors[100];
+        Enemy enemies[1000];
+        Wall walls[1000];
+        Door doors[1000];
 
         void buildLevel1();
     private:

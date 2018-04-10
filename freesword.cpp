@@ -561,17 +561,17 @@ int checkMouse(XEvent *e)
 	}
 	x = e->xbutton.x;
 	y = e->xbutton.y;
-	y = g.yres - y;
-    if (g.isClicked[M_1] == true) {
-        dragWall(x, y);
-        dragDoor(x, y);
-    }
 	//printf("%d %d\n",x,y);
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
 		//Mouse moved
-		g.savex = x;
-		g.savey = y;
+		g.savex = g.player.pos[0]-(g.xres/2)+x;
+		g.savey = g.player.pos[1]-(g.yres/2)+(g.yres-y);
 	}
+    
+    if (g.isClicked[M_1] == true) {
+        dragWall(g.savex, g.savey);
+        dragDoor(g.savex, g.savey);
+    }
 	//for menu buttons
 	/*for (i=0; i<g.nbuttons; i++) {
 		g.button[i].over=0;
@@ -656,7 +656,7 @@ void physics()
 
 
     //player collision
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<1000; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
             wallCollision(g.level1.doors[i], g.enemies[j]);
             wallCollision(g.level1.walls[i], g.enemies[j]);
@@ -704,7 +704,9 @@ void render(void)
 	glMatrixMode (GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//this sets to 2D mode (no perspective)
-	glOrtho(0, g.xres, 0, g.yres, -1, 1);
+	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
+    glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -1, 1);
+
 
 
 	//
@@ -734,7 +736,7 @@ void render(void)
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
     
     //draw level objects
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<1000; i++) {
         g.level1.walls[i].draw();
         g.level1.doors[i].draw();
     }
