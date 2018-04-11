@@ -2,7 +2,8 @@
 #include "global.h"
 
 Global g;
-Image img[1] = {"./images/grillbys-reference5.png" };				
+Image img[1] = {"./images/grillbys-reference5.png" };
+Image playerF[1] = {"./images/FreeGuyFaceForward.png"};				
 //Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
@@ -336,6 +337,8 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
+
+	g.player.initSpriteTex(playerF, SI_PLAYER_FRONT);
     g.currentLevel = 1;
     g.level1.buildLevel1();
 

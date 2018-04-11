@@ -69,6 +69,7 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
+		void initSpriteTex(Image *, int);
 		
 		virtual void draw() = 0;
 };
@@ -219,6 +220,7 @@ void pauseMenu();
 /* David FUNCTIONS	*/
 
 void david_func();
+enum sprite_imgs {SI_PLAYER_FRONT,SI_};
 
 /* JACOB FUNCTIONS */
 
@@ -345,6 +347,10 @@ struct Global {
 	
 	Image *bgImage;
 	GLuint bgTexture;
+
+	Image *spriteImage;
+	GLuint spriteTexture[SI_];
+
 	Button button[MAXBUTTONS];
 	Button menuButt[3];
 	Button title;
@@ -370,6 +376,7 @@ struct Global {
 		savex = savey = 0;
 		
 		bgImage=NULL;
+		spriteImage=NULL;
 
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;

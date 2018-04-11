@@ -38,7 +38,6 @@ void Player::init()
 
     VecCopy(pos, hitbox.pos);
     hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
-
 }
 
 //move player according to its velocity

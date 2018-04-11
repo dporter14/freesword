@@ -4,7 +4,6 @@
 #include <ctime>
 #include "global.h"
 
-
 void david_func()
 {
 	strcpy(g.title.text,"This is a David Print");
@@ -27,6 +26,26 @@ void Animation::sword_stab()
         }
 }
 */
+void Object::initSpriteTex(Image *pic, int enum_img)
+{
+	Image *tmp = g.spriteImage + enum_img;
+
+	tmp = &pic[0];
+
+	Log("Dimensions: %d %d\n", tmp->width, tmp->height);
+
+	glGenTextures(1, &g.spriteTexture[enum_img]);
+
+	glBindTexture(GL_TEXTURE_2D, g.spriteTexture[enum_img]);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+			tmp->width, tmp->height,
+			0, GL_RGB, GL_UNSIGNED_BYTE, tmp->data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
 void Character::draw()
 {
 	//lab7 profiling
@@ -34,6 +53,13 @@ void Character::draw()
 	static char* info_here = g.info.get_place();
 	double startTime, endTime;
 	startTime = current_time();
+
+	glBindTexture(GL_TEXTURE_2D, g.spriteTexture[SI_PLAYER_FRONT]);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(0,               g.player.pos[1]);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(g.player.pos[0], g.player.pos[1]);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(g.player.pos[0], 0);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(0              , 0);
 	//draw player
 	glColor3f(color[0],color[1],color[2]);
 	
@@ -54,7 +80,7 @@ void Character::draw()
 
 	float x = ra;//we start at angle = 0 
 	float y = 0; 
-
+/*
 	glBegin(GL_POLYGON); 
 	for(int ii = 0; ii < num_segments; ii++) 
 	{ 
@@ -66,7 +92,7 @@ void Character::draw()
 		y = s * t + c * y;
 	} 
 	glEnd();
-	
+*/
 	if (g.state[S_DEBUG]) {
 		glColor3f(0,0,1);
 		glBegin(GL_LINE_LOOP);
