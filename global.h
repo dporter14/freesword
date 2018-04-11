@@ -45,6 +45,7 @@ typedef struct t_button {
 	float color[3];
 	float dcolor[3];
 	unsigned int text_color;
+	void draw();
 } Button;
 
 enum wep_type {W_NONE, W_SWORD};
@@ -204,14 +205,6 @@ class Menu {
         std::string m_buttonTitle;
         
 };
-class mainMenu : public Menu {
-
-    public:
-
-    private:
-
-};
-
 void mason_func();
 void pauseMenu();
 void displayEnemiesKilled();
@@ -336,8 +329,6 @@ struct Global {
 	Image *bgImage;
 	GLuint bgTexture;
 	Button button[MAXBUTTONS];
-	Button menuButt[3];
-	Button title;
 
 	bool isPressed[K_];
 	int state[S_];
