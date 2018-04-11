@@ -542,11 +542,11 @@ void rotateDoor(int mousex, int mousey)
                 if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
                     printf("Rotate door #%d\n", i);
                     selectedDoor = i;
+                    g.level1.doors[selectedDoor].rotate();
                     break;
                 }
             }
         }
-        g.level1.doors[selectedDoor].rotate();
     }
 
 }
