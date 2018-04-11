@@ -69,7 +69,7 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
-		void initSpriteTex(Image *, int);
+		void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
 		
 		virtual void draw() = 0;
 };
@@ -177,6 +177,7 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
+		void drawSprite();
 		Player(){}
         ~Player(){}
         

@@ -727,6 +727,7 @@ void render(void)
 	//draw character
 	g.player.draw();
 	
+	
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
 	}
