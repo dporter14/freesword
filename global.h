@@ -159,6 +159,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(16,32,1,scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -168,6 +169,7 @@ class Character : public Object {
 		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
+		void drawSprite();
 	private:
 
 };
@@ -177,7 +179,6 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
-		void drawSprite();
 		Player(){}
         ~Player(){}
         
@@ -221,7 +222,8 @@ void pauseMenu();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum sprite_imgs {SI_PLAYER_FRONT,SI_};
+enum Sprite_imgs {SI_PLAYER_FRONT,SI_};
+enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
 
 /* JACOB FUNCTIONS */
 
@@ -350,7 +352,7 @@ struct Global {
 	GLuint bgTexture;
 
 	Image *spriteImage;
-	GLuint spriteTexture[SI_];
+	GLuint spriteTextures[SI_];
 
 	Button button[MAXBUTTONS];
 	Button menuButt[3];

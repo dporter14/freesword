@@ -20,15 +20,16 @@ void toggleEditMode()
 void Player::init()
 {
     //player shape radius
-    pradius = 30;
+    //pradius = 30;
+    //player shape
     state = 0;
     max_speed = 8;
     //VecMake(0,1,0,dir);
     rot = 0;
     VecMake(0,0,0,vel);
     VecMake(50,50,0,pos);
-    VecMake(0.5, 0.0, 0.5, color);
-    VecMake(35, 0, 0,rhand_pos);
+    VecMake(1.0, 1.0, 1.0, color);
+    VecMake(16, 0, 0,rhand_pos);
     //VecMake(0,1,0,rhand_dir);
     rhand_rot = 0;
 
@@ -38,6 +39,9 @@ void Player::init()
 
     VecCopy(pos, hitbox.pos);
     hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
+
+    Image playerF[1] = {"./images/FreeGuyFaceForward.png"};
+    initSpriteTex(playerF, SI_PLAYER_FRONT);
 }
 
 //move player according to its velocity

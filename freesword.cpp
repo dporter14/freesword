@@ -2,8 +2,7 @@
 #include "global.h"
 
 Global g;
-Image img[1] = {"./images/grillbys-reference5.png" };
-Image playerF[1] = {"./images/FreeGuyFaceForward.png"};				
+Image img[1] = {"./images/grillbys-reference5.png" };				
 //Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
@@ -337,8 +336,6 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-
-	g.player.initSpriteTex(playerF, SI_PLAYER_FRONT);
     g.currentLevel = 1;
     g.level1.buildLevel1();
 
@@ -715,10 +712,10 @@ void render(void)
 	glColor3f(0.7f, 0.7f, 0.7f);
 	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
 	glBegin(GL_TRIANGLE_FAN);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      g.yres);
-	glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, g.yres);
-	glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, 0);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      0);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(0,      g.yres,0);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(g.xres, g.yres,0);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(g.xres, 0,     0);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(0,      0,     0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
