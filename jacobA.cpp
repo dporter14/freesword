@@ -7,12 +7,12 @@ void toggleEditMode()
 {
     if (g.state[S_LEVELEDIT] != 1) {
         g.state[S_LEVELEDIT] = 1;
-        strcpy(g.title.text,"Level Editor Enabled");
-        g.title.text_color = 0x39ff14;
+        //strcpy(g.title.text,"Level Editor Enabled");
+        //g.title.text_color = 0x39ff14;
     } else {
         g.state[S_LEVELEDIT] = 0;
-        strcpy(g.title.text, "Freesword");
-        g.title.text_color = 0x00ffffff;
+        //strcpy(g.title.text, "Freesword");
+        //g.title.text_color = 0x00ffffff;
     }
 }
 
@@ -449,11 +449,10 @@ void Level::buildLevel1()
 
 void createWall(int mousex, int mousey) 
 {
-<<<<<<< HEAD
     g.number[N_WALLS]++;
     g.level1.walls[N_WALLS].initWall(mousex, mousey, 50.0, 50.0);
-}
-=======
+
+
     if (g.number[N_WALLS] < 100) {
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
         g.number[N_WALLS]++;   
@@ -610,6 +609,3 @@ void loadLevel()
     }
     levelread.close();
 }
-
-
->>>>>>> 0fabcafda742be1d4db8fccea20ed571d5193058

@@ -345,14 +345,10 @@ struct Global {
     bool isClicked[M_];
 	int state[S_];
 	int number[N_];
-<<<<<<< HEAD
 	int eKilled;
 	Wall n, e, s, w;
-	Door doors[4];
-=======
 	bool wallChange, doorChange;
     Door doors[4];
->>>>>>> 0fabcafda742be1d4db8fccea20ed571d5193058
 	Info info;
 	//
 	int currentLevel;
@@ -370,11 +366,13 @@ struct Global {
 		bgImage=NULL;
 		eKilled = 0;
 
+        /*
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text,"Freesword");
 		title.text_color = 0x00ffffff;
+        */
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;

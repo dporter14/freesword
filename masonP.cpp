@@ -8,8 +8,8 @@
 
 void mason_func()
 {
-	strcpy(g.title.text,"Mason: Test test");
-	g.title.text_color = 0x00ff00ff;
+	//strcpy(g.title.text,"Mason: Test test");
+	//g.title.text_color = 0x00ff00ff;
 }
 
 Menu::Menu()
@@ -17,6 +17,7 @@ Menu::Menu()
 	m_height = 0;
 	m_width = 0;
 	m_buttonTitle = "";
+    m_position = 0;
 }
 void Button::draw() {
 
@@ -70,7 +71,7 @@ void pauseMenu() {
 	
 	
 	g.state[S_PAUSED] = true;
-	menuButt[0].draw();	
+	g.button[0].draw();	
 
 	glColor3ub(0, 153, 0);
 	glPushMatrix();
