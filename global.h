@@ -70,6 +70,7 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
+		void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
 		
 		virtual void draw() = 0;
 };
@@ -159,6 +160,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(16,32,1,scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -168,6 +170,7 @@ class Character : public Object {
 		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
+		void drawSprite();
 	private:
 
 };
@@ -213,6 +216,8 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
+enum Sprite_imgs {SI_PLAYER_FRONT,SI_};
+enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
 
 /* JACOB FUNCTIONS */
 
@@ -339,6 +344,10 @@ struct Global {
 	
 	Image *bgImage;
 	GLuint bgTexture;
+
+	Image *spriteImage;
+	GLuint spriteTextures[SI_];
+
 	Button button[MAXBUTTONS];
 
 	bool isPressed[K_];
@@ -364,7 +373,11 @@ struct Global {
 		savex = savey = 0;
 		
 		bgImage=NULL;
+<<<<<<< HEAD
 		eKilled = 0;
+=======
+		spriteImage=NULL;
+>>>>>>> 19f994fa1e4173651e3a1bdef6975447ce85fc85
 
         /*
 		title.r.left = xres/2;

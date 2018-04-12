@@ -17,7 +17,7 @@ Menu::Menu()
 	m_height = 0;
 	m_width = 0;
 	m_buttonTitle = "";
-    m_position = 0;
+    //m_position = 0;
 }
 void Button::draw() {
 
