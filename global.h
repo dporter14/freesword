@@ -373,11 +373,11 @@ struct Global {
 		savex = savey = 0;
 		
 		bgImage=NULL;
-<<<<<<< HEAD
+
 		eKilled = 0;
-=======
+
 		spriteImage=NULL;
->>>>>>> 19f994fa1e4173651e3a1bdef6975447ce85fc85
+
 
         /*
 		title.r.left = xres/2;
