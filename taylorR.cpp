@@ -11,35 +11,57 @@ void taylor_func()
 
 }
 
+Flt angleFrom(Vec a, Vec b){
+	Flt angl;
+	Vec cross, upz;
+	angl = acos(VecDot(a, b)/(VecLen(a)*VecLen(b)));	
+	VecCross(a, b, cross);
+	if (VecDot(upz, cross)<0)
+		angl = -angl;
+	return angl;
+}
+
 void spawnEnemy(Flt x, Flt y){
+	if(g.number[N_ENEMIES]<MAXENEMIES){
 	Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
 	VecMake(x, y, 0, e->pos);
 	VecMake(1.0, 0.2, 0.2, e->color);
-	e->pradius = 30;
+	e->pradius = 25;
 	e->state = 0;
 	e->max_speed = 6;
 	//VecMake(0,1,0,e->dir);
 	e->rot=0;
 	VecMake(0,0,0,e->vel);
-	VecMake(0,30,0,e->rhand_pos);
+	VecMake(30,0,0,e->rhand_pos);
 	//VecMake(0,1,0,e->rhand_dir);
 	e->rhand_rot=0;
 	e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 	e->hitbox.dynamic=1;
-	
+	}
 }
 
 void Enemy::attackPlayer()
 {
-	Vec toPlayer;
-	VecSub(g.player.pos, pos, toPlayer);
-	lookAt(g.player.pos[0], g.player.pos[1]);
-	float len = VecLen(toPlayer);
-	if (len>100){
-		if (acos(VecDot(toPlayer, vel)/(len*VecLen(vel)))>(PI/4)){
+	if(state==S_CHAR_ANGRY){
+		Vec toPlayer;
+		VecSub(g.player.pos, pos, toPlayer);
+		lookAt(g.player.pos[0], g.player.pos[1]);
+		float len = VecLen(toPlayer);
+		if (len>100){
+			if (acos(VecDot(toPlayer, vel)/(len*VecLen(vel)))>(PI/4)){
+				addVel(vel[0]*-0.5,vel[1]*-0.5);
+			}
+			addVel(toPlayer[0]/len,toPlayer[1]/len);
+		} else if (VecLen(vel)>0) {
 			addVel(vel[0]*-0.5,vel[1]*-0.5);
+			
 		}
-		addVel(toPlayer[0]/len,toPlayer[1]/len);
+		
+		if(anim_handler==NULL && VecLen(vel)<0.1){
+			setVel(0,0);
+			Animation *act = g.animator.init(A_SWORD_SLASH);
+			act->add_actor(this);
+		}
 	} else if (VecLen(vel)>0) {
 		addVel(vel[0]*-0.5,vel[1]*-0.5);
 	}
@@ -49,16 +71,68 @@ void Enemy::kill(){
 	state = S_CHAR_DEAD;
 }
 
+void Enemy::see(){
+	Vec toPlayer, temp;
+	VecSub(g.player.pos, pos, toPlayer);
+	Flt len = VecLen(toPlayer);
+	VecS(1/len, toPlayer, toPlayer);
+	VecMake(0,1,0,temp);
+	Flt a = acos(VecDot(toPlayer, temp));
+	static char* info_here = g.info.get_place();
+	sprintf(info_here, "See: %f %f %f", len, a, rot);
+	if ((a*180/PI)-rot<(v_fov/2) && len<v_dist){
+		state = S_CHAR_ANGRY;
+	}
+	if (len<v_close){
+		state = S_CHAR_ANGRY;
+	}
+}
+
+/////////////* Animation Functions */////////////////
+
+Animation* Animator::init(anim_type type){
+	if (nanims<MAXANIMATIONS) {
+		Animation* a = &anims[nanims++];
+		a->init(type);
+		return a;
+	}
+	else
+		return NULL;
+}
+
+void Animator::checkin(Animation* anim){
+	for(int i=0; i<nanims; i++) {
+		if (&anims[i]==anim) {
+			anims[i]=anims[--nanims];
+			break;
+		}
+	}
+}
+
+void Animator::play(){
+	int i=0;
+	while ( i < nanims ) {
+		anims[i].play();
+		if(anims[i].done){
+			//g.anims[i].clear();
+			anims[i]=anims[--nanims];
+		} else {
+			i++;
+		}
+	}
+}
+
 void Animation::add_actor(Object* actor)
 {
 	actors[nactors++] = actor;
 	actor->anim_handler = this;
 }
 
-void Animation::init(int t)
+void Animation::init(anim_type t)
 {
 	frame=0;
 	done=0;
+	nactors=0;
 	type = t;
 	switch(type) {
 		case A_SWORD_SLASH:
@@ -95,6 +169,7 @@ void Animation::play()
 		}
 	}
 }
+
 
 void Animation::cancel()
 {

@@ -513,7 +513,8 @@ int checkKeys(XEvent *e)
 			mason_func();
 			break;
 		case XK_4:
-		    spawnEnemy(RND()*(g.xres), RND()*(g.yres));
+			if (e->type == KeyPress)
+			    spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 			break;
 	}
 	return 0;
@@ -540,14 +541,12 @@ int checkMouse(XEvent *e)
 			(void)lbutton;
 			if(g.player.anim_handler==NULL){
 				g.player.setVel(0,0);
-				Animation *act = &g.anims[g.number[N_ANIMS]++];
-				act->init(A_SWORD_SLASH);
+				Animation *act = g.animator.init(A_SWORD_SLASH);
 				act->add_actor(&g.player);
 			} else if (g.player.anim_handler->type == A_SWORD_SLASH
 				&& g.player.anim_handler->can_cancel) {
-				Animation *act = g.player.anim_handler;
-				act->cancel();
-				act->init(A_SWORD_SLASH2);
+				g.player.anim_handler->cancel();
+				Animation *act = g.animator.init(A_SWORD_SLASH2);
 				act->add_actor(&g.player);
 			}
 		}
@@ -561,6 +560,7 @@ int checkMouse(XEvent *e)
 	}
 	x = e->xbutton.x;
 	y = e->xbutton.y;
+	
 	y = g.yres - y;
     if (g.isClicked[M_1] == true) {
         dragWall(x, y);
@@ -599,16 +599,7 @@ int checkMouse(XEvent *e)
 
 
 void animation(){
-	int i=0;
-	while ( i<g.number[N_ANIMS] ) {
-		g.anims[i].play();
-		if(g.anims[i].done){
-			//g.anims[i].clear();
-			g.anims[i]=g.anims[--g.number[N_ANIMS]];
-		} else {
-			i++;
-		}
-	}
+	g.animator.play();
 }
 
 void physics()
@@ -642,7 +633,7 @@ void physics()
 	}
 	
 	// if not attacking
-	if(g.anims[0].can_cancel || g.anims[0].done){
+	if(g.player.anim_handler == NULL || g.player.anim_handler->can_cancel ){
 		//update player position
 		p->move();
 		//look at last known mouse pos
@@ -650,6 +641,7 @@ void physics()
 	}
 
 	for(int i=0; i<g.number[N_ENEMIES]; i++){
+		g.enemies[i].see();
 		g.enemies[i].attackPlayer();
 		g.enemies[i].move();
 	}
@@ -681,6 +673,13 @@ void physics()
 			}
 		}
 	}
+	for (int n=0; n<g.number[N_ENEMIES]; n++) {
+		for (int i=0; i<g.enemies[i].nattacks; i++){
+			if (g.enemies[j].attacks[i].intersect(g.player.hitbox)) {
+				VecMake(0.2,0.2,0.2,g.player.color);
+			}
+		}
+	}	
 }
 
 
@@ -705,6 +704,8 @@ void render(void)
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//this sets to 2D mode (no perspective)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
+	//glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, 
+		//g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -1, 1);
 
 
 	//

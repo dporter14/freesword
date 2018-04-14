@@ -146,6 +146,41 @@ void Character::draw()
 	sprintf(info_here, "Character Draw Function: %f", tix);
 }
 
+void Enemy::draw(){
+	Character::draw();
+		
+	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(pos[0], pos[1], 0.0);
+		glColor3f(1,0,1);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(0,0);
+	
+		float num_segments=50;
+		for(int ii = 0; ii < num_segments; ii++) 
+		{
+			float lerp = ii/(num_segments-1);
+			float ang = -v_fov/2 + v_fov*lerp;
+			glVertex2f(v_dist * -sin((rot+ang)*PI/180), 
+				v_dist * cos((rot+ang)*PI/180));
+		}
+		
+		glEnd();
+		
+		num_segments=100;
+		glBegin(GL_LINE_LOOP);
+		for(int ii = 0; ii < num_segments; ii++) 
+		{
+			float lerp = ii/(num_segments-1);
+			float ang = 360*lerp;
+			glVertex2f(v_close * -sin((rot+ang)*PI/180), 
+				v_close * cos((rot+ang)*PI/180));
+		}
+		glEnd();
+		glPopMatrix();
+	}
+}
+
 /*
 void Animation::my_anim(){
 	if (frame==0){

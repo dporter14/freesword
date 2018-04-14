@@ -33,9 +33,9 @@
 	#endif //USE_OPENAL_SOUND
 #endif
 
-#define MAXBUTTONS 4
-#define MAXENEMIES 100
-#define MAXANIMATIONS 10
+const int MAXBUTTONS = 4;
+const int MAXENEMIES = 100;
+const int MAXANIMATIONS = 10;
 
 typedef struct t_button {
 	Rect r;
@@ -116,7 +116,7 @@ class Animation {
 		Object *actors[2];
 		int nactors;
 
-		void init(int);
+		void init(anim_type);
 		void play();
 		void add_actor(Object* actor);
 		void set_frames(int frames);
@@ -133,7 +133,23 @@ class Animation {
 
 };
 
-enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING};
+class Animator {
+	public:
+		void play();
+		Rect r;
+		Animator(){
+			nanims=0;
+		}
+		Animation* init(anim_type);
+		void checkin(Animation* anim);
+		
+	private:
+		Animation anims[MAXANIMATIONS];
+		int nanims;
+		
+};
+
+enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING, S_CHAR_IDLE, S_CHAR_ANGRY};
 		
 class Character : public Object {
 	public:
@@ -184,11 +200,20 @@ class Player : public Character {
 };
 
 class Enemy : public Character {
+	Flt v_fov, v_dist, v_close;
     public:
+    	void draw();
     	void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
 		void attackPlayer();
         void kill();
+        void see();
+        Enemy() {
+        	v_fov = 45;
+        	v_dist = 500;
+        	v_close = 75;
+        	state = S_CHAR_IDLE;
+        }
     private:
 };
 
@@ -298,6 +323,7 @@ void wallCollision(Wall&, Character&);
 
 /* TAYLOR FUNCTIONS */
 
+Flt angleBetween(Vec, Vec);
 double current_time();
 class Info {
 	public:
@@ -341,7 +367,7 @@ struct Global {
 	int savex, savey;
 	Player player;
 	Enemy enemies[MAXENEMIES];
-	Animation anims[MAXANIMATIONS];
+	
 	
 	Image *bgImage;
 	GLuint bgTexture;
@@ -356,6 +382,7 @@ struct Global {
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
+	Animator animator;
 	//
 	int currentLevel;
     Level level1;
@@ -365,7 +392,7 @@ struct Global {
 		ALuint alSourceDrip, alSourceTick;
 	#endif
 	Global() {
-		xres = 1200;		yres = 900;
+		xres = 1200; yres = 900;
 //		xres = 1087; yres = 800;
 		savex = savey = 0;
 		

@@ -139,8 +139,8 @@ void Character::lookAt(Flt x, Flt y)
 
 void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
-    initx = floor((initx/25))*25;
-    inity = floor((inity/25))*25;
+    initx = round((initx/25))*25;
+    inity = round((inity/25))*25;
 
     printf("initx: %f\n", initx);
     printf("inity: %f\n", inity);
@@ -450,7 +450,7 @@ void Level::buildLevel1()
 void createWall(int mousex, int mousey) 
 {
     if (g.number[N_WALLS] < 100) {
-        g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
+        g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25, 25);
         g.number[N_WALLS]++;   
     }
 }
@@ -464,7 +464,7 @@ void dragWall(int mousex, int mousey)
                 if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
                     printf("Wall #%d\n", i);
                     selectedWall = i;
-                    g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+                    g.level1.walls[selectedWall].initWall(mousex, mousey, 25, 25); 
                     g.wallChange = false;
                     return;
                 }
@@ -472,7 +472,7 @@ void dragWall(int mousex, int mousey)
         }
         return;
     } else if (g.wallChange == false && g.number[N_WALLS]>0) {
-        g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+        g.level1.walls[selectedWall].initWall(mousex, mousey, 25, 25); 
     }
 }
 
@@ -486,7 +486,7 @@ void createDoor(int mousex, int mousey)
 
 void dragDoor(int mousex, int mousey) 
 {
-    static int selectedDoor;
+    static int selectedDoor = -1;
     if (g.doorChange == true && g.number[N_DOORS]>0) {
         for (int i=0; i<g.number[N_DOORS]; i++) {
             if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
