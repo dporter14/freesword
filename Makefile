@@ -43,7 +43,7 @@ HEADERS := global.h defs.h
 all: $(TARGET)
 
 $(TARGET): $(FILES)
-	g++ $(FILES) $(LFLAGS) -o $(TARGET)
+	g++ $(FILES) $(LFLAGS) -o  $(TARGET)
 
 %.o: %.cpp $(HEADERS)
 	g++ $(CFLAGS) $< -o $@

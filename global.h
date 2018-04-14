@@ -46,6 +46,7 @@ typedef struct t_button {
 	float color[3];
 	float dcolor[3];
 	unsigned int text_color;
+	void draw();
 } Button;
 
 enum wep_type {W_NONE, W_SWORD};
@@ -69,6 +70,7 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
+		void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
 		
 		virtual void draw() = 0;
 };
@@ -158,6 +160,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(16,32,1,scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -167,6 +170,7 @@ class Character : public Object {
 		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
+		void drawSprite();
 	private:
 
 };
@@ -205,20 +209,15 @@ class Menu {
         std::string m_buttonTitle;
         
 };
-class mainMenu : public Menu {
-
-    public:
-
-    private:
-
-};
-
 void mason_func();
 void pauseMenu();
+void displayEnemiesKilled();
 
 /* David FUNCTIONS	*/
 
 void david_func();
+enum Sprite_imgs {SI_PLAYER_FRONT,SI_};
+enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
 
 /* JACOB FUNCTIONS */
 
@@ -345,14 +344,18 @@ struct Global {
 	
 	Image *bgImage;
 	GLuint bgTexture;
+
+	Image *spriteImage;
+	GLuint spriteTextures[SI_];
+
 	Button button[MAXBUTTONS];
-	Button menuButt[3];
-	Button title;
 
 	bool isPressed[K_];
     bool isClicked[M_];
 	int state[S_];
 	int number[N_];
+	int eKilled;
+	Wall n, e, s, w;
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
@@ -371,11 +374,18 @@ struct Global {
 		
 		bgImage=NULL;
 
+		eKilled = 0;
+
+		spriteImage=NULL;
+
+
+        /*
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text,"Freesword");
 		title.text_color = 0x00ffffff;
+        */
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;

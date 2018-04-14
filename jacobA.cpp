@@ -7,12 +7,12 @@ void toggleEditMode()
 {
     if (g.state[S_LEVELEDIT] != 1) {
         g.state[S_LEVELEDIT] = 1;
-        strcpy(g.title.text,"Level Editor Enabled");
-        g.title.text_color = 0x39ff14;
+        //strcpy(g.title.text,"Level Editor Enabled");
+        //g.title.text_color = 0x39ff14;
     } else {
         g.state[S_LEVELEDIT] = 0;
-        strcpy(g.title.text, "Freesword");
-        g.title.text_color = 0x00ffffff;
+        //strcpy(g.title.text, "Freesword");
+        //g.title.text_color = 0x00ffffff;
     }
 }
 
@@ -20,15 +20,16 @@ void toggleEditMode()
 void Player::init()
 {
     //player shape radius
-    pradius = 30;
+    //pradius = 30;
+    //player shape
     state = 0;
     max_speed = 8;
     //VecMake(0,1,0,dir);
     rot = 0;
     VecMake(0,0,0,vel);
     VecMake(50,50,0,pos);
-    VecMake(0.5, 0.0, 0.5, color);
-    VecMake(35, 0, 0,rhand_pos);
+    VecMake(1.0, 1.0, 1.0, color);
+    VecMake(16, 0, 0,rhand_pos);
     //VecMake(0,1,0,rhand_dir);
     rhand_rot = 0;
 
@@ -39,6 +40,8 @@ void Player::init()
     VecCopy(pos, hitbox.pos);
     hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
 
+    Image playerF[1] = {"./images/FreeGuyFaceForward.png"};
+    initSpriteTex(playerF, SI_PLAYER_FRONT);
 }
 
 //move player according to its velocity
@@ -458,6 +461,7 @@ void Level::buildLevel1()
 
 void createWall(int mousex, int mousey) 
 {
+
       for (int i=0; i<g.number[N_WALLS]; i++) {
         //std::cout << round((mousex/25))*25 << " " << round((mousey/25))*25 << std::endl;
         if (g.level1.walls[i].pos[0] == round((mousex/25))*25 && g.level1.walls[i].pos[1] == round((mousey/25))*25) {
@@ -470,6 +474,7 @@ void createWall(int mousex, int mousey)
         std::cout << "# of walls: " << g.number[N_WALLS] << std::endl;   
     } else {
         std::cout << "Error: Too many walls.\n" << std::endl;
+
     }
     
 }
@@ -634,5 +639,3 @@ void loadLevel()
     }
     levelread.close();
 }
-
-

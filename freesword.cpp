@@ -203,6 +203,7 @@ int main(int argc, char *argv[])
 			physicsCountdown -= physicsRate;
 		}
 		//Always render every frame.
+	///	DisplayTime1();
 		render();
 		x11.swapBuffers();
 	}
@@ -341,56 +342,55 @@ void init()
 
     //
 	//initialize buttons...
-	/*
-	   g.nbuttons=0;
+	
+	g.number[N_BUTTONS] =0;
 	//size and position
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 320;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top =
-	g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx =
-	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery =
-	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Reset");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.4f;
-	g.button[g.nbuttons].color[1] = 0.4f;
-	g.button[g.nbuttons].color[2] = 0.7f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
-	g.button[g.nbuttons].r.width = 140;
-	g.button[g.nbuttons].r.height = 60;
-	g.button[g.nbuttons].r.left = 20;
-	g.button[g.nbuttons].r.bot = 160;
-	g.button[g.nbuttons].r.right =
-	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-	g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.height;
-	g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
-	g.button[g.nbuttons].r.right) / 2;
-	g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
-	g.button[g.nbuttons].r.top) / 2;
-	strcpy(g.button[g.nbuttons].text, "Quit");
-	g.button[g.nbuttons].down = 0;
-	g.button[g.nbuttons].click = 0;
-	g.button[g.nbuttons].color[0] = 0.3f;
-	g.button[g.nbuttons].color[1] = 0.3f;
-	g.button[g.nbuttons].color[2] = 0.6f;
-	g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-	g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-	g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-	g.button[g.nbuttons].text_color = 0x00ffffff;
-	g.nbuttons++;
-	*/
+	g.button[g.number[ N_BUTTONS] ].r.width = 140;
+	g.button[g.number[ N_BUTTONS] ].r.height = 60;
+	g.button[g.number[ N_BUTTONS] ].r.left = 20;
+	g.button[g.number[ N_BUTTONS] ].r.bot = 320;
+	g.button[g.number[ N_BUTTONS] ].r.right =
+	g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.width;
+	g.button[g.number[ N_BUTTONS] ].r.top =
+	g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[ N_BUTTONS] ].r.height;
+	g.button[g.number[ N_BUTTONS] ].r.centerx =
+	(g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.right) / 2;
+	g.button[g.number[ N_BUTTONS] ].r.centery =
+	(g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[N_BUTTONS]].r.top) / 2;
+	strcpy(g.button[g.number[ N_BUTTONS]].text, "Reset");
+	g.button[g.number[ N_BUTTONS]].down = 0;
+	g.button[g.number[ N_BUTTONS]].click = 0;
+	g.button[g.number[N_BUTTONS]].color[0] = 0.4f;
+	g.button[g.number[N_BUTTONS]].color[1] = 0.4f;
+	g.button[g.number[N_BUTTONS]].color[2] = 0.7f;
+	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
+	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
+	g.number[N_BUTTONS]++;
+	g.button[g.number[N_BUTTONS]].r.width = 140;
+	g.button[g.number[N_BUTTONS]].r.height = 60;
+	g.button[g.number[N_BUTTONS]].r.left = 20;
+	g.button[g.number[N_BUTTONS]].r.bot = 160;
+	g.button[g.number[N_BUTTONS]].r.right =
+	g.button[g.number[N_BUTTONS]].r.left + g.button[g.number[N_BUTTONS]].r.width;
+	g.button[g.number[N_BUTTONS]].r.top = g.button[g.number[N_BUTTONS]].r.bot +
+	g.button[g.number[N_BUTTONS]].r.height;
+	g.button[g.number[N_BUTTONS]].r.centerx = (g.button[g.number[N_BUTTONS]].r.left +
+	g.button[g.number[N_BUTTONS]].r.right) / 2;
+	g.button[g.number[N_BUTTONS]].r.centery = (g.button[g.number[N_BUTTONS]].r.bot +
+	g.button[g.number[N_BUTTONS]].r.top) / 2;
+	strcpy(g.button[g.number[N_BUTTONS]].text, "Quit");
+	g.button[g.number[N_BUTTONS]].down = 0;
+	g.button[g.number[N_BUTTONS]].click = 0;
+	g.button[g.number[N_BUTTONS]].color[0] = 0.3f;
+	g.button[g.number[N_BUTTONS]].color[1] = 0.3f;
+	g.button[g.number[N_BUTTONS]].color[2] = 0.6f;
+	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
+	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
+	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
+	g.number[N_BUTTONS]++;
 }
 
 void resetGame()
@@ -472,6 +472,10 @@ int checkKeys(XEvent *e)
 				g.state[S_DEBUG] ^= 1;
 			break;
         case XK_z:
+            createWall(g.savex, g.savey);
+            static char* info_here = g.info.get_place();
+			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+			break;
 			if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
                     createWall(g.savex, g.savey);
@@ -526,6 +530,10 @@ int checkMouse(XEvent *e)
 	int rbutton=0;
 	//
 	if (e->type == ButtonRelease) {
+		return 0;
+        //Resume Button
+	}
+	if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
         g.isClicked[M_2] = false;
@@ -573,27 +581,29 @@ int checkMouse(XEvent *e)
         dragDoor(g.savex, g.savey);
     }
 	//for menu buttons
-	/*for (i=0; i<g.nbuttons; i++) {
-		g.button[i].over=0;
-		if (x >= g.button[i].r.left &&
-				x <= g.button[i].r.right &&
-				y >= g.button[i].r.bot &&
-				y <= g.button[i].r.top) {
-			g.button[i].over=1;
-			if (g.button[i].over) {
-				if (lbutton) {
-					switch (i) {
-						case 0:
-							resetGame();
-							break;
-						case 1:
-							printf("Quit was clicked!\n");
-							return 1;
+	if(g.state[ S_PAUSED ]) {
+		for (int i=0; i<g.number[N_BUTTONS]; i++) {
+			g.button[i].over=0;
+			if (x >= g.button[i].r.left &&
+					x <= g.button[i].r.right &&
+					y >= g.button[i].r.bot &&
+					y <= g.button[i].r.top) {
+				g.button[i].over=1;
+				if (g.button[i].over) {
+					if (lbutton) {
+						switch (i) {
+							case 0:
+								resetGame();
+								break;
+							case 1:
+								printf("Quit was clicked!\n");
+								return 1;
+						}
 					}
 				}
 			}
 		}
-	}*/
+	}
 	return 0;
 }
 
@@ -714,10 +724,10 @@ void render(void)
 	glColor3f(0.7f, 0.7f, 0.7f);
 	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
 	glBegin(GL_TRIANGLE_FAN);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      g.yres);
-	glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, g.yres);
-	glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, 0);
-	glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      0);
+	glTexCoord2f(0.0f, 0.0f); glVertex3i(0,      g.yres,0);
+	glTexCoord2f(1.0f, 0.0f); glVertex3i(g.xres, g.yres,0);
+	glTexCoord2f(1.0f, 1.0f); glVertex3i(g.xres, 0,     0);
+	glTexCoord2f(0.0f, 1.0f); glVertex3i(0,      0,     0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -726,6 +736,7 @@ void render(void)
 	//draw character
 	g.player.draw();
 	
+	
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
 	}
@@ -733,7 +744,7 @@ void render(void)
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
-	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
     
     //draw level objects
     for (int i=0; i<1000; i++) {
@@ -749,6 +760,6 @@ void render(void)
 	
 	//glDisable(GL_DEPTH_TEST);
 	
-
+	displayEnemiesKilled();
 }
 
