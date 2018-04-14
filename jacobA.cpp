@@ -142,8 +142,8 @@ void Character::lookAt(Flt x, Flt y)
 
 void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
-    initx = floor((initx/25))*25;
-    inity = floor((inity/25))*25;
+    initx = round((initx/25))*25;
+    inity = round((inity/25))*25;
 
     printf("initx: %f\n", initx);
     printf("inity: %f\n", inity);
@@ -378,9 +378,18 @@ void Door::draw()
 
 void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 {
-    Wall::initWall(initx, inity, width, height);
     isHoriz = horz;
     isOpen = false;
+    
+    Flt tempf;
+    if (isHoriz) {
+        Wall::initWall(initx, inity, width, height);
+    } else {
+        tempf = width;
+        width = height;
+        height = tempf;
+        Wall::initWall(initx, inity, width, height);
+    }
 
     VecMake(0.0, 0.0, 1.0, color);
 
@@ -396,7 +405,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 
 void interactDoor()
 {
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<g.number[N_DOORS]; i++) {
     	if(g.player.hitbox.intersect(g.level1.doors[i].trigger))
 	    	g.level1.doors[i].swing();
     /*
@@ -452,26 +461,36 @@ void Level::buildLevel1()
 
 void createWall(int mousex, int mousey) 
 {
-    g.number[N_WALLS]++;
-    g.level1.walls[N_WALLS].initWall(mousex, mousey, 50.0, 50.0);
 
-
-    if (g.number[N_WALLS] < 100) {
-        g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 12.5, 12.5);
-        g.number[N_WALLS]++;   
+      for (int i=0; i<g.number[N_WALLS]; i++) {
+        //std::cout << round((mousex/25))*25 << " " << round((mousey/25))*25 << std::endl;
+        if (g.level1.walls[i].pos[0] == round((mousex/25))*25 && g.level1.walls[i].pos[1] == round((mousey/25))*25) {
+            return;
+        }
     }
+    if (g.number[N_WALLS] < 1000) {
+        g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
+        g.number[N_WALLS]++;
+        std::cout << "# of walls: " << g.number[N_WALLS] << std::endl;   
+    } else {
+        std::cout << "Error: Too many walls.\n" << std::endl;
+
+    }
+    
 }
 
 void dragWall(int mousex, int mousey) 
 {
     static int selectedWall;
+    if (g.doorChange == false)
+        return;
     if (g.wallChange == true && g.number[N_WALLS]>0) {
         for (int i=0; i<g.number[N_WALLS]; i++) {
             if (mousex<=g.level1.walls[i].pos[0]+12.5 && mousex>=g.level1.walls[i].pos[0]-12.5) {
                 if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
                     printf("Wall #%d\n", i);
                     selectedWall = i;
-                    g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+                    g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
                     g.wallChange = false;
                     return;
                 }
@@ -479,13 +498,20 @@ void dragWall(int mousex, int mousey)
         }
         return;
     } else if (g.wallChange == false && g.number[N_WALLS]>0) {
-        g.level1.walls[selectedWall].initWall(mousex, mousey, 12.5, 12.5); 
+        g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
     }
 }
 
 void createDoor(int mousex, int mousey)
 {
-    if (g.number[N_DOORS] < 100) {
+    if (g.wallChange == false)
+        return;
+    for (int i=0; i<g.number[N_DOORS]; i++) {
+        if (g.level1.doors[i].pos[0] == round((mousex/25))*25 && g.level1.doors[i].pos[1] == round((mousey/25))*25) {
+            return;
+        }
+    }
+    if (g.number[N_DOORS] < 1000) {
         g.level1.doors[g.number[N_DOORS]].initDoor(mousex, mousey, 50.0, 12.5, true);
         g.number[N_DOORS]++;
     }
@@ -521,11 +547,11 @@ void rotateDoor(int mousex, int mousey)
                 if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
                     printf("Rotate door #%d\n", i);
                     selectedDoor = i;
+                    g.level1.doors[selectedDoor].rotate();
                     break;
                 }
             }
         }
-        g.level1.doors[selectedDoor].rotate();
     }
 
 }
@@ -584,7 +610,7 @@ void loadLevel()
             if (!strcmp("wall", object)) {
                 levelread >> x;
                 levelread >> y;
-                g.level1.walls[g.number[N_WALLS]].initWall(x, y, 12.5, 12.5); 
+                g.level1.walls[g.number[N_WALLS]].initWall(x, y, 25.0, 25.0); 
                 g.number[N_WALLS]++;   
                 std::cout << "Spawned wall\n" << std::endl;
             } else if (!strcmp("door", object)) {
@@ -599,6 +625,7 @@ void loadLevel()
                 levelread >> y;
                 spawnEnemy(x, y);
                 std::cout << "Spawned enemy" << std::endl;
+                g.number[N_ENEMIES]++;
             } else if (!strcmp("end", object)) {
                 break;
             } else {
