@@ -20,7 +20,8 @@ void toggleEditMode()
 void Player::init()
 {
     //player shape radius
-    //pradius = 30;
+    pradius = 30;
+    VecMake(25,50,0,scale);
     //player shape
     state = 0;
     max_speed = 8;
@@ -37,11 +38,9 @@ void Player::init()
     hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
     hitbox.dynamic=1;
 
-    VecCopy(pos, hitbox.pos);
-    hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
-
     Image playerF[1] = {"./images/FreeGuyFaceForward.png"};
     initSpriteTex(playerF, SI_PLAYER_FRONT);
+    sprite = g.spriteTextures[SI_PLAYER_FRONT];
 }
 
 //move player according to its velocity
@@ -145,8 +144,8 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
     initx = round((initx/25))*25;
     inity = round((inity/25))*25;
 
-    printf("initx: %f\n", initx);
-    printf("inity: %f\n", inity);
+    //printf("initx: %f\n", initx);
+    //printf("inity: %f\n", inity);
 
     pos[0] = initx;
     pos[1] = inity;
@@ -467,6 +466,7 @@ void createWall(int mousex, int mousey)
         if (g.level1.walls[i].pos[0] == round((mousex/25))*25 && g.level1.walls[i].pos[1] == round((mousey/25))*25) {
             return;
         }
+
     }
     if (g.number[N_WALLS] < 1000) {
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
@@ -491,6 +491,7 @@ void dragWall(int mousex, int mousey)
                     printf("Wall #%d\n", i);
                     selectedWall = i;
                     g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
+
                     g.wallChange = false;
                     return;
                 }
@@ -499,6 +500,7 @@ void dragWall(int mousex, int mousey)
         return;
     } else if (g.wallChange == false && g.number[N_WALLS]>0) {
         g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
+
     }
 }
 
@@ -519,7 +521,7 @@ void createDoor(int mousex, int mousey)
 
 void dragDoor(int mousex, int mousey) 
 {
-    static int selectedDoor;
+    static int selectedDoor = -1;
     if (g.doorChange == true && g.number[N_DOORS]>0) {
         for (int i=0; i<g.number[N_DOORS]; i++) {
             if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {

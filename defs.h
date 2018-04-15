@@ -93,10 +93,18 @@ class Image {
 				//printf("%d %d\n",width, height);
 				fgets(line, 200, fpi);
 				//get pixel data
-				int n = width * height * 3;
+				int n = width * height * 4;
 				data = new unsigned char[n];
 				for (int i=0; i<n; i++){
-					data[i] = fgetc(fpi);
+					if (!((i+1)&3)) {
+						if (data[i-3]>=253 && data[i-2]<=2 && data[i-1]>=253) {
+							data[i] = 0;
+						} else {
+							data[i] = 255;
+						}
+					} else {
+						data[i] = fgetc(fpi);
+					}
 					//if (i%3==2)
 					//	printf("(%d,%d): %d %d %d\n",(int)floor(i/3)%width,
 					//(int)floor((i/3)/width),data[i-2],data[i-1],data[i]);

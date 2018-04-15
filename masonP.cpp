@@ -64,7 +64,6 @@ void Button::draw() {
 
 void pauseMenu() {
 	static double tix = 0.0;
-	static float angle = 0.0;
 	static char* info_here = g.info.get_place();
 	double startTime, endTime;
 	startTime = current_time();

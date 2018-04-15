@@ -39,15 +39,15 @@ void Object::initSpriteTex(Image *pic, int enum_img)
 	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[enum_img]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 			tmp->width, tmp->height,
-			0, GL_RGB, GL_UNSIGNED_BYTE, tmp->data);
+			0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->data);
 }
-void Character::drawSprite()
+void Object::drawSprite()
 {
 
 	glPushMatrix();
-	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(color[0], color[1], color[2]);
 	glTranslatef(pos[0], pos[1], 0.0f);
 	/*
 float cx = 0;
@@ -80,7 +80,7 @@ float cx = 0;
 	glBindTexture(GL_TEXTURE_2D,0);
 	*/
 	
-	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SI_PLAYER_FRONT]);
+	glBindTexture(GL_TEXTURE_2D, sprite);
 	glBegin(GL_POLYGON);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(-scale[0],  scale[1], scale[2]);
 		glTexCoord2f(1.0f, 0.0f); glVertex3f( scale[0],  scale[1], scale[2]);
@@ -259,6 +259,41 @@ void Character::draw()
 	endTime = current_time();
 	tix += endTime - startTime;
 	sprintf(info_here, "Character Draw Function: %f", tix);
+}
+
+void Enemy::draw(){
+	Character::draw();
+		
+	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(pos[0], pos[1], 0.0);
+		glColor3f(1,0,1);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(0,0);
+	
+		float num_segments=50;
+		for(int ii = 0; ii < num_segments; ii++) 
+		{
+			float lerp = ii/(num_segments-1);
+			float ang = -v_fov/2 + v_fov*lerp;
+			glVertex2f(v_dist * -sin((rot+ang)*PI/180), 
+				v_dist * cos((rot+ang)*PI/180));
+		}
+		
+		glEnd();
+		
+		num_segments=100;
+		glBegin(GL_LINE_LOOP);
+		for(int ii = 0; ii < num_segments; ii++) 
+		{
+			float lerp = ii/(num_segments-1);
+			float ang = 360*lerp;
+			glVertex2f(v_close * -sin((rot+ang)*PI/180), 
+				v_close * cos((rot+ang)*PI/180));
+		}
+		glEnd();
+		glPopMatrix();
+	}
 }
 
 /*
