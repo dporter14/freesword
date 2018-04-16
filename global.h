@@ -37,17 +37,19 @@
 #define MAXENEMIES 100
 #define MAXANIMATIONS 10
 
-typedef struct t_button {
-	Rect r;
-	char text[32];
-	int over;
-	int down;
-	int click;
-	float color[3];
-	float dcolor[3];
-	unsigned int text_color;
-	void draw();
-} Button;
+class Button {
+    public:
+	    Rect r;
+	    char text[32];
+	    int over;
+	    int down;
+	    int click;
+	    float color[3];
+	    float dcolor[3];
+	    unsigned int text_color;
+
+	    void draw();
+};
 
 enum wep_type {W_NONE, W_SWORD};
 
@@ -204,13 +206,14 @@ class Menu {
     public:
         Menu();
         void draw();
+        Vec pos;
+	    Button button[MAXBUTTONS];
     private:
         double m_height, m_width;
         std::string m_buttonTitle;
-        
+        void setPos(int, int);              
 };
 void mason_func();
-void pauseMenu();
 void displayEnemiesKilled();
 
 /* David FUNCTIONS	*/
@@ -344,11 +347,10 @@ struct Global {
 	
 	Image *bgImage;
 	GLuint bgTexture;
+    Menu pauseMenu;
 
 	Image *spriteImage;
 	GLuint spriteTextures[SI_];
-
-	Button button[MAXBUTTONS];
 
 	bool isPressed[K_];
     bool isClicked[M_];
@@ -373,11 +375,8 @@ struct Global {
 		savex = savey = 0;
 		
 		bgImage=NULL;
-<<<<<<< HEAD
 		eKilled = 0;
-=======
 		spriteImage=NULL;
->>>>>>> 19f994fa1e4173651e3a1bdef6975447ce85fc85
 
         /*
 		title.r.left = xres/2;

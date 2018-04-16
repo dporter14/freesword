@@ -336,6 +336,7 @@ void initOpengl(void)
 
 void init()
 {
+    
 	g.player.init();
     g.currentLevel = 1;
     g.level1.buildLevel1();
@@ -343,53 +344,50 @@ void init()
     //
 	//initialize buttons...
 	
-	g.number[N_BUTTONS] =0;
+	g.number[N_BUTTONS] = 0;
+
+    Rect &r = g.pauseMenu.button[g.number[N_BUTTONS]].r;
+    Button &button = g.pauseMenu.button[g.number[N_BUTTONS]];
 	//size and position
-	g.button[g.number[ N_BUTTONS] ].r.width = 140;
-	g.button[g.number[ N_BUTTONS] ].r.height = 60;
-	g.button[g.number[ N_BUTTONS] ].r.left = 20;
-	g.button[g.number[ N_BUTTONS] ].r.bot = 320;
-	g.button[g.number[ N_BUTTONS] ].r.right =
-	g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.width;
-	g.button[g.number[ N_BUTTONS] ].r.top =
-	g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[ N_BUTTONS] ].r.height;
-	g.button[g.number[ N_BUTTONS] ].r.centerx =
-	(g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.right) / 2;
-	g.button[g.number[ N_BUTTONS] ].r.centery =
-	(g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[N_BUTTONS]].r.top) / 2;
-	strcpy(g.button[g.number[ N_BUTTONS]].text, "Reset");
-	g.button[g.number[ N_BUTTONS]].down = 0;
-	g.button[g.number[ N_BUTTONS]].click = 0;
-	g.button[g.number[N_BUTTONS]].color[0] = 0.4f;
-	g.button[g.number[N_BUTTONS]].color[1] = 0.4f;
-	g.button[g.number[N_BUTTONS]].color[2] = 0.7f;
-	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
-	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
+
+	r.width = 140;
+	r.height = 60;
+	r.left = 20;
+	r.bot = 320;
+	r.right = r.left + r.width;
+	r.top = r.bot + r.height;
+	r.centerx = (r.left + r.right) / 2;
+	r.centery = (r.bot + r.top) / 2;
+	strcpy(button.text, "Reset");
+	button.down = 0;
+	button.click = 0;
+	button.color[0] = 0.4f;
+	button.color[1] = 0.4f;
+	button.color[2] = 0.7f;
+	button.dcolor[0] = button.color[0] * 0.5f;
+	button.dcolor[1] = button.color[1] * 0.5f;
+	button.dcolor[2] = button.color[2] * 0.5f;
+	button.text_color = 0x00ffffff;
 	g.number[N_BUTTONS]++;
-	g.button[g.number[N_BUTTONS]].r.width = 140;
-	g.button[g.number[N_BUTTONS]].r.height = 60;
-	g.button[g.number[N_BUTTONS]].r.left = 20;
-	g.button[g.number[N_BUTTONS]].r.bot = 160;
-	g.button[g.number[N_BUTTONS]].r.right =
-	g.button[g.number[N_BUTTONS]].r.left + g.button[g.number[N_BUTTONS]].r.width;
-	g.button[g.number[N_BUTTONS]].r.top = g.button[g.number[N_BUTTONS]].r.bot +
-	g.button[g.number[N_BUTTONS]].r.height;
-	g.button[g.number[N_BUTTONS]].r.centerx = (g.button[g.number[N_BUTTONS]].r.left +
-	g.button[g.number[N_BUTTONS]].r.right) / 2;
-	g.button[g.number[N_BUTTONS]].r.centery = (g.button[g.number[N_BUTTONS]].r.bot +
-	g.button[g.number[N_BUTTONS]].r.top) / 2;
-	strcpy(g.button[g.number[N_BUTTONS]].text, "Quit");
-	g.button[g.number[N_BUTTONS]].down = 0;
-	g.button[g.number[N_BUTTONS]].click = 0;
-	g.button[g.number[N_BUTTONS]].color[0] = 0.3f;
-	g.button[g.number[N_BUTTONS]].color[1] = 0.3f;
-	g.button[g.number[N_BUTTONS]].color[2] = 0.6f;
-	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
-	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
+
+	r.width = 140;
+	r.height = 60;
+	r.left = 20;
+	r.bot = 160;
+	r.right = r.left + r.width;
+	r.top = r.bot + r.height;
+	r.centerx = (r.left + r.right) / 2;
+	r.centery = (r.bot + r.top) / 2;
+	strcpy(button.text, "Quit");
+	button.down = 0;
+	button.click = 0;
+	button.color[0] = 0.3f;
+	button.color[1] = 0.3f;
+	button.color[2] = 0.6f;
+	button.dcolor[0] = button.color[0] * 0.5f;
+	button.dcolor[1] = button.color[1] * 0.5f;
+	button.dcolor[2] = button.color[2] * 0.5f;
+	button.text_color = 0x00ffffff;
 	g.number[N_BUTTONS]++;
 }
 
@@ -583,13 +581,13 @@ int checkMouse(XEvent *e)
 	//for menu buttons
 	if(g.state[ S_PAUSED ]) {
 		for (int i=0; i<g.number[N_BUTTONS]; i++) {
-			g.button[i].over=0;
-			if (x >= g.button[i].r.left &&
-					x <= g.button[i].r.right &&
-					y >= g.button[i].r.bot &&
-					y <= g.button[i].r.top) {
-				g.button[i].over=1;
-				if (g.button[i].over) {
+			g.pauseMenu.button[i].over=0;
+			if (x >= g.pauseMenu.button[i].r.left &&
+					x <= g.pauseMenu.button[i].r.right &&
+					y >= g.pauseMenu.button[i].r.bot &&
+					y <= g.pauseMenu.button[i].r.top) {
+				g.pauseMenu.button[i].over=1;
+				if (g.pauseMenu.button[i].over) {
 					if (lbutton) {
 						switch (i) {
 							case 0:
@@ -753,7 +751,7 @@ void render(void)
     if (g.state[S_DEBUG])
 		g.info.draw();
 	if (g.state[S_PAUSED])
-		pauseMenu();
+		g.pauseMenu.draw();
 
 	
 	//glDisable(GL_DEPTH_TEST);

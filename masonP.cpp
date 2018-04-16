@@ -17,61 +17,61 @@ Menu::Menu()
 	m_height = 0;
 	m_width = 0;
 	m_buttonTitle = "";
-    //m_position = 0;
 }
-void Button::draw() {
 
-	for(int i=0; i<g.number[N_BUTTONS]; i++) {
-        if (g.button[i].over) {
-            int w=2;
+void Menu::setPos(int x, int y) {
+       VecMake(x, y, 0, pos); 
+}
+
+void Button::draw() {
+    int w = 2;
+    for(int i = 0; i < g.number[N_BUTTONS]; i++) {
+        if (over) {
             glColor3f(1.0f, 1.0f, 0.0f);
             //draw a highlight around button
             glLineWidth(3);
 
             glBegin(GL_LINE_LOOP);
-                glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
-                glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
-                glVertex2i(g.button[i].r.right+w, g.button[i].r.top+w);
-                glVertex2i(g.button[i].r.right+w, g.button[i].r.bot-w);
-                glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
+                glVertex2i(r.left-w,  r.bot-w);
+                glVertex2i(r.left-w,  r.top+w);
+                glVertex2i(r.right+w, r.top+w);
+                glVertex2i(r.right+w, r.bot-w);
+                glVertex2i(r.left-w,  r.bot-w);
             glEnd();
 
             glLineWidth(1);
         }
-        if (g.button[i].down) {
-            glColor3fv(g.button[i].dcolor);
+        if (down) {
+            glColor3fv(dcolor);
         } else {
-            glColor3fv(g.button[i].color);
+            glColor3fv(color);
         }
 
         glBegin(GL_QUADS);
-            glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
-            glVertex2i(g.button[i].r.left,  g.button[i].r.top);
-            glVertex2i(g.button[i].r.right, g.button[i].r.top);
-            glVertex2i(g.button[i].r.right, g.button[i].r.bot);
+            glVertex2i(r.left, r.bot);
+            glVertex2i(r.left, r.top);
+            glVertex2i(r.right, r.top);
+            glVertex2i(r.right, r.bot);
         glEnd();
-        r.left = g.button[i].r.centerx;
-        r.bot  = g.button[i].r.centery-8;
+        r.left = r.centerx;
+        r.bot  = r.centery-8;
         r.center = 1;
-        if (g.button[i].down) {
-            ggprint16(&r, 0, g.button[i].text_color, "Pressed!");
+        if (down) {
+            ggprint16(&r, 0, text_color, "Pressed!");
         } else {
-            ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
+            ggprint16(&r, 0, text_color, text);
         }
-
     }
 }
 
-void pauseMenu() {
+void Menu::draw() {
 	static double tix = 0.0;
-	static float angle = 0.0;
 	static char* info_here = g.info.get_place();
 	double startTime, endTime;
 	startTime = current_time();
 	
 	
 	g.state[S_PAUSED] = true;
-	g.button[0].draw();	
 
 	glColor3ub(0, 153, 0);
 	glPushMatrix();
@@ -79,8 +79,8 @@ void pauseMenu() {
 	glBegin(GL_QUADS);
 		glVertex2i(-100, -200);
 		glVertex2i(-100,  200);
-		glVertex2i(100, 200);
-		glVertex2i(100, -200);
+		glVertex2i( 100,  200);
+		glVertex2i( 100, -200);
 	glEnd();
 	
 	glTranslatef(-50, 50.0, 0.0);
@@ -91,7 +91,9 @@ void pauseMenu() {
 	ggprint8b(&r, 16, 0x00000000, "Pause Menu");
 
 	glPopMatrix();
-	
+	for(int i = 0; i < g.number[N_BUTTONS]; i++) 
+	    button[i].draw();
+
 	//return time spent
 	endTime = current_time();
 	tix += endTime - startTime;
