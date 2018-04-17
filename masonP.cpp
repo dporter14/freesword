@@ -96,25 +96,32 @@ void pauseMenu() {
 	tix += endTime - startTime;
 	sprintf(info_here, "Pause Menu Function: %f", tix);
 }
+
 void displayEnemiesKilled() {
 
 	Rect killedRect;
 	killedRect.bot  = 0;
 	killedRect.right = g.xres;
 	killedRect.top = 20.0;
-	killedRect.left = g.xres;
+	killedRect.left = g.xres-100;
+	killedRect.center=1;
 	
 	glColor3f(255,0,0);
-	glPushMatrix();
-	glTranslatef(-50.0, 0.0, 0.0);
+	//glPushMatrix();
+	//glTranslatef(-50.0, 0.0, 0.0);
 	
 	glBegin(GL_QUADS);
-		glVertex2i(killedRect.left-50.0, killedRect.bot);
-		glVertex2i(killedRect.left-50.0, killedRect.top);
-		glVertex2i(killedRect.right+50.0, killedRect.top);
-		glVertex2i(killedRect.right+50.0, killedRect.bot);
+		glVertex2i(killedRect.left, killedRect.bot);
+		glVertex2i(killedRect.left, killedRect.top);
+		glVertex2i(killedRect.right, killedRect.top);
+		glVertex2i(killedRect.right, killedRect.bot);
 	glEnd();
-
-	ggprint8b(&killedRect, 16, 0x0000ff00, "Enemies Slain: %i", g.eKilled);
-	glPopMatrix();
+	
+	Rect r;
+	r.bot = 0;
+	r.left = g.xres-50;
+	r.center = 1;
+	
+	ggprint8b(&r, 16, 0x0000ff00, "Enemies Slain: %i", g.eKilled);
+	//glPopMatrix();
 }

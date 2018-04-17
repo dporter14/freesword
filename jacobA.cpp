@@ -7,12 +7,12 @@ void toggleEditMode()
 {
     if (g.state[S_LEVELEDIT] != 1) {
         g.state[S_LEVELEDIT] = 1;
-        //strcpy(g.title.text,"Level Editor Enabled");
-        //g.title.text_color = 0x39ff14;
+        strcpy(g.title.text,"Level Editor Enabled");
+        g.title.text_color = 0x39ff14;
     } else {
         g.state[S_LEVELEDIT] = 0;
-        //strcpy(g.title.text, "Freesword");
-        //g.title.text_color = 0x00ffffff;
+        strcpy(g.title.text, "Freesword");
+        g.title.text_color = 0x00ffffff;
     }
 }
 
@@ -156,11 +156,14 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
     top = pos[1]+(scale[1]);
     bot = pos[1]-(scale[1]);
 
-    VecMake(1.0, 0.0, 0.0, color);
+    VecMake(1.0, 1.0, 1.0, color);
     hitbox.type = H_HURTBOX;
     VecCopy(pos, hitbox.pos);
     VecCopy(scale, hitbox.scale);
-
+	
+	Image img[1] = {"./images/wall.png"};
+    initSpriteTex(img, SI_WALL);
+    sprite = g.spriteTextures[SI_WALL];
 }
 
 void Wall::draw(){
@@ -170,7 +173,8 @@ void Wall::draw(){
     static char* info_here = g.info.get_place();
     double startTime, endTime;
     startTime = current_time();
-
+	drawSprite();
+	/*
     glColor3f(color[0],color[1],color[2]);
 
     glPushMatrix();
@@ -182,7 +186,7 @@ void Wall::draw(){
     glVertex2f(scale[0], scale[1]);
     glEnd();
     glPopMatrix();
-
+	*/
     glPushMatrix();
     glTranslatef(hitbox.pos[0], hitbox.pos[1], 0);
     if (g.state[S_DEBUG]) {
@@ -627,7 +631,6 @@ void loadLevel()
                 levelread >> y;
                 spawnEnemy(x, y);
                 std::cout << "Spawned enemy" << std::endl;
-                g.number[N_ENEMIES]++;
             } else if (!strcmp("end", object)) {
                 break;
             } else {

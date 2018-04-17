@@ -750,8 +750,7 @@ void render(void)
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
-	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-    
+	
     //draw level objects
     for (int i=0; i<1000; i++) {
         g.level1.walls[i].draw();
@@ -760,12 +759,19 @@ void render(void)
 	
     if (g.state[S_DEBUG])
 		g.info.draw();
+	
+	
+	//Beginning of GUI elements//
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	if (g.state[S_PAUSED])
 		pauseMenu();
 
-	
+	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//glDisable(GL_DEPTH_TEST);
 	
+	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 	displayEnemiesKilled();
+	
 }
 

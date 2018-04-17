@@ -236,12 +236,13 @@ class Menu {
 };
 void mason_func();
 void pauseMenu();
+void displayTitle();
 void displayEnemiesKilled();
 
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_imgs {SI_PLAYER_FRONT,SI_};
+enum Sprite_imgs {SI_PLAYER_FRONT, SI_WALL, SI_};
 enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
 
 /* JACOB FUNCTIONS */
@@ -374,6 +375,7 @@ struct Global {
 	Image *spriteImage;
 	GLuint spriteTextures[SI_];
 
+	Button title;
 	Button button[MAXBUTTONS];
 
 	bool isPressed[K_];
@@ -381,7 +383,9 @@ struct Global {
 	int state[S_];
 	int number[N_];
 	int eKilled;
-	Wall n, e, s, w;
+	
+	
+	//Wall n, e, s, w;
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
@@ -404,15 +408,14 @@ struct Global {
 		eKilled = 0;
 
 		spriteImage=NULL;
+		
 
-
-        /*
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
-		strcpy(title.text,"Freesword");
+		strcpy(title.text, "Freesword");
 		title.text_color = 0x00ffffff;
-        */
+	
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;
