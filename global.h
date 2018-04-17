@@ -375,6 +375,7 @@ struct Global {
 	GLuint spriteTextures[SI_];
 
 	Button button[MAXBUTTONS];
+    Button title;
 
 	bool isPressed[K_];
     bool isClicked[M_];
@@ -406,13 +407,13 @@ struct Global {
 		spriteImage=NULL;
 
 
-        /*
+        
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
-		strcpy(title.text,"Freesword");
+		strcpy(title.text,"");
 		title.text_color = 0x00ffffff;
-        */
+        
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;

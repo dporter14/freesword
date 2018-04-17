@@ -535,12 +535,8 @@ int checkMouse(XEvent *e)
 	int x,y;
 	int lbutton=0;
 	int rbutton=0;
-	//
-	if (e->type == ButtonRelease) {
-		return 0;
-        //Resume Button
-	}
-	if (e->type == ButtonRelease) {
+	
+    if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
         g.isClicked[M_2] = false;
@@ -750,7 +746,7 @@ void render(void)
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
-	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
     
     //draw level objects
     for (int i=0; i<1000; i++) {
