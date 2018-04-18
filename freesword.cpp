@@ -336,6 +336,7 @@ void initOpengl(void)
 			g.bgImage->width, g.bgImage->height,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, g.bgImage->data);
 	
+	initSpriteTextures();
 }
 
 
@@ -535,12 +536,8 @@ int checkMouse(XEvent *e)
 	int x,y;
 	int lbutton=0;
 	int rbutton=0;
-	//
-	if (e->type == ButtonRelease) {
-		return 0;
-        //Resume Button
-	}
-	if (e->type == ButtonRelease) {
+	
+    if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
         g.isClicked[M_2] = false;
@@ -750,7 +747,6 @@ void render(void)
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
-	
     //draw level objects
     for (int i=0; i<1000; i++) {
         g.level1.walls[i].draw();

@@ -36,6 +36,7 @@
 const int MAXBUTTONS = 4;
 const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
+const int MAXSPRITES = 10;
 
 typedef struct t_button {
 	Rect r;
@@ -69,7 +70,6 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
-		void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
 		void drawSprite();
 		GLuint sprite;
 		virtual void draw() = 0;
@@ -89,8 +89,8 @@ class Hitbox {
 		Hitbox () {}
 		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
 			type = t;
-			VecCopy(p,pos);
-			VecCopy(s,scale);
+			VecCopy(p, pos);
+			VecCopy(s, scale);
 			active = 1;
 			rot=r;
 		}
@@ -176,7 +176,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
-			VecMake(16,32,1,scale);
+			VecMake(16, 32, 1, scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -242,9 +242,39 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_imgs {SI_PLAYER_FRONT, SI_WALL, SI_};
-enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
-
+enum Sprite_img {SS_PLAYER, SS_TILES, SS_};
+class Sprite {
+	public:
+		int nframes;
+		int frame;
+		GLuint tex;
+		Vec start, pos;
+		float w, h;
+		Sprite(int ss){
+			tex = g.spriteTextures[ss];
+			VecMake(0, 0, 0, pos);
+			w=h=1;
+		}
+		
+		init(float x,float y,float w,float h,int n){
+			nframes=n;
+			frame=0;
+			VecMake(x,y,0,start);
+			VecCopy(start,pos);
+			this.w = w;
+			this.h = h;
+		}
+			
+		nextFrame(){
+			frame = (frame+1)%n;
+			VecCopy(start,pos);
+			pos[0] += w*frame;
+		}
+}
+enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
+void initSpriteTextures();
+void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
+		
 /* JACOB FUNCTIONS */
 
 class Wall : public Object {
@@ -374,10 +404,11 @@ struct Global {
 
 	Image *spriteImage;
 	GLuint spriteTextures[SI_];
+	float* spriteBox[SI_];
 
 	Button title;
 	Button button[MAXBUTTONS];
-
+    
 	bool isPressed[K_];
     bool isClicked[M_];
 	int state[S_];
@@ -409,13 +440,13 @@ struct Global {
 
 		spriteImage=NULL;
 		
-
+        
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
-		strcpy(title.text, "Freesword");
+		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
-	
+        
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;

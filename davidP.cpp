@@ -26,11 +26,20 @@ void Animation::sword_stab()
         }
 }
 */
-void Object::initSpriteTex(Image *pic, int enum_img)
+void initSpriteTextures()
 {
-	Image *tmp = g.spriteImage + enum_img;
-
-	tmp = &pic[0];
+	Image playerF[1] = {"./images/FreeGuyFaceForward.png"};
+	initSpriteTex(playerF[i], SI_PLAYER_FRONT+i);
+    
+    Image img = "./images/tiles.png";
+    initSpriteTex(&img, SI_TILES);
+    
+}
+    
+void Texture::initSpriteTex(Image *pic, int enum_img)
+{
+	
+	Image *tmp = pic;
 
 	Log("Dimensions: %d %d\n", tmp->width, tmp->height);
 
@@ -43,6 +52,7 @@ void Object::initSpriteTex(Image *pic, int enum_img)
 			tmp->width, tmp->height,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->data);
 }
+
 void Object::drawSprite()
 {
 
@@ -82,10 +92,17 @@ float cx = 0;
 	
 	glBindTexture(GL_TEXTURE_2D, sprite);
 	glBegin(GL_POLYGON);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-scale[0],  scale[1], scale[2]);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f( scale[0],  scale[1], scale[2]);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f( scale[0], -scale[1], scale[2]);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-scale[0], -scale[1], scale[2]);
+		glTexCoord2f(sprite.pos[0], sprite.pos[1]);
+		glVertex3f(-scale[0],  scale[1], scale[2]);
+		
+		glTexCoord2f(sprite.pos[0]+sprite.w, sprite.pos[1]);
+		glVertex3f( scale[0],  scale[1], scale[2]);
+		
+		glTexCoord2f(sprite.pos[0]+sprite.w, sprite.pos[1]+sprite.h);
+		glVertex3f( scale[0], -scale[1], scale[2]);
+		
+		glTexCoord2f(sprite.pos[0], sprite.pos[1]+sprite.h);
+		glVertex3f(-scale[0], -scale[1], scale[2]);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D,0);
 	
