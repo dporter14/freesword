@@ -105,6 +105,7 @@ class Hitbox {
 		}
 };
 
+
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
 class Animation {
@@ -242,7 +243,7 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_img {SS_PLAYER, SS_TILES, SS_};
+enum Sprite_img {SI_PLAYER, SI_TILES, SI_};
 class Sprite {
 	public:
 		int nframes;
@@ -256,7 +257,7 @@ class Sprite {
 			w=h=1;
 		}
 		
-		init(float x,float y,float w,float h,int n){
+		void init(float x,float y,float w,float h,int n){
 			nframes=n;
 			frame=0;
 			VecMake(x,y,0,start);
@@ -265,7 +266,7 @@ class Sprite {
 			this.h = h;
 		}
 			
-		nextFrame(){
+		void nextFrame(){
 			frame = (frame+1)%n;
 			VecCopy(start,pos);
 			pos[0] += w*frame;

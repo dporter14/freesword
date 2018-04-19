@@ -23,23 +23,23 @@ Flt angleFrom(Vec a, Vec b){
 
 void spawnEnemy(Flt x, Flt y){
 	if(g.number[N_ENEMIES]<MAXENEMIES){
-	Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
-	VecMake(x, y, 0, e->pos);
-	VecMake(0.2, 0.2, 0.2, e->color);
-	e->pradius = 25;
-	VecMake(25,50,0,e->scale);
-	e->state = 0;
-	e->max_speed = 6;
-	//VecMake(0,1,0,e->dir);
-	e->rot=0;
-	VecMake(0,0,0,e->vel);
-	VecMake(30,0,0,e->rhand_pos);
-	//VecMake(0,1,0,e->rhand_dir);
-	e->rhand_rot=0;
-	e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
-	e->hitbox.dynamic=1;
+		Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
+		VecMake(x, y, 0, e->pos);
+		VecMake(0.2, 0.2, 0.2, e->color);
+		e->pradius = 25;
+		VecMake(25,50,0,e->scale);
+		e->state = 0;
+		e->max_speed = 6;
+		//VecMake(0,1,0,e->dir);
+		e->rot=0;
+		VecMake(0,0,0,e->vel);
+		VecMake(30,0,0,e->rhand_pos);
+		//VecMake(0,1,0,e->rhand_dir);
+		e->rhand_rot=0;
+		e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
+		e->hitbox.dynamic=1;
 	
-	e->sprite = g.spriteTextures[SI_PLAYER_FRONT];
+		e->sprite = g.spriteTextures[SI_PLAYER_FRONT];
 	}
 }
 
@@ -300,10 +300,10 @@ void Animation::test()
 
 void Info::draw(){
 	Rect t;
-    t.left = 10;
-    t.bot = g.yres - 30;
-    t.center = 0;
-    for(int i=0; i<nstats; i++){
+	t.left = 10;
+	t.bot = g.yres - 30;
+	t.center = 0;
+	for(int i=0; i<nstats; i++){
 		ggprint8b(&t, 16, 0x00ffffff, stats[i]);
 	}
 }
