@@ -37,17 +37,25 @@ const int MAXBUTTONS = 4;
 const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
 
-typedef struct t_button {
-	Rect r;
-	char text[32];
-	int over;
-	int down;
-	int click;
-	float color[3];
-	float dcolor[3];
-	unsigned int text_color;
-	void draw();
-} Button;
+enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
+
+class Button {
+    public:
+	    Rect r;
+	    char text[32];
+	    int over;
+	    int down;
+	    int click;
+	    float color[3];
+	    float dColor[3];
+	    unsigned int text_color;
+	    void draw();
+        bool isOver(float, float);
+		clickState state;
+
+		void setRect(float, float, float, float);
+		void setColor(float, float, float);
+};
 
 enum wep_type {W_NONE, W_SWORD};
 
@@ -224,15 +232,20 @@ class Enemy : public Character {
 
 
 /* MASON FUNCTIONS */
+
+
 class Menu {
 
     public:
         Menu();
         void draw();
+        Vec pos;
+        Button buttons[MAXBUTTONS];
+		int nButtons;
+
+        clickState getOver(float, float);
+
     private:
-        double m_height, m_width;
-        std::string m_buttonTitle;
-        
 };
 void mason_func();
 void pauseMenu();
@@ -368,6 +381,7 @@ struct Global {
 	Enemy enemies[MAXENEMIES];
 	
 	
+	Menu pauseMenu;
 	Image *bgImage;
 	GLuint bgTexture;
 
