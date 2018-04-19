@@ -39,7 +39,7 @@ void spawnEnemy(Flt x, Flt y){
 	e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 	e->hitbox.dynamic=1;
 	
-	e->sprite = g.spriteTextures[SI_PLAYER_FRONT];
+	e->sprt = g.spriteTextures[SS_PLAYER];
 	}
 }
 

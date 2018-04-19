@@ -1,4 +1,6 @@
 //Author: David Porter
+//Last Edit: 2018/18/04
+//Textures and sprite generation/mapping
 
 #include <iostream>     
 #include <ctime>
@@ -26,31 +28,42 @@ void Animation::sword_stab()
         }
 }
 */
+
+
 void initSpriteTextures()
 {
-	Image playerF[1] = {"./images/FreeGuyFaceForward.png"};
-	initSpriteTex(playerF[i], SI_PLAYER_FRONT+i);
+	Image playerF = "./images/player_sprite_sheet.png";
+	Texture playerTex(&playerF);
+	g.spriteTextures[SS_PLAYER] = playerTex;
+
+	g.sprites[SB_PLAYER_F].set_texture(g.spriteTextures[SS_PLAYER]);
+	g.sprites[SB_PLAYER_B].set_texture(g.spriteTextures[SS_PLAYER]);
     
     Image img = "./images/tiles.png";
-    initSpriteTex(&img, SI_TILES);
-    
+    Texture tiles(&img);
+    g.spriteTextures[SS_TILES] = tiles;    
+
+    g.sprites[SB_TILE_WOOD].set_texture(g.spriteTextures[SS_TILES]);
+	g.sprites[SB_TILE_STONE].set_texture(g.spriteTextures[SS_TILES]);
 }
     
-void Texture::initSpriteTex(Image *pic, int enum_img)
+TextureBase::Texture(Image *pic)
 {
-	
-	Image *tmp = pic;
+	Log("Dimensions: %d %d\n", pic->width, pic->height);
 
-	Log("Dimensions: %d %d\n", tmp->width, tmp->height);
+	h = img->height;
+	w = img->width;
 
-	glGenTextures(1, &g.spriteTextures[enum_img]);
+	img = pic;
 
-	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[enum_img]);
+	glGenTextures(1, &tex);
+
+	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-			tmp->width, tmp->height,
-			0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->data);
+			img->width, img->height,
+			0, GL_RGBA, GL_UNSIGNED_BYTE, img->data);
 }
 
 void Object::drawSprite()
@@ -90,18 +103,18 @@ float cx = 0;
 	glBindTexture(GL_TEXTURE_2D,0);
 	*/
 	
-	glBindTexture(GL_TEXTURE_2D, sprite);
+	glBindTexture(GL_TEXTURE_2D, sprt.spriteTex.tex);
 	glBegin(GL_POLYGON);
-		glTexCoord2f(sprite.pos[0], sprite.pos[1]);
+		glTexCoord2f(sprt.pos[0], sprt.pos[1]);
 		glVertex3f(-scale[0],  scale[1], scale[2]);
 		
-		glTexCoord2f(sprite.pos[0]+sprite.w, sprite.pos[1]);
+		glTexCoord2f(sprt.pos[0]+sprt.w, sprt.pos[1]);
 		glVertex3f( scale[0],  scale[1], scale[2]);
 		
-		glTexCoord2f(sprite.pos[0]+sprite.w, sprite.pos[1]+sprite.h);
+		glTexCoord2f(sprt.pos[0]+sprt.w, sprt.pos[1]+sprt.h);
 		glVertex3f( scale[0], -scale[1], scale[2]);
 		
-		glTexCoord2f(sprite.pos[0], sprite.pos[1]+sprite.h);
+		glTexCoord2f(sprt.pos[0], sprt.pos[1]+sprt.h);
 		glVertex3f(-scale[0], -scale[1], scale[2]);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D,0);

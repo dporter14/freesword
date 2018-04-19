@@ -40,7 +40,7 @@ void Player::init()
     hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
     hitbox.dynamic=1;
 
-    sprite = g.spriteTextures[SI_PLAYER_FRONT];
+    sprt = g.spriteTextures[SI_PLAYER];
 }
 
 //move player according to its velocity
@@ -161,7 +161,8 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
     VecCopy(pos, hitbox.pos);
     VecCopy(scale, hitbox.scale);
 	
-	sprite = g.spriteTextures[SI_WALL];
+	sprt = g.sprites[SB_TILE_STONE];
+	sprt.init(0,)
 }
 
 void Wall::draw(){

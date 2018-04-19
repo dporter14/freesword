@@ -71,7 +71,7 @@ class Object {
 		Animation* anim_handler; //
 		Hitbox* hitbox;
 		void drawSprite();
-		GLuint sprite;
+		Sprite sprt;
 		virtual void draw() = 0;
 };
 
@@ -176,7 +176,6 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
-			VecMake(16, 32, 1, scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -196,7 +195,9 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
-		Player(){}
+		Player() {
+
+		}
         ~Player(){}
         
         
@@ -242,21 +243,24 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_img {SS_PLAYER, SS_TILES, SS_};
+enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_TILE_WOOD, SB_TILE_STONE, SB_};
+enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
+
 class Sprite {
 	public:
 		int nframes;
 		int frame;
-		GLuint tex;
+		Texture spriteTex;
 		Vec start, pos;
 		float w, h;
-		Sprite(int ss){
-			tex = g.spriteTextures[ss];
+
+		void set_texture(Texture tt) {
+			spriteTex = tt;
 			VecMake(0, 0, 0, pos);
 			w=h=1;
 		}
 		
-		init(float x,float y,float w,float h,int n){
+		void init(float x,float y, float h, float w, int n) {
 			nframes=n;
 			frame=0;
 			VecMake(x,y,0,start);
@@ -265,15 +269,25 @@ class Sprite {
 			this.h = h;
 		}
 			
-		nextFrame(){
+		void nextFrame() {
 			frame = (frame+1)%n;
 			VecCopy(start,pos);
 			pos[0] += w*frame;
 		}
-}
+};
 enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
+
 void initSpriteTextures();
-void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
+
+class Texture 
+{
+	public:
+		Image *img;
+		GLuint tex;
+		float h,w;
+
+		Texture(Image *pic);
+};
 		
 /* JACOB FUNCTIONS */
 
@@ -402,9 +416,12 @@ struct Global {
 	Image *bgImage;
 	GLuint bgTexture;
 
-	Image *spriteImage;
-	GLuint spriteTextures[SI_];
-	float* spriteBox[SI_];
+	//Image *spriteImage;
+	//GLuint spriteTextures[SI_];
+	//float* spriteBox[SI_];
+
+	Texture spriteTextures[SS_];
+	Sprite  sprites[SB_];
 
 	Button title;
 	Button button[MAXBUTTONS];
@@ -438,7 +455,7 @@ struct Global {
 
 		eKilled = 0;
 
-		spriteImage=NULL;
+		//spriteImage=NULL;
 		
         
 		title.r.left = xres/2;
