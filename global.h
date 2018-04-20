@@ -61,6 +61,7 @@ class Weapon {
 
 class Animation;
 class Hitbox;
+class Sprite;
 
 class Object {
 	public:
@@ -71,7 +72,7 @@ class Object {
 		Animation* anim_handler; //
 		Hitbox* hitbox;
 		void drawSprite();
-		Sprite sprt;
+		Sprite* sprt;
 		virtual void draw() = 0;
 };
 
@@ -104,6 +105,7 @@ class Hitbox {
 			);
 		}
 };
+
 
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
@@ -245,32 +247,34 @@ void displayEnemiesKilled();
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_TILE_WOOD, SB_TILE_STONE, SB_};
 enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
+class Texture 
+{
+	public:
+		Image *img;
+		GLuint tex;
+		float h,w;
+
+		void init(Image *pic);
+};
 
 class Sprite {
 	public:
 		int nframes;
 		int frame;
-		Texture spriteTex;
+		Texture* spriteTex;
 		Vec start, pos;
 		float w, h;
 
-		void set_texture(Texture tt) {
+		void set_texture(Texture* tt) {
 			spriteTex = tt;
 			VecMake(0, 0, 0, pos);
 			w=h=1;
 		}
 		
-		void init(float x,float y, float h, float w, int n) {
-			nframes=n;
-			frame=0;
-			VecMake(x,y,0,start);
-			VecCopy(start,pos);
-			this.w = w;
-			this.h = h;
-		}
+		void init(float x, float y, float h, float w, int n);
 			
 		void nextFrame() {
-			frame = (frame+1)%n;
+			frame = (frame+1)%nframes;
 			VecCopy(start,pos);
 			pos[0] += w*frame;
 		}
@@ -279,15 +283,7 @@ enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
 
 void initSpriteTextures();
 
-class Texture 
-{
-	public:
-		Image *img;
-		GLuint tex;
-		float h,w;
 
-		Texture(Image *pic);
-};
 		
 /* JACOB FUNCTIONS */
 
@@ -421,7 +417,7 @@ struct Global {
 	//float* spriteBox[SI_];
 
 	Texture spriteTextures[SS_];
-	Sprite  sprites[SB_];
+	Sprite sprites[SB_];
 
 	Button title;
 	Button button[MAXBUTTONS];

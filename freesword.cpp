@@ -725,12 +725,19 @@ void render(void)
 	//
 	//screen background
 	glColor3f(0.7f, 0.7f, 0.7f);
-	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
+	glBindTexture(GL_TEXTURE_2D, g.sprites[SB_TILE_WOOD].spriteTex->tex);
 	glBegin(GL_TRIANGLE_FAN);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(0,      g.yres,0);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(g.xres, g.yres,0);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(g.xres, 0,     0);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(0,      0,     0);
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]); 
+	glVertex3i(-50,      g.yres+100,0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]); 
+	glVertex3i(g.xres+50, g.yres+100,0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
+	glVertex3i(g.xres+50, -50,     0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
+	glVertex3i(-50,      -50,     0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -748,8 +755,10 @@ void render(void)
 		//g.menuButt[ loop ].draw();
 	}
     //draw level objects
-    for (int i=0; i<1000; i++) {
+    for (int i=0; i<g.number[N_WALLS]; i++) {
         g.level1.walls[i].draw();
+    }
+    for (int i=0; i<g.number[N_DOORS]; i++) {
         g.level1.doors[i].draw();
     }
 	
