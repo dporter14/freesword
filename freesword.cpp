@@ -527,7 +527,7 @@ int checkMouse(XEvent *e)
 {
 	int x,y;
 	int lbutton=0;
-	int rbutton=0;
+	//int rbutton=0;
 	
     if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
@@ -555,7 +555,7 @@ int checkMouse(XEvent *e)
 		}
 		if (e->xbutton.button==3) {
 			//Right button is down
-			rbutton=1;
+			//rbutton=1;
             g.isClicked[M_2] = true;
             if (g.state[S_LEVELEDIT])
                rotateDoor(g.savex, g.savey); 
