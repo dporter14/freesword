@@ -21,26 +21,26 @@ void toggleEditMode()
 //init player
 void Player::init()
 {
-	//player shape radius
-	pradius = 30;
-	VecMake(25,50,0,scale);
-	//player shape
-	state = 0;
-	max_speed = 8;
-	//VecMake(0,1,0,dir);
-	rot = 0;
-	VecMake(0,0,0,vel);
-	VecMake(50,50,0,pos);
-	VecMake(1.0, 1.0, 1.0, color);
-	VecMake(16, 0, 0,rhand_pos);
-	//VecMake(0,1,0,rhand_dir);
-	rhand_rot = 0;
+    //player shape radius
+    pradius = 30;
+    VecMake(50,75,0,scale);
+    //player shape
+    state = 0;
+    max_speed = 8;
+    //VecMake(0,1,0,dir);
+    rot = 0;
+    VecMake(0,0,0,vel);
+    VecMake(50,50,0,pos);
+    VecMake(1.0, 1.0, 1.0, color);
+    VecMake(16, 0, 0,rhand_pos);
+    //VecMake(0,1,0,rhand_dir);
+    rhand_rot = 0;
 
-	VecCopy(pos, hitbox.pos);
-	hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
-	hitbox.dynamic=1;
+    VecCopy(pos, hitbox.pos);
+    hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
+    hitbox.dynamic=1;
 
-	sprite = g.spriteTextures[SI_PLAYER_FRONT];
+    sprt = &g.sprites[SB_PLAYER_F];
 }
 
 //move player according to its velocity
@@ -161,7 +161,7 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 	VecCopy(pos, hitbox.pos);
 	VecCopy(scale, hitbox.scale);
 	
-	sprite = g.spriteTextures[SI_WALL];
+	sprt = &g.sprites[SB_TILE_STONE];
 }
 
 void Wall::draw(){
@@ -171,6 +171,7 @@ void Wall::draw(){
 	static char* info_here = g.info.get_place();
 	double startTime, endTime;
 	startTime = current_time();
+	//printf("Blah: %s",sprt);
 	drawSprite();
 	/*
 	glColor3f(color[0],color[1],color[2]);

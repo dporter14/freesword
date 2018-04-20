@@ -27,7 +27,7 @@ void spawnEnemy(Flt x, Flt y){
 		VecMake(x, y, 0, e->pos);
 		VecMake(0.2, 0.2, 0.2, e->color);
 		e->pradius = 25;
-		VecMake(25,50,0,e->scale);
+		VecMake(50,75,0,e->scale);
 		e->state = 0;
 		e->max_speed = 6;
 		//VecMake(0,1,0,e->dir);
@@ -39,7 +39,7 @@ void spawnEnemy(Flt x, Flt y){
 		e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 		e->hitbox.dynamic=1;
 	
-		e->sprite = g.spriteTextures[SI_PLAYER_FRONT];
+		e->sprt = &g.sprites[SS_PLAYER];
 	}
 }
 
