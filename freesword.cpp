@@ -336,6 +336,7 @@ void initOpengl(void)
 			g.bgImage->width, g.bgImage->height,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, g.bgImage->data);
 	
+	initSpriteTextures();
 }
 
 
@@ -567,7 +568,7 @@ int checkMouse(XEvent *e)
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
 		//Mouse moved
 		g.savex = g.player.pos[0]-(g.xres/2)+x;
-		g.savey = g.player.pos[1]-(g.yres/2)+(g.yres-y);
+		g.savey = g.player.pos[1]-(g.yres/2)+y;
 	}
 
 	if (g.isClicked[M_1] == true) {
@@ -716,12 +717,19 @@ void render(void)
 	//
 	//screen background
 	glColor3f(0.7f, 0.7f, 0.7f);
-	glBindTexture(GL_TEXTURE_2D, g.bgTexture);
+	glBindTexture(GL_TEXTURE_2D, g.sprites[SB_TILE_WOOD].spriteTex->tex);
 	glBegin(GL_TRIANGLE_FAN);
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(0,      g.yres,0);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(g.xres, g.yres,0);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(g.xres, 0,     0);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(0,      0,     0);
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]); 
+	glVertex3i(-50,      g.yres+100,0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]); 
+	glVertex3i(g.xres+50, g.yres+100,0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
+	glVertex3i(g.xres+50, -50,     0);
+	
+	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
+	glVertex3i(-50,      -50,     0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -740,8 +748,10 @@ void render(void)
 	}
 
     //draw level objects
-    for (int i=0; i<1000; i++) {
+    for (int i=0; i<g.number[N_WALLS]; i++) {
         g.level1.walls[i].draw();
+    }
+    for (int i=0; i<g.number[N_DOORS]; i++) {
         g.level1.doors[i].draw();
     }
 	

@@ -36,27 +36,18 @@
 const int MAXBUTTONS = 4;
 const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
-const int MAXSPRITES = 10;
 
-enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
-
-class Button {
-    public:
-	    Rect r;
-	    char text[32];
-	    int over;
-	    int down;
-	    int click;
-	    float color[3];
-	    float dColor[3];
-	    unsigned int text_color;
-	    void draw();
-        bool isOver(float, float);
-		clickState state;
-
-		void setRect(float, float, float, float);
-		void setColor(float, float, float);
-};
+typedef struct t_button {
+	Rect r;
+	char text[32];
+	int over;
+	int down;
+	int click;
+	float color[3];
+	float dcolor[3];
+	unsigned int text_color;
+	void draw();
+} Button;
 
 enum wep_type {W_NONE, W_SWORD};
 
@@ -69,7 +60,6 @@ class Weapon {
 
 class Animation;
 class Hitbox;
-class Sprite;
 
 class Object {
 	public:
@@ -79,8 +69,9 @@ class Object {
 		Flt rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
+		void initSpriteTex(Image *, int); //creates a sprite texture for any object. int is SI_enum
 		void drawSprite();
-		Sprite* sprt;
+		GLuint sprite;
 		virtual void draw() = 0;
 };
 
@@ -98,8 +89,8 @@ class Hitbox {
 		Hitbox () {}
 		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
 			type = t;
-			VecCopy(p, pos);
-			VecCopy(s, scale);
+			VecCopy(p,pos);
+			VecCopy(s,scale);
 			active = 1;
 			rot=r;
 		}
@@ -185,6 +176,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(16,32,1,scale);
 		}
 		~Character(){} //destructor
 		void move();
@@ -237,13 +229,10 @@ class Menu {
     public:
         Menu();
         void draw();
-        Vec pos;
-        Button buttons[MAXBUTTONS];
-		int nButtons;
-
-        clickState getOver(float, float);
-
     private:
+        double m_height, m_width;
+        std::string m_buttonTitle;
+        
 };
 void mason_func();
 void pauseMenu();
@@ -253,46 +242,9 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_TILE_WOOD, SB_TILE_STONE, SB_};
-enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
-class Texture 
-{
-	public:
-		Image *img;
-		GLuint tex;
-		float h,w;
+enum Sprite_imgs {SI_PLAYER_FRONT, SI_WALL, SI_};
+enum Z_layers {ZL_SWORD,ZL_ENEMY,ZL_PLAYER,ZL_};
 
-		void init(Image *pic);
-};
-
-class Sprite {
-	public:
-		int nframes;
-		int frame;
-		Texture* spriteTex;
-		Vec start, pos;
-		float w, h;
-
-		void set_texture(Texture* tt) {
-			spriteTex = tt;
-			VecMake(0, 0, 0, pos);
-			w=h=1;
-		}
-		
-		void init(float x, float y, float h, float w, int n);
-			
-		void nextFrame() {
-			frame = (frame+1)%nframes;
-			VecCopy(start,pos);
-			pos[0] += w*frame;
-		}
-};
-enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
-
-void initSpriteTextures();
-
-
-		
 /* JACOB FUNCTIONS */
 
 class Wall : public Object {
@@ -417,20 +369,15 @@ struct Global {
 	Enemy enemies[MAXENEMIES];
 	
 	
-	Menu pauseMenu;
 	Image *bgImage;
 	GLuint bgTexture;
 
-	//Image *spriteImage;
-	//GLuint spriteTextures[SI_];
-	//float* spriteBox[SI_];
-
-	Texture spriteTextures[SS_];
-	Sprite sprites[SB_];
+	Image *spriteImage;
+	GLuint spriteTextures[SI_];
 
 	Button title;
 	Button button[MAXBUTTONS];
-    
+
 	bool isPressed[K_];
     bool isClicked[M_];
 	int state[S_];
@@ -460,15 +407,15 @@ struct Global {
 
 		eKilled = 0;
 
-		//spriteImage=NULL;
+		spriteImage=NULL;
 		
-        
+
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
-		strcpy(title.text, "");
+		strcpy(title.text, "Freesword");
 		title.text_color = 0x00ffffff;
-        
+	
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;

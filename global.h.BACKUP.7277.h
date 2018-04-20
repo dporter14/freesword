@@ -114,6 +114,7 @@ class Hitbox {
 		}
 };
 
+
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
 class Animation {
@@ -204,7 +205,9 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
-		Player(){}
+		Player() {
+
+		}
         ~Player(){}
         
         
@@ -232,6 +235,8 @@ class Enemy : public Character {
 
 
 /* MASON FUNCTIONS */
+
+
 class Menu {
 
     public:
@@ -466,7 +471,11 @@ struct Global {
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
+<<<<<<< HEAD
+		strcpy(title.text,"");
+=======
 		strcpy(title.text, "");
+>>>>>>> textures
 		title.text_color = 0x00ffffff;
         
 

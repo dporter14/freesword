@@ -1,4 +1,6 @@
 //Author: David Porter
+//Last Edit: 2018/18/04
+//Textures and sprite generation/mapping
 
 #include <iostream>     
 #include <ctime>
@@ -26,23 +28,55 @@ void Animation::sword_stab()
         }
 }
 */
-void Object::initSpriteTex(Image *pic, int enum_img)
+void Texture::init(Image *img)
 {
-	Image *tmp = g.spriteImage + enum_img;
+	Log("Dimensions: %d %d\n", img->width, img->height);
 
-	tmp = &pic[0];
+	h = img->height;
+	w = img->width;
 
-	Log("Dimensions: %d %d\n", tmp->width, tmp->height);
+	glGenTextures(1, &tex);
 
-	glGenTextures(1, &g.spriteTextures[enum_img]);
-
-	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[enum_img]);
+	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-			tmp->width, tmp->height,
-			0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->data);
+			img->width, img->height,
+			0, GL_RGBA, GL_UNSIGNED_BYTE, img->data);
 }
+
+void Sprite::init(float x, float y, float w, float h, int n) {
+	nframes=n;
+	frame=0;
+	float dx = spriteTex->w;
+	float dy = spriteTex->h;
+	
+	VecMake(x/dx,y/dy,0,start);
+	VecCopy(start,pos);
+	this->w = w/dx;
+	this->h = h/dy;
+}
+
+void initSpriteTextures()
+{
+	Image playerF = "./images/player_sprite_sheet.png";
+	g.spriteTextures[SS_PLAYER].init(&playerF);
+
+	g.sprites[SB_PLAYER_F].set_texture(&g.spriteTextures[SS_PLAYER]);
+	g.sprites[SB_PLAYER_F].init(0, 0, 50, 75, 1);
+	g.sprites[SB_PLAYER_B].set_texture(&g.spriteTextures[SS_PLAYER]);
+    g.sprites[SB_PLAYER_B].init(0, 75, 50, 75, 1);
+	
+    Image img = "./images/tiles.png";
+    g.spriteTextures[SS_TILES].init(&img);
+
+    g.sprites[SB_TILE_STONE].set_texture(&g.spriteTextures[SS_TILES]);
+	g.sprites[SB_TILE_STONE].init(0, 0, 50, 50, 1);
+	g.sprites[SB_TILE_WOOD].set_texture(&g.spriteTextures[SS_TILES]);
+    g.sprites[SB_TILE_WOOD].init(50, 0, 50, 50, 1);
+	
+}
+    
 void Object::drawSprite()
 {
 
@@ -79,13 +113,19 @@ float cx = 0;
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D,0);
 	*/
-	
-	glBindTexture(GL_TEXTURE_2D, sprite);
+	glBindTexture(GL_TEXTURE_2D, sprt->spriteTex->tex);
 	glBegin(GL_POLYGON);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-scale[0],  scale[1], scale[2]);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f( scale[0],  scale[1], scale[2]);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f( scale[0], -scale[1], scale[2]);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-scale[0], -scale[1], scale[2]);
+		glTexCoord2f(sprt->pos[0], sprt->pos[1]);
+		glVertex3f(-scale[0],  scale[1], scale[2]);
+		
+		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]);
+		glVertex3f( scale[0],  scale[1], scale[2]);
+		
+		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]+sprt->h);
+		glVertex3f( scale[0], -scale[1], scale[2]);
+		
+		glTexCoord2f(sprt->pos[0], sprt->pos[1]+sprt->h);
+		glVertex3f(-scale[0], -scale[1], scale[2]);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D,0);
 	
