@@ -194,6 +194,7 @@ class Character : public Object {
 		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
+		void swapSprites(Vec direct); //davidP.cpp
 		
 	private:
 
@@ -253,8 +254,9 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_TILE_WOOD, SB_TILE_STONE, SB_};
+enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, SB_TILE_WOOD, SB_TILE_STONE, SB_};
 enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
+
 class Texture 
 {
 	public:

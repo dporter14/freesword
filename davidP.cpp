@@ -63,9 +63,13 @@ void initSpriteTextures()
 	g.spriteTextures[SS_PLAYER].init(&playerF);
 
 	g.sprites[SB_PLAYER_F].set_texture(&g.spriteTextures[SS_PLAYER]);
-	g.sprites[SB_PLAYER_F].init(0, 0, 50, 75, 1);
+	g.sprites[SB_PLAYER_F].init(0,  0, 50, 75, 1);
 	g.sprites[SB_PLAYER_B].set_texture(&g.spriteTextures[SS_PLAYER]);
     g.sprites[SB_PLAYER_B].init(0, 75, 50, 75, 1);
+    g.sprites[SB_PLAYER_R].set_texture(&g.spriteTextures[SS_PLAYER]);
+    g.sprites[SB_PLAYER_R].init(0,150, 50, 75, 1);
+    g.sprites[SB_PLAYER_L].set_texture(&g.spriteTextures[SS_PLAYER]);
+    g.sprites[SB_PLAYER_L].init(0,225, 50, 75, 1);
 	
     Image img = "./images/tiles.png";
     g.spriteTextures[SS_TILES].init(&img);
@@ -75,6 +79,19 @@ void initSpriteTextures()
 	g.sprites[SB_TILE_WOOD].set_texture(&g.spriteTextures[SS_TILES]);
     g.sprites[SB_TILE_WOOD].init(50, 0, 50, 50, 1);
 	
+}
+
+void Character::swapSprites(Vec direct)
+{
+	if(direct[0] > 0)
+		sprt = &g.sprites[SB_PLAYER_R];
+	if(direct[0] < 0)
+		sprt = &g.sprites[SB_PLAYER_L];
+	if(direct[1] > 0)
+		sprt = &g.sprites[SB_PLAYER_B];
+	if(direct[1] < 0)
+		sprt = &g.sprites[SB_PLAYER_F];
+
 }
     
 void Object::drawSprite()
@@ -186,9 +203,6 @@ void Character::draw()
 	double startTime, endTime;
 	startTime = current_time();
 
-	//draw player
-	drawSprite();
-
 	glColor3f(color[0],color[1],color[2]);
 	glPushMatrix();
 	glTranslatef(pos[0], pos[1], 0.0);
@@ -294,6 +308,9 @@ void Character::draw()
 			glEnd();
 		}
 	}
+
+	//draw player
+	drawSprite();
 
 	//return time spent
 	endTime = current_time();
