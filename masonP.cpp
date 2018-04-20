@@ -112,9 +112,10 @@ void Menu::draw() {
 	startTime = current_time();
 
 	glColor3ub(0, 153, 0);
-	buttons[0].draw();
-	buttons[1].draw();
-	buttons[2].draw();
+
+	for(int loop = 0; loop < nButtons; loop++) {
+		buttons[ loop ].draw();
+	} 
 
 	glPushMatrix();	
 	glTranslatef(g.xres/2, g.yres/2, 0.0);

@@ -503,8 +503,6 @@ int checkKeys(XEvent *e)
             }
             break;
         case XK_l:
-            if (e->type == KeyPress)
-    			toggleEditMode();
             break;
 		case XK_1:
 			david_func();
@@ -528,7 +526,7 @@ int checkMouse(XEvent *e)
 	int x,y;
 	int lbutton=0;
 	int rbutton=0;
-	
+t 	
     if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
@@ -741,10 +739,6 @@ void render(void)
 	
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
-	}
-
-	for(int loop = 0; loop < 3; loop++) {
-		//g.menuButt[ loop ].draw();
 	}
 
     //draw level objects

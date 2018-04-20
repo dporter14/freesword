@@ -245,8 +245,11 @@ class Menu {
 
     private:
 };
+class MainMenu : public Menu {
+	public:
+		void draw();
+};
 void mason_func();
-void pauseMenu();
 void displayTitle();
 void displayEnemiesKilled();
 
