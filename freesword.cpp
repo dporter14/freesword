@@ -348,55 +348,47 @@ void init()
 
     //
 	//initialize buttons...
-	
-	g.number[N_BUTTONS] =0;
+	VecMake((g.xres/2) - 70, g.yres/2, 0, g.pauseMenu.pos);	
+
+	Vec off; VecCopy(g.pauseMenu.pos, off);
+	g.pauseMenu.nButtons =0;
 	//size and position
-	g.button[g.number[ N_BUTTONS] ].r.width = 140;
-	g.button[g.number[ N_BUTTONS] ].r.height = 60;
-	g.button[g.number[ N_BUTTONS] ].r.left = 20;
-	g.button[g.number[ N_BUTTONS] ].r.bot = 320;
-	g.button[g.number[ N_BUTTONS] ].r.right =
-	g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.width;
-	g.button[g.number[ N_BUTTONS] ].r.top =
-	g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[ N_BUTTONS] ].r.height;
-	g.button[g.number[ N_BUTTONS] ].r.centerx =
-	(g.button[g.number[ N_BUTTONS] ].r.left + g.button[g.number[ N_BUTTONS] ].r.right) / 2;
-	g.button[g.number[ N_BUTTONS] ].r.centery =
-	(g.button[g.number[ N_BUTTONS] ].r.bot + g.button[g.number[N_BUTTONS]].r.top) / 2;
-	strcpy(g.button[g.number[ N_BUTTONS]].text, "Reset");
-	g.button[g.number[ N_BUTTONS]].down = 0;
-	g.button[g.number[ N_BUTTONS]].click = 0;
-	g.button[g.number[N_BUTTONS]].color[0] = 0.4f;
-	g.button[g.number[N_BUTTONS]].color[1] = 0.4f;
-	g.button[g.number[N_BUTTONS]].color[2] = 0.7f;
-	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
-	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
-	g.number[N_BUTTONS]++;
-	g.button[g.number[N_BUTTONS]].r.width = 140;
-	g.button[g.number[N_BUTTONS]].r.height = 60;
-	g.button[g.number[N_BUTTONS]].r.left = 20;
-	g.button[g.number[N_BUTTONS]].r.bot = 160;
-	g.button[g.number[N_BUTTONS]].r.right =
-	g.button[g.number[N_BUTTONS]].r.left + g.button[g.number[N_BUTTONS]].r.width;
-	g.button[g.number[N_BUTTONS]].r.top = g.button[g.number[N_BUTTONS]].r.bot +
-	g.button[g.number[N_BUTTONS]].r.height;
-	g.button[g.number[N_BUTTONS]].r.centerx = (g.button[g.number[N_BUTTONS]].r.left +
-	g.button[g.number[N_BUTTONS]].r.right) / 2;
-	g.button[g.number[N_BUTTONS]].r.centery = (g.button[g.number[N_BUTTONS]].r.bot +
-	g.button[g.number[N_BUTTONS]].r.top) / 2;
-	strcpy(g.button[g.number[N_BUTTONS]].text, "Quit");
-	g.button[g.number[N_BUTTONS]].down = 0;
-	g.button[g.number[N_BUTTONS]].click = 0;
-	g.button[g.number[N_BUTTONS]].color[0] = 0.3f;
-	g.button[g.number[N_BUTTONS]].color[1] = 0.3f;
-	g.button[g.number[N_BUTTONS]].color[2] = 0.6f;
-	g.button[g.number[N_BUTTONS]].dcolor[0] = g.button[g.number[N_BUTTONS]].color[0] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[1] = g.button[g.number[N_BUTTONS]].color[1] * 0.5f;
-	g.button[g.number[N_BUTTONS]].dcolor[2] = g.button[g.number[N_BUTTONS]].color[2] * 0.5f;
-	g.button[g.number[N_BUTTONS]].text_color = 0x00ffffff;
-	g.number[N_BUTTONS]++;
+	Button &b = g.pauseMenu.buttons[g.pauseMenu.nButtons];
+
+	// Width, height, left, bot
+	b.setRect(140, 60, off[0], off[1] + 320);
+	strcpy(b.text, "Resume");
+	b.down = 0;
+	b.click = 0;
+	b.setColor(0.4f, 0.4f, 0.7f);
+	b.text_color = 0x00ffffff;
+	b.state = C_RESUME;
+
+	g.pauseMenu.nButtons++;
+
+	Button &b1 = g.pauseMenu.buttons[g.pauseMenu.nButtons];
+		
+	b1.setRect(140, 60, off[0], off[1] + 160);
+	strcpy(b1.text, "Quit");
+	b1.down = 0;
+	b1.click = 0;
+	b1.setColor(0.3f, 0.3f, 0.6f);
+	b1.text_color = 0x00ffffff;
+	b1.state = C_QUIT;
+
+	g.pauseMenu.nButtons++;
+
+	Button &b2 = g.pauseMenu.buttons[g.pauseMenu.nButtons];
+
+	b2.setRect(140, 60, off[0], off[1] - 80);
+	strcpy(b2.text, "Level Editor");
+	b2.down = 0;
+	b2.click = 0;
+	b2.setColor(0.8f, 0.8f, 1.0f);
+	b2.text_color = 0x00ffffff;
+	b2.state = C_EDITOR;
+
+	g.pauseMenu.nButtons++;
 }
 
 void resetGame()
@@ -535,12 +527,8 @@ int checkMouse(XEvent *e)
 	int x,y;
 	int lbutton=0;
 	int rbutton=0;
-	//
-	if (e->type == ButtonRelease) {
-		return 0;
-        //Resume Button
-	}
-	if (e->type == ButtonRelease) {
+	
+    if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
         g.isClicked[M_2] = false;
@@ -574,39 +562,39 @@ int checkMouse(XEvent *e)
 	}
 	x = e->xbutton.x;
 	y = e->xbutton.y;
-
+	y = g.yres-y;
 	//printf("%d %d\n",x,y);
 	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
 		//Mouse moved
 		g.savex = g.player.pos[0]-(g.xres/2)+x;
 		g.savey = g.player.pos[1]-(g.yres/2)+(g.yres-y);
 	}
-    
-    if (g.isClicked[M_1] == true) {
-        dragWall(g.savex, g.savey);
-        dragDoor(g.savex, g.savey);
-    }
+
+	if (g.isClicked[M_1] == true) {
+		dragWall(g.savex, g.savey);
+		dragDoor(g.savex, g.savey);
+	}
 	//for menu buttons
 	if(g.state[ S_PAUSED ]) {
-		for (int i=0; i<g.number[N_BUTTONS]; i++) {
-			g.button[i].over=0;
-			if (x >= g.button[i].r.left &&
-					x <= g.button[i].r.right &&
-					y >= g.button[i].r.bot &&
-					y <= g.button[i].r.top) {
-				g.button[i].over=1;
-				if (g.button[i].over) {
-					if (lbutton) {
-						switch (i) {
-							case 0:
-								resetGame();
-								break;
-							case 1:
-								printf("Quit was clicked!\n");
-								return 1;
-						}
-					}
-				}
+		int click_state= g.pauseMenu.getOver(x, y);
+		if (lbutton) {
+			switch (click_state) {
+				case C_RESUME:
+					//resumeGame();
+					g.state[S_PAUSED] ^= 1;
+					break;
+				case C_QUIT:
+					printf("Quit was clicked!\n");
+					return 1;
+					break;
+				case C_EDITOR:
+    				toggleEditMode();
+					g.state[S_PAUSED] ^= 1;
+					break;
+				case C_NONE:
+					break;
+				case C_:
+					break;	
 			}
 		}
 	}
@@ -750,7 +738,7 @@ void render(void)
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
-	
+
     //draw level objects
     for (int i=0; i<1000; i++) {
         g.level1.walls[i].draw();
@@ -764,8 +752,9 @@ void render(void)
 	//Beginning of GUI elements//
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
+
 	if (g.state[S_PAUSED])
-		pauseMenu();
+		g.pauseMenu.draw();
 
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//glDisable(GL_DEPTH_TEST);

@@ -3,6 +3,7 @@
 #include <ctime>
 #include "global.h"
 
+
 void toggleEditMode() 
 {
     if (g.state[S_LEVELEDIT] != 1) {
@@ -11,10 +12,11 @@ void toggleEditMode()
         g.title.text_color = 0x39ff14;
     } else {
         g.state[S_LEVELEDIT] = 0;
-        strcpy(g.title.text, "Freesword");
+        strcpy(g.title.text, "");
         g.title.text_color = 0x00ffffff;
     }
 }
+
 
 //init player
 void Player::init()
@@ -144,8 +146,8 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
     initx = round((initx/25))*25;
     inity = round((inity/25))*25;
 
-    //printf("initx: %f\n", initx);
-    //printf("inity: %f\n", inity);
+    printf("initx: %f\n", initx);
+    printf("inity: %f\n", inity);
 
     pos[0] = initx;
     pos[1] = inity;
@@ -464,13 +466,11 @@ void Level::buildLevel1()
 
 void createWall(int mousex, int mousey) 
 {
-
-      for (int i=0; i<g.number[N_WALLS]; i++) {
+    for (int i=0; i<g.number[N_WALLS]; i++) {
         //std::cout << round((mousex/25))*25 << " " << round((mousey/25))*25 << std::endl;
         if (g.level1.walls[i].pos[0] == round((mousex/25))*25 && g.level1.walls[i].pos[1] == round((mousey/25))*25) {
             return;
         }
-
     }
     if (g.number[N_WALLS] < 1000) {
         g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
@@ -478,7 +478,6 @@ void createWall(int mousex, int mousey)
         std::cout << "# of walls: " << g.number[N_WALLS] << std::endl;   
     } else {
         std::cout << "Error: Too many walls.\n" << std::endl;
-
     }
     
 }
@@ -495,7 +494,6 @@ void dragWall(int mousex, int mousey)
                     printf("Wall #%d\n", i);
                     selectedWall = i;
                     g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
-
                     g.wallChange = false;
                     return;
                 }
@@ -504,7 +502,6 @@ void dragWall(int mousex, int mousey)
         return;
     } else if (g.wallChange == false && g.number[N_WALLS]>0) {
         g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
-
     }
 }
 
@@ -525,7 +522,7 @@ void createDoor(int mousex, int mousey)
 
 void dragDoor(int mousex, int mousey) 
 {
-    static int selectedDoor = -1;
+    static int selectedDoor;
     if (g.doorChange == true && g.number[N_DOORS]>0) {
         for (int i=0; i<g.number[N_DOORS]; i++) {
             if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
@@ -644,3 +641,5 @@ void loadLevel()
     }
     levelread.close();
 }
+
+
