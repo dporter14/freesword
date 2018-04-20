@@ -391,7 +391,6 @@ struct Global {
 
 	Button title;
 	Button button[MAXBUTTONS];
-    Button title;
 
 	bool isPressed[K_];
     bool isClicked[M_];
