@@ -128,6 +128,7 @@ void Character::lookAt(Flt x, Flt y)
 		dir[1]=SGN(dir[1]);
 		dir[0]=0;
 	}
+	swapSprites(dir);
 	Vec base, upz, cross;
 	VecMake(0, 1, 0, base);
 	VecMake(0, 0, 1, upz);
