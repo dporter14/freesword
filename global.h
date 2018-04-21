@@ -252,6 +252,7 @@ class MainMenu : public Menu {
 void mason_func();
 void displayTitle();
 void displayEnemiesKilled();
+int detectButtons(int, int, int);
 
 /* David FUNCTIONS	*/
 

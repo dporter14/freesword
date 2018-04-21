@@ -526,7 +526,7 @@ int checkMouse(XEvent *e)
 	int x,y;
 	int lbutton=0;
 	int rbutton=0;
-t 	
+	 	
     if (e->type == ButtonRelease) {
         g.isClicked[M_1] = false;
         g.wallChange = true;
@@ -574,29 +574,9 @@ t
 		dragDoor(g.savex, g.savey);
 	}
 	//for menu buttons
-	if(g.state[ S_PAUSED ]) {
-		int click_state= g.pauseMenu.getOver(x, y);
-		if (lbutton) {
-			switch (click_state) {
-				case C_RESUME:
-					//resumeGame();
-					g.state[S_PAUSED] ^= 1;
-					break;
-				case C_QUIT:
-					printf("Quit was clicked!\n");
-					return 1;
-					break;
-				case C_EDITOR:
-    				toggleEditMode();
-					g.state[S_PAUSED] ^= 1;
-					break;
-				case C_NONE:
-					break;
-				case C_:
-					break;	
-			}
-		}
-	}
+	int m = detectButtons(lbutton, x, y);
+	if(m == 1)
+		return 1;
 	return 0;
 }
 

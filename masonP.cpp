@@ -135,6 +135,34 @@ void Menu::draw() {
 	sprintf(info_here, "Pause Menu Function: %f", tix);
 }
 
+int detectButtons(int lbutton, int x, int y) {
+	if(g.state[ S_PAUSED ]) {
+		int click_state= g.pauseMenu.getOver(x, y);
+		if (lbutton) {
+			switch (click_state) {
+				case C_RESUME:
+					//resumeGame();
+					g.state[S_PAUSED] ^= 1;
+					break;
+				case C_QUIT:
+					printf("Quit was clicked!\n");
+					return 1;
+					break;
+				case C_EDITOR:
+    				toggleEditMode();
+					g.state[S_PAUSED] ^= 1;
+					break;
+				case C_NONE:
+					break;
+				case C_:
+					break;	
+			}
+		}
+	}
+	return 0;
+}
+
+
 void displayEnemiesKilled() {
 
 	Rect killedRect;
