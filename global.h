@@ -176,7 +176,8 @@ class Character : public Object {
 		Vec rhand_pos; //pos of right hand
 		Flt rhand_rot; //orientation of right hand
 		
-		int state; //0 alive 1 dead
+		int state;
+		int hp;
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
 		Hitbox attacks[1];
@@ -205,7 +206,10 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
-		Player(){}
+		void die();
+		Player(){
+			hp = 3;
+		}
         ~Player(){}
         
         
@@ -225,6 +229,7 @@ class Enemy : public Character {
         	v_fov = 45;
         	v_dist = 500;
         	v_close = 75;
+			hp = 1;
         	state = S_CHAR_IDLE;
         }
     private:
@@ -341,8 +346,9 @@ class Level {
         Enemy enemies[1000];
         Wall walls[1000];
         Door doors[1000];
+		int currentLevel;
+		bool beat; 
 
-        void buildLevel1();
     private:
 };
 
@@ -350,10 +356,8 @@ void toggleEditMode();
 void initWalls();
 void interactDoor();
 void collide(Door);
-void buildLevel1();
 void createWall(int, int);
 
-void interactDoor();
 /*
 void doorCollision(Door, Enemy&);
 void doorCollision(Door, Player);
@@ -365,8 +369,9 @@ void createDoor(int, int);
 void dragDoor(int, int);
 void rotateDoor(int, int);
 void saveLevel();
-void saveLevel();
-void loadLevel();
+void loadLevel(char*);
+void resetGame();
+void advance();
 
 enum MouseList {M_1, M_2, M_3, M_};
 void wallCollision(Wall&, Character&);
@@ -431,6 +436,7 @@ struct Global {
 	Sprite sprites[SB_];
 
 	Button title;
+	Button hearts;
 	Button button[MAXBUTTONS];
     
 	bool isPressed[K_];
@@ -440,14 +446,14 @@ struct Global {
 	int eKilled;
 	
 	
-	//Wall n, e, s, w;
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
 	Animator animator;
 	//
 	int currentLevel;
-    Level level1;
+	char *levelName[5];
+    Level level;
 
 	#ifdef USE_OPENAL_SOUND
 		ALuint alBufferDrip, alBufferTick;
@@ -471,6 +477,11 @@ struct Global {
 		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
         
+		hearts.r.left = 100;
+		hearts.r.bot = yres-100;
+		hearts.r.center = 1;
+		strcpy(hearts.text, "\u2764");
+		hearts.text_color = 0xff0000;
 
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;
@@ -486,6 +497,12 @@ struct Global {
         }
         wallChange = true;
         doorChange = true;
+		level.beat = false;
+		currentLevel = 0;
+		levelName[0] = "level1";
+		levelName[1] = "level2";
+		levelName[2] = "level3";
+		levelName[3] = "level4";
 	}
 };
 extern Global g;
