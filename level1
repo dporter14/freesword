@@ -135,7 +135,7 @@ wall 850 250
 wall 850 200
 wall 850 50
 wall 850 0
-door 112.5 187.5 1
+door 75 150 1
 door 725 600 1
 door 850 125 0
 enemy 905 343.411

@@ -581,7 +581,8 @@ void Door::rotate()
 
 void saveLevel()
 {
-	char *levelName = "";
+	char levelName[10] = "levelx";
+	std::cout << "This will overwrite any existing file with your provided name.\nEnter level name: ";
 	std::cin >> levelName;
 	std::ofstream levelOF;
 	levelOF.open (levelName);
@@ -639,6 +640,7 @@ void loadLevel(char *levelName)
 		}
 	} else {
 		printf("Unable to open file\n");
+		exit(1);
 	}
 	levelread.close();
 }

@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 	timePause = current_time();
 	timeStart = current_time();
 	int done = 0;
+	loadLevel(g.levelName[g.currentLevel]);
 	while (!done) {
 		gameUpdate();
 		while (x11.getXPending()) {
@@ -221,6 +222,8 @@ void advance()
 		g.number[N_ENEMIES] = 0;
 		g.currentLevel++;
 		loadLevel(g.levelName[g.currentLevel]);	
+		g.level.beat = false;
+		g.player.hp = 3;
 	}
 }	
 
@@ -355,8 +358,6 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-    g.currentLevel = 1;
-    //buildLevel("testlevel");
 
     //
 	//initialize buttons...
@@ -417,7 +418,10 @@ void gameUpdate()
 			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
 		}
 	}
-
+	if (g.number[N_ENEMIES] == 0) {
+		g.level.beat = true;
+		advance();
+	}
 	/*if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}*/
@@ -483,9 +487,11 @@ int checkKeys(XEvent *e)
 				g.state[S_DEBUG] ^= 1;
 			break;
         case XK_z:
-            createWall(g.savex, g.savey);
+            if (e->type == KeyPress) {
+			createWall(g.savex, g.savey);
             static char* info_here = g.info.get_place();
 			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+			}
 			break;
 			if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
@@ -510,7 +516,7 @@ int checkKeys(XEvent *e)
         case XK_f:
             if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
-                    loadLevel("testlevel");
+                    loadLevel("level2");
                 }
             }
             break;
@@ -529,7 +535,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_4:
 			if (e->type == KeyPress)
-			    spawnEnemy(RND()*(g.xres), RND()*(g.yres));
+			    spawnEnemy(g.savex, g.savey);
 			break;
 	}
 	return 0;
