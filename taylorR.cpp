@@ -11,6 +11,14 @@ void taylor_func()
 
 }
 
+bool unitTests(){
+	if (!rayBoxTest()) {
+		cout << "Raybox test failed." << endl;
+		return 0;
+	}
+	return 1;
+}
+
 Flt angleFrom(Vec a, Vec b){
 	Flt angl;
 	Vec cross, upz;
@@ -368,11 +376,88 @@ void characterCollision(Character& o1, Character& o2){
 	}
 }
 
+float rayBox(Ray &r, Hitbox &h){
+	float tmin, tmax;
+	float tymin, tymax;
+	
+	if (r.d[0] >= 0) {
+		tmin = (h.pos[0] - h.scale[0] - r.o[0]) / r.d[0];
+		tmax = (h.pos[0] + h.scale[0] - r.o[0]) / r.d[0];
+	}
+	else {
+		tmax = (h.pos[0] - h.scale[0] - r.o[0]) / r.d[0];
+		tmin = (h.pos[0] + h.scale[0] - r.o[0]) / r.d[0];
+	}
+	
+	if (r.d[1] >= 0) {
+		tymin = (h.pos[1] - h.scale[1] - r.o[1]) / r.d[1];
+		tymax = (h.pos[1] + h.scale[1] - r.o[1]) / r.d[1];	
+	}
+	else {
+		tymax = (h.pos[1] - h.scale[1] - r.o[1]) / r.d[1];
+		tymin = (h.pos[1] + h.scale[1] - r.o[1]) / r.d[1];
+	}
+	
+	if ((tmin > tymax) || (tymin > tmax)) 
+        return -1;
+	
+	if (tymin > tmin) 
+        tmin = tymin; 
 
+	if (tmin >= 0)
+		return tmin;
+		
+    if (tymax < tmax) 
+        tmax = tymax;
+        
+	if (tmax >= 0)
+		return tmax;
+		
+	return -1;
+	
+}
 
-
-
-
+bool rayBoxTest(){
+	Ray r;
+	Hitbox h;
+	float result;
+	VecMake(2,2,0,h.pos);
+	VecMake(1,1,0,h.scale);
+	
+	VecMake(0,0,0,r.o);
+	VecMake(1,1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=1.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(2,5,0,r.o);
+	VecMake(0,-1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=2.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(0,3,0,r.o);
+	VecMake(1,0,0,r.d);
+	result=rayBox(r,h);
+	if(result!=1.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(2,5,0,r.o);
+	VecMake(-1,-1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=-1) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	return 1;
+}
 
 
 

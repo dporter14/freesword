@@ -40,6 +40,11 @@ const int MAXSPRITES = 10;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
 
+struct Ray {
+	Vec o;
+	Vec d;
+};
+
 class Button {
     public:
 	    Rect r;
@@ -113,6 +118,7 @@ class Hitbox {
 			);
 		}
 };
+
 
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
@@ -204,7 +210,9 @@ class Player : public Character {
     	void init();
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
-		Player(){}
+		Player() {
+
+		}
         ~Player(){}
         
         
@@ -232,6 +240,8 @@ class Enemy : public Character {
 
 
 /* MASON FUNCTIONS */
+
+
 class Menu {
 
     public:
@@ -393,6 +403,9 @@ void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 void characterCollision(Character&, Character&);
 
+bool unitTests();
+float rayBox(Ray&, Hitbox&);
+bool rayBoxTest();
 /* END FUNCTIONS */
 
 

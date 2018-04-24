@@ -343,6 +343,9 @@ void initOpengl(void)
 
 void init()
 {
+	if (!unitTests())
+		exit(1);
+	
 	g.player.init();
     g.currentLevel = 1;
     g.level1.buildLevel1();

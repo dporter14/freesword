@@ -40,6 +40,11 @@ const int MAXSPRITES = 10;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
 
+struct Ray {
+	Vec o;
+	Vec d;
+}
+
 class Button {
     public:
 	    Rect r;
@@ -398,6 +403,8 @@ void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 void characterCollision(Character&, Character&);
 
+float rayBox(Ray&, Hitbox&);
+void rayBoxTest();
 /* END FUNCTIONS */
 
 
