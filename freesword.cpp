@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 	timePause = current_time();
 	timeStart = current_time();
 	int done = 0;
+	loadLevel(g.levelName[g.currentLevel]);
 	while (!done) {
 		gameUpdate();
 		while (x11.getXPending()) {
@@ -212,6 +213,19 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+void advance()
+{
+	resetGame();
+	if (g.level.beat==true) {
+		g.number[N_DOORS] = 0;
+		g.number[N_WALLS] = 0;
+		g.number[N_ENEMIES] = 0;
+		g.currentLevel++;
+		loadLevel(g.levelName[g.currentLevel]);	
+		g.level.beat = false;
+		g.player.hp = 3;
+	}
+}	
 
 /*======================================================
    SOUND =================================================
@@ -344,8 +358,6 @@ void initOpengl(void)
 void init()
 {
 	g.player.init();
-    g.currentLevel = 1;
-    g.level1.buildLevel1();
 
     //
 	//initialize buttons...
@@ -405,6 +417,10 @@ void gameUpdate()
 		if (g.enemies[i].state == S_CHAR_DEAD) {
 			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
 		}
+	}
+	if (g.number[N_ENEMIES] == 0) {
+		g.level.beat = true;
+		advance();
 	}
 	/*if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
@@ -471,9 +487,11 @@ int checkKeys(XEvent *e)
 				g.state[S_DEBUG] ^= 1;
 			break;
         case XK_z:
-            createWall(g.savex, g.savey);
+            if (e->type == KeyPress) {
+			createWall(g.savex, g.savey);
             static char* info_here = g.info.get_place();
 			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+			}
 			break;
 			if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
@@ -498,7 +516,7 @@ int checkKeys(XEvent *e)
         case XK_f:
             if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
-                    loadLevel();
+                    loadLevel("level2");
                 }
             }
             break;
@@ -517,7 +535,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_4:
 			if (e->type == KeyPress)
-			    spawnEnemy(RND()*(g.xres), RND()*(g.yres));
+			    spawnEnemy(g.savex, g.savey);
 			break;
 	}
 	return 0;
@@ -610,7 +628,6 @@ void animation(){
 void physics()
 {
 	if (g.state[S_GAMEOVER]) {
-		std::cout<<"GAME OVER\n";
 		return;
 	}
 
@@ -653,16 +670,21 @@ void physics()
 
 
     //player collision
-    for (int i=0; i<1000; i++) {
+    for (int i=0; i<g.number[N_DOORS]; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            wallCollision(g.level1.doors[i], g.enemies[j]);
-            wallCollision(g.level1.walls[i], g.enemies[j]);
+            wallCollision(g.level.doors[i], g.enemies[j]);
         }
-        
-        wallCollision(g.level1.walls[i], g.player);
-        wallCollision(g.level1.doors[i], g.player);
+		wallCollision(g.level.doors[i], g.player);
     }
-    
+    for (int i=0; i<g.number[N_WALLS]; i++) {
+        for (int j=0; j<g.number[N_ENEMIES]; j++) {
+            wallCollision(g.level.walls[i], g.enemies[j]);
+        }
+      	wallCollision(g.level.walls[i], g.player);
+	}
+
+	
+
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
 		for (int j=0; j<g.number[N_ENEMIES]; j++) {
 			if (i!=j)
@@ -674,17 +696,37 @@ void physics()
 	for (int i=0; i<g.player.nattacks; i++){
 		for(int j=0; j<g.number[N_ENEMIES]; j++){
 			if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
-				g.enemies[j].kill();
+				g.enemies[j].hp--;
+				if (g.enemies[j].hp < 1) {
+					g.enemies[j].kill();
+				}
 			}
 		}
 	}
+	static int invinFrames = 0;
 	for (int n=0; n<g.number[N_ENEMIES]; n++) {
 		for (int i=0; i<g.enemies[n].nattacks; i++){
 			if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
-				VecMake(1.0,0.2,0.2,g.player.color);
+				if (invinFrames%60 == 0) {
+					//prevent overflow
+					invinFrames = 0;
+
+					VecMake(1.0,0.2,0.2,g.player.color);
+					g.player.hp--;
+					invinFrames++;
+				}
+				if (g.player.hp < 1) {
+					g.player.die();
+				}
 			}
 		}
-	}	
+	}
+	//start counting down invincibility frames
+	if (invinFrames%60 != 0) {
+		invinFrames++;
+	}
+	if (invinFrames%60 == 0)
+		VecMake(1.0, 1.0, 1.0, g.player.color);	
 }
 
 
@@ -736,7 +778,8 @@ void render(void)
 	
 	
 	//draw character
-	g.player.draw();
+	if (g.player.state != S_CHAR_DEAD)
+		g.player.draw();
 	
 	
     for(int i=0; i<g.number[N_ENEMIES]; i++){
@@ -749,10 +792,10 @@ void render(void)
 
     //draw level objects
     for (int i=0; i<g.number[N_WALLS]; i++) {
-        g.level1.walls[i].draw();
+        g.level.walls[i].draw();
     }
     for (int i=0; i<g.number[N_DOORS]; i++) {
-        g.level1.doors[i].draw();
+        g.level.doors[i].draw();
     }
 	
     if (g.state[S_DEBUG])
@@ -766,11 +809,20 @@ void render(void)
 	if (g.state[S_PAUSED])
 		g.pauseMenu.draw();
 
+	if (g.state[S_GAMEOVER])
+		ggprint16(&g.title.r, 0, 0xff0000, "GAME OVER");
+
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//glDisable(GL_DEPTH_TEST);
 	
-	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-	displayEnemiesKilled();
+	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+	//displayEnemiesKilled();
 	
+	for (int i=0; i<g.player.hp; i++) {
+		ggprint16(&g.hearts.r, 0, g.hearts.text_color, "<3");
+		g.hearts.r.left+=20;
+	}
+	g.hearts.r.left = 100;	
+
 }
 
