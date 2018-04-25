@@ -681,6 +681,7 @@ void physics()
 			}
 		}
 	}
+	
 	for (int n=0; n<g.number[N_ENEMIES]; n++) {
 		for (int i=0; i<g.enemies[n].nattacks; i++){
 			if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
