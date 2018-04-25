@@ -519,7 +519,8 @@ int checkKeys(XEvent *e)
         case XK_f:
             if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
-                    loadLevel("level2");
+                	char *level = (char *)"level2";
+                    loadLevel(level);
                 }
             }
             break;
@@ -674,10 +675,12 @@ void physics()
 
     //player collision
     for (int i=0; i<g.number[N_DOORS]; i++) {
-        for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            wallCollision(g.level.doors[i], g.enemies[j]);
-        }
-		wallCollision(g.level.doors[i], g.player);
+    	if(!g.level.doors[i].isOpen){
+			for (int j=0; j<g.number[N_ENEMIES]; j++) {
+				wallCollision(g.level.doors[i], g.enemies[j]);
+			}
+			wallCollision(g.level.doors[i], g.player);
+		}
     }
     for (int i=0; i<g.number[N_WALLS]; i++) {
         for (int j=0; j<g.number[N_ENEMIES]; j++) {
@@ -699,19 +702,11 @@ void physics()
 	for (int i=0; i<g.player.nattacks; i++){
 		for(int j=0; j<g.number[N_ENEMIES]; j++){
 			if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
-				for (int j=0; j<g.number[N_ENEMIES]; j++) {
-					wallCollision(g.level.doors[i], g.enemies[j]);
-				}
-				wallCollision(g.level.doors[i], g.player);
-				
-				for (int j=0; j<g.number[N_ENEMIES]; j++) {
-					wallCollision(g.level.doors[i], g.enemies[j]);
-				}
-				wallCollision(g.level.doors[i], g.player);
-				
-				g.enemies[j].hp--;
-				if (g.enemies[j].hp < 1) {
-					g.enemies[j].kill();
+				if (!wallBetween(g.player,g.enemies[j])){
+					g.enemies[j].hp--;
+					if (g.enemies[j].hp < 1) {
+						g.enemies[j].kill();
+					}
 				}
 			}
 		}
@@ -721,16 +716,18 @@ void physics()
 	for (int n=0; n<g.number[N_ENEMIES]; n++) {
 		for (int i=0; i<g.enemies[n].nattacks; i++){
 			if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
-				if (!invinFrames) {
-					//prevent overflow
-					invinFrames = 60;
+				if (!wallBetween(g.enemies[i],g.player)){
+					if (!invinFrames) {
+						//prevent overflow
+						invinFrames = 60;
 
-					VecMake(1.0,0.2,0.2,g.player.color);
-					g.player.hp--;
-					//invinFrames++;
-				}
-				if (g.player.hp < 1) {
-					g.player.die();
+						VecMake(1.0,0.2,0.2,g.player.color);
+						g.player.hp--;
+						//invinFrames++;
+					}
+					if (g.player.hp < 1) {
+						g.player.die();
+					}
 				}
 			}
 		}
@@ -792,6 +789,16 @@ void render(void)
 
 	
 	
+	
+
+	//draw level objects
+    for (int i=0; i<g.number[N_WALLS]; i++) {
+        g.level.walls[i].draw();
+    }
+    for (int i=0; i<g.number[N_DOORS]; i++) {
+        g.level.doors[i].draw();
+    }
+    
 	//draw character
 	if (g.player.state != S_CHAR_DEAD)
 		g.player.draw();
@@ -800,18 +807,7 @@ void render(void)
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
 	}
-
-	for(int loop = 0; loop < 3; loop++) {
-		//g.menuButt[ loop ].draw();
-	}
-
-    //draw level objects
-    for (int i=0; i<g.number[N_WALLS]; i++) {
-        g.level.walls[i].draw();
-    }
-    for (int i=0; i<g.number[N_DOORS]; i++) {
-        g.level.doors[i].draw();
-    }
+	
 	
     if (g.state[S_DEBUG])
 		g.info.draw();
@@ -827,6 +823,11 @@ void render(void)
 	if (g.state[S_GAMEOVER])
 		ggprint16(&g.title.r, 0, 0xff0000, "GAME OVER");
 
+	for(int loop = 0; loop < 3; loop++) {
+		//g.menuButt[ loop ].draw();
+	}
+
+    
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//glDisable(GL_DEPTH_TEST);
 	

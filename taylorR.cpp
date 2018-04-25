@@ -92,11 +92,13 @@ void Enemy::see(){
 	Flt a = acos(VecDot(toPlayer, temp));
 	static char* info_here = g.info.get_place();
 	sprintf(info_here, "See: %f %f %f", len, a, rot);
-	if ((a*180/PI)-rot<(v_fov/2) && len<v_dist){
-		state = S_CHAR_ANGRY;
-	}
-	if (len<v_close){
-		state = S_CHAR_ANGRY;
+	if (!wallBetween(*this,g.player)){
+		if ((a*180/PI)-rot<(v_fov/2) && len<v_dist){
+			state = S_CHAR_ANGRY;
+		}
+		if (len<v_close){
+			state = S_CHAR_ANGRY;
+		}
 	}
 }
 
@@ -316,7 +318,8 @@ void Info::draw(){
 	}
 }
 
-void characterCollision(Character& o1, Character& o2){
+void characterCollision(Character& o1, Character& o2)
+{
 	/*static char* derp = g.info.get_place();
 	if(&g.player == &o2)
 		sprintf(derp, "col: %0.2f", g.player.vel[0]);
@@ -376,7 +379,8 @@ void characterCollision(Character& o1, Character& o2){
 	}
 }
 
-float rayBox(Ray &r, Hitbox &h){
+float rayBox(Ray &r, Hitbox &h)
+{
 	float tmin, tmax;
 	float tymin, tymax;
 	
@@ -417,7 +421,8 @@ float rayBox(Ray &r, Hitbox &h){
 	
 }
 
-bool rayBoxTest(){
+bool rayBoxTest()
+{
 	Ray r;
 	Hitbox h;
 	float result;
@@ -459,6 +464,31 @@ bool rayBoxTest(){
 	return 1;
 }
 
-
+bool wallBetween(Object& o1, Object& o2)
+{
+	float dist, close=1e10;
+	Ray r;
+	VecCopy(o1.pos,r.o);
+	VecSub(o2.pos,o1.pos,r.d);
+	
+	//Log("Pl: %0.2f %0.2f\n",g.player.pos[0],g.player.pos[1]);
+	//Log("Dir: %0.2f %0.2f\n",r.d[0],r.d[1]);
+	for (int k=0; k<g.number[N_WALLS]; k++) {
+		dist = rayBox(r, g.level.walls[k].hitbox);
+		//Log("%0.2f\n",dist);
+		if (dist>0 && dist<close)
+			close = dist;
+	}
+	
+	for (int k=0; k<g.number[N_DOORS]; k++) {
+		dist = rayBox(r, g.level.doors[k].hitbox);
+		if (dist>0 && dist<close)
+			close = dist;
+	}
+	
+	//printf("%f\n",close);
+	return (close < 1);
+		
+}
 
 

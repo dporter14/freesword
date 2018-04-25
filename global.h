@@ -184,6 +184,7 @@ class Character : public Object {
 		
 		int state;
 		int hp;
+		Vec hitbox_offset;
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
 		Hitbox attacks[1];
@@ -192,6 +193,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(0,0,0,hitbox_offset);
 		}
 		~Character(){} //destructor
 		void move();
@@ -341,6 +343,7 @@ class Door : public Wall {
 		Hitbox trigger;
         
         void draw();
+        void wallCollision(Door object, Enemy& being);
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
@@ -411,6 +414,7 @@ void characterCollision(Character&, Character&);
 bool unitTests();
 float rayBox(Ray&, Hitbox&);
 bool rayBoxTest();
+bool wallBetween(Object&, Object&);
 /* END FUNCTIONS */
 
 
@@ -463,7 +467,7 @@ struct Global {
 	Animator animator;
 	//
 	int currentLevel;
-	char *levelName[5];
+	char levelName[5][10]; // 5 levels; 10 character names
     Level level;
 
 	#ifdef USE_OPENAL_SOUND
@@ -510,10 +514,10 @@ struct Global {
         doorChange = true;
 		level.beat = false;
 		currentLevel = 0;
-		levelName[0] = "level1";
-		levelName[1] = "level2";
-		levelName[2] = "level3";
-		levelName[3] = "level4";
+		strcpy(levelName[0], "level1");
+		strcpy(levelName[1], "level2");
+		strcpy(levelName[2], "level3");
+		strcpy(levelName[3], "level4");
 	}
 };
 extern Global g;
