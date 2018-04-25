@@ -18,7 +18,7 @@ else
     ifeq ($(UNAME_S),Linux)
         CFLAGS += -D LINUX
         LFLAGS += -lrt /usr/lib/x86_64-linux-gnu/libopenal.so \
-        	/usr/lib/x86_64-linux-gnu/libalut.so libggfonts.a
+        	/usr/lib/x86_64-linux-gnu/libalut.so
     endif
     ifeq ($(UNAME_S),Darwin)
         CFLAGS += -D OSX -I/opt/X11/include
@@ -27,6 +27,9 @@ else
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
         CFLAGS += -D AMD64
+		LFLAGS += ubuntufonts.a
+	else
+		LFLAGS+= libggfonts.a
     endif
     ifneq ($(filter %86,$(UNAME_P)),)
         CFLAGS += -D IA32
