@@ -220,6 +220,7 @@ void advance()
 		g.number[N_DOORS] = 0;
 		g.number[N_WALLS] = 0;
 		g.number[N_ENEMIES] = 0;
+		clearTiles();
 		g.currentLevel++;
 		loadLevel(g.levelName[g.currentLevel]);	
 		g.level.beat = false;
@@ -428,6 +429,8 @@ void gameUpdate()
 	/*if(g.number[N_ENEMIES]<5){
 		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}*/
+	static char* info_here = g.info.get_place();
+	sprintf(info_here, "Tilemode: %d %d", g.state[S_TILEEDIT], g.state[S_TILE]);
 }
 
 int checkKeys(XEvent *e)
@@ -519,8 +522,7 @@ int checkKeys(XEvent *e)
         case XK_f:
             if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
-                	char *level = (char *)"level2";
-                    loadLevel(level);
+                	loadLevel((char *)"level2");
                 }
             }
             break;
@@ -528,18 +530,44 @@ int checkKeys(XEvent *e)
             if (e->type == KeyPress)
     			toggleEditMode();
             break;
+        case XK_t:
+        	if (e->type == KeyPress) {
+                g.state[S_TILEEDIT] ^= 1;
+            }
+            break;
 		case XK_1:
-			david_func();
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=1;
+				else
+					david_func();
+			}
 			break;
 		case XK_2:
-			taylor_func();
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=2;
+				else
+					taylor_func();
+			}
 			break;
 		case XK_3:
-			mason_func();
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=3;
+				else
+					mason_func();
+			}
 			break;
 		case XK_4:
 			if (e->type == KeyPress)
 			    spawnEnemy(g.savex, g.savey);
+			break;
+		case XK_0:
+			if (e->type == KeyPress) {
+			    if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=0;
+			}
 			break;
 	}
 	return 0;
@@ -561,18 +589,22 @@ int checkMouse(XEvent *e)
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
 			//Left button is down
-			lbutton=1;
-            g.isClicked[M_1] = true;
-			(void)lbutton;
-			if(g.player.anim_handler==NULL){
-				g.player.setVel(0,0);
-				Animation *act = g.animator.init(A_SWORD_SLASH);
-				act->add_actor(&g.player);
-			} else if (g.player.anim_handler->type == A_SWORD_SLASH
-				&& g.player.anim_handler->can_cancel) {
-				g.player.anim_handler->cancel();
-				Animation *act = g.animator.init(A_SWORD_SLASH2);
-				act->add_actor(&g.player);
+			//lbutton=1;
+            //(void)lbutton;
+			g.isClicked[M_1] = true;
+            if (g.state[S_LEVELEDIT]){
+            
+            } else {
+				if(g.player.anim_handler==NULL){
+					g.player.setVel(0,0);
+					Animation *act = g.animator.init(A_SWORD_SLASH);
+					act->add_actor(&g.player);
+				} else if (g.player.anim_handler->type == A_SWORD_SLASH
+					&& g.player.anim_handler->can_cancel) {
+					g.player.anim_handler->cancel();
+					Animation *act = g.animator.init(A_SWORD_SLASH2);
+					act->add_actor(&g.player);
+				}
 			}
 		}
 		if (e->xbutton.button==3) {
@@ -594,8 +626,14 @@ int checkMouse(XEvent *e)
 	}
 
 	if (g.isClicked[M_1] == true) {
-		dragWall(g.savex, g.savey);
-		dragDoor(g.savex, g.savey);
+		if (g.state[S_LEVELEDIT]){
+			if (g.state[S_TILEEDIT]) {
+				placeTile(g.savex, g.savey);
+			} else {
+				dragWall(g.savex, g.savey);
+				dragDoor(g.savex, g.savey);
+			}
+		}
 	}
 	//for menu buttons
 	if(g.state[ S_PAUSED ]) {
@@ -666,78 +704,80 @@ void physics()
 		g.player.lookAt(g.savex,g.savey);
 	}
 
-	for(int i=0; i<g.number[N_ENEMIES]; i++){
-		g.enemies[i].see();
-		g.enemies[i].attackPlayer();
-		g.enemies[i].move();
-	}
+	if(!g.state[S_LEVELEDIT]){
+		for(int i=0; i<g.number[N_ENEMIES]; i++){
+			g.enemies[i].see();
+			g.enemies[i].attackPlayer();
+			g.enemies[i].move();
+		}
 
 
-    //player collision
-    for (int i=0; i<g.number[N_DOORS]; i++) {
-    	if(!g.level.doors[i].isOpen){
+		//player collision
+		for (int i=0; i<g.number[N_DOORS]; i++) {
+			if(!g.level.doors[i].isOpen){
+				for (int j=0; j<g.number[N_ENEMIES]; j++) {
+					wallCollision(g.level.doors[i], g.enemies[j]);
+				}
+				wallCollision(g.level.doors[i], g.player);
+			}
+		}
+		for (int i=0; i<g.number[N_WALLS]; i++) {
 			for (int j=0; j<g.number[N_ENEMIES]; j++) {
-				wallCollision(g.level.doors[i], g.enemies[j]);
+				wallCollision(g.level.walls[i], g.enemies[j]);
 			}
-			wallCollision(g.level.doors[i], g.player);
+			wallCollision(g.level.walls[i], g.player);
 		}
-    }
-    for (int i=0; i<g.number[N_WALLS]; i++) {
-        for (int j=0; j<g.number[N_ENEMIES]; j++) {
-            wallCollision(g.level.walls[i], g.enemies[j]);
-        }
-      	wallCollision(g.level.walls[i], g.player);
-	}
 
 	
 
-	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		for (int j=0; j<g.number[N_ENEMIES]; j++) {
-			if (i!=j)
-	        	characterCollision(g.enemies[i], g.enemies[j]);
-        }
-        characterCollision(g.enemies[i], g.player);
-    }
+		for (int i=0; i<g.number[N_ENEMIES]; i++) {
+			for (int j=0; j<g.number[N_ENEMIES]; j++) {
+				if (i!=j)
+					characterCollision(g.enemies[i], g.enemies[j]);
+			}
+			characterCollision(g.enemies[i], g.player);
+		}
 	
-	for (int i=0; i<g.player.nattacks; i++){
-		for(int j=0; j<g.number[N_ENEMIES]; j++){
-			if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
-				if (!wallBetween(g.player,g.enemies[j])){
-					g.enemies[j].hp--;
-					if (g.enemies[j].hp < 1) {
-						g.enemies[j].kill();
+		for (int i=0; i<g.player.nattacks; i++){
+			for(int j=0; j<g.number[N_ENEMIES]; j++){
+				if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
+					if (!wallBetween(g.player,g.enemies[j])){
+						g.enemies[j].hp--;
+						if (g.enemies[j].hp < 1) {
+							g.enemies[j].kill();
+						}
 					}
 				}
 			}
 		}
-	}
 
-	static int invinFrames = 0;
-	for (int n=0; n<g.number[N_ENEMIES]; n++) {
-		for (int i=0; i<g.enemies[n].nattacks; i++){
-			if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
-				if (!wallBetween(g.enemies[i],g.player)){
-					if (!invinFrames) {
-						//prevent overflow
-						invinFrames = 60;
+		static int invinFrames = 0;
+		for (int n=0; n<g.number[N_ENEMIES]; n++) {
+			for (int i=0; i<g.enemies[n].nattacks; i++){
+				if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
+					if (!wallBetween(g.enemies[n],g.player)){
+						if (!invinFrames) {
+							//prevent overflow
+							invinFrames = 60;
 
-						VecMake(1.0,0.2,0.2,g.player.color);
-						g.player.hp--;
-						//invinFrames++;
-					}
-					if (g.player.hp < 1) {
-						g.player.die();
+							VecMake(1.0,0.2,0.2,g.player.color);
+							g.player.hp--;
+							//invinFrames++;
+						}
+						if (g.player.hp < 1) {
+							g.player.die();
+						}
 					}
 				}
 			}
 		}
-	}
-	//start counting down invincibility frames
-	if (invinFrames > 0) {
-		invinFrames--;
-	}
-	else {
-		VecMake(1.0, 1.0, 1.0, g.player.color);	
+		//start counting down invincibility frames
+		if (invinFrames > 0) {
+			invinFrames--;
+		}
+		else {
+			VecMake(1.0, 1.0, 1.0, g.player.color);	
+		}
 	}
 }
 
@@ -770,6 +810,7 @@ void render(void)
 
 	//
 	//screen background
+	/*
 	glColor3f(0.7f, 0.7f, 0.7f);
 	glBindTexture(GL_TEXTURE_2D, g.sprites[SB_TILE_WOOD].spriteTex->tex);
 	glBegin(GL_TRIANGLE_FAN);
@@ -786,7 +827,8 @@ void render(void)
 	glVertex3i(-50,      -50,     0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	*/
+	drawTiles();
 	
 	
 	
@@ -809,20 +851,23 @@ void render(void)
 	}
 	
 	
-    if (g.state[S_DEBUG])
-		g.info.draw();
-	
+    
 	
 	//Beginning of GUI elements//
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
-
+	if (g.state[S_DEBUG])
+		g.info.draw();
+	
 	if (g.state[S_PAUSED])
 		g.pauseMenu.draw();
 
-	if (g.state[S_GAMEOVER])
-		ggprint16(&g.title.r, 0, 0xff0000, "GAME OVER");
-
+	if (g.state[S_GAMEOVER]){
+		strcpy(g.title.text,"GAME OVER");
+		g.title.text_color = 0xff0000;
+	}
+	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+	
 	for(int loop = 0; loop < 3; loop++) {
 		//g.menuButt[ loop ].draw();
 	}
@@ -831,8 +876,8 @@ void render(void)
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//glDisable(GL_DEPTH_TEST);
 	
-	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-	//displayEnemiesKilled();
+	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+	displayEnemiesKilled();
 	
 	for (int i=0; i<g.player.hp; i++) {
 		ggprint16(&g.hearts.r, 0, g.hearts.text_color, "<3");

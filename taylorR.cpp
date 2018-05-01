@@ -491,4 +491,95 @@ bool wallBetween(Object& o1, Object& o2)
 		
 }
 
+string getTile(float x, float y)
+{
+	char holder[20];
+	int xx = round(x/50);
+	int yy = round(y/50);
+	sprintf(holder,"%d %d",xx,yy);
+	return holder;
+}
+void placeTile(float x, float y) 
+{
+	string index = getTile(x,y);
+	switch(g.state[S_TILE]) {
+		case 0:
+			g.tilemap[index]=0;
+			break;
+		case 1:
+			g.tilemap[index]=1;
+			break;
+		case 2:
+			if (RND()<0.04)
+				g.tilemap[index]=3;
+			else
+				g.tilemap[index]=2;
+			break;
+		case 3:
+			g.tilemap[index]=4;
+			break;
+		
+	}
+	
+}
 
+void drawTiles(){
+	int fun=150;
+	//printf("%0.2f %0.2f %0.2f %0.2f\n",round((g.player.pos[0]-(g.xres/2))/50), round((g.player.pos[0]+(g.xres/2))/50), round((g.player.pos[1]-(g.yres/2))/50), round((g.player.pos[1]+(g.yres/2))/50));
+	for(float x = (g.player.pos[0]-(g.xres/2))+fun; x < (g.player.pos[0]+(g.xres/2))+50-fun; x+=50){
+		for(float y = (g.player.pos[1]-(g.yres/2))+fun; y < (g.player.pos[1]+(g.yres/2))+50-fun; y+=50){
+			string index = getTile(x,y);
+			//cout << index << endl;
+			map<string,int>::iterator it = g.tilemap.find(index);
+			if (it == g.tilemap.end())
+				continue;
+			//cout << it->first << ": " << it->second << endl;
+			int tile = it->second;
+			if (tile==0) {
+				g.tilemap.erase (it);
+				continue;
+			}
+			glPushMatrix();
+			glColor3f(1,1,1);
+			glTranslatef(round(x/50)*50, round(y/50)*50, 0);
+			glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_TILES].tex);
+			Sprite* sprt;
+			switch(tile) {
+				case 1:
+					sprt = &g.sprites[SB_TILE_WOOD];
+					break;
+				case 2:
+					sprt = &g.sprites[SB_TILE_GRASS];
+					break;
+				case 3:
+					sprt = &g.sprites[SB_TILE_GRASS2];
+					break;
+				case 4:
+					sprt = &g.sprites[SB_TILE_STONE];
+					break;
+			}
+
+			glBegin(GL_QUADS);
+				glTexCoord2f(sprt->pos[0], sprt->pos[1]);
+				glVertex3f(-25,  25, 0);
+		
+				glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]);
+				glVertex3f( 25,  25, 0);
+		
+				glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]+sprt->h);
+				glVertex3f( 25, -25, 0);
+		
+				glTexCoord2f(sprt->pos[0], sprt->pos[1]+sprt->h);
+				glVertex3f(-25, -25, 0);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D,0);
+	
+			glPopMatrix();
+		}
+	}	
+}
+
+void clearTiles(){
+	//not sure what i was expecting
+	g.tilemap.clear();
+}

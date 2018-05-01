@@ -11,6 +11,7 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include "defs.h"
 #include "fonts.h"
@@ -269,7 +270,8 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, SB_TILE_WOOD, SB_TILE_STONE, SB_};
+enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
+	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, SB_};
 enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
 
 class Texture 
@@ -407,6 +409,9 @@ class Info {
 		
 };
 
+void placeTile(float, float);
+void drawTiles();
+void clearTiles();
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 void characterCollision(Character&, Character&);
@@ -419,7 +424,7 @@ bool wallBetween(Object&, Object&);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -460,7 +465,7 @@ struct Global {
 	int number[N_];
 	int eKilled;
 	
-	
+	std::map<std::string,int> tilemap;
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
@@ -493,7 +498,7 @@ struct Global {
 		title.text_color = 0x00ffffff;
         
 		hearts.r.left = 100;
-		hearts.r.bot = yres-100;
+		hearts.r.bot = yres-150;
 		hearts.r.center = 1;
 		strcpy(hearts.text, "\u2764");
 		hearts.text_color = 0xff0000;

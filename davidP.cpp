@@ -77,7 +77,11 @@ void initSpriteTextures()
     g.sprites[SB_TILE_STONE].set_texture(&g.spriteTextures[SS_TILES]);
 	g.sprites[SB_TILE_STONE].init(0, 0, 50, 50, 1);
 	g.sprites[SB_TILE_WOOD].set_texture(&g.spriteTextures[SS_TILES]);
-    g.sprites[SB_TILE_WOOD].init(50, 0, 50, 50, 1);
+    g.sprites[SB_TILE_WOOD].init(0, 50, 50, 50, 1);
+	g.sprites[SB_TILE_GRASS].set_texture(&g.spriteTextures[SS_TILES]);
+    g.sprites[SB_TILE_GRASS].init(0, 100, 50, 50, 1);
+	g.sprites[SB_TILE_GRASS2].set_texture(&g.spriteTextures[SS_TILES]);
+    g.sprites[SB_TILE_GRASS2].init(50, 100, 50, 50, 1);
 	
 }
 

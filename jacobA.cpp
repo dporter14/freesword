@@ -37,10 +37,10 @@ void Player::init()
     //VecMake(0,1,0,rhand_dir);
     rhand_rot = 0;
 
-	VecMake(0,-30,0, hitbox_offset); // shift hitbox
+	VecMake(0, -30, 0, hitbox_offset); // shift hitbox
     VecAdd(pos, hitbox_offset, hitbox.pos);
     
-    VecMake(20, 40, 0, hitbox.scale);
+    VecMake(30, 30, 0, hitbox.scale);
     hitbox.dynamic=1;
 	
 	sprt = &g.sprites[SB_PLAYER_F];
@@ -597,9 +597,14 @@ void saveLevel()
 		printf("Saved Door to level file\n");
 	}
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		levelOF << "enemy" << " " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
+		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
 		printf("Saved enemy to level file\n");
 	}
+	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){
+    	levelOF << "tile " << it->first << " " << it->second << "\n";
+    	printf("Saved floor tile to level file\n");
+    }
+
 	levelOF << "end\n";
 	levelOF.close();
 }
@@ -632,6 +637,14 @@ void loadLevel(char *levelName)
 				levelread >> y;
 				spawnEnemy(x, y);
 				std::cout << "Spawned enemy" << std::endl;
+			} else if (!strcmp("tile",object)) {
+				int tile, x, y;
+				levelread >> x;
+				levelread >> y;
+				levelread >> tile;
+				char temp[20];
+				sprintf(temp,"%d %d",x,y);
+				g.tilemap[temp]=tile;
 			} else if (!strcmp("end", object)) {
 				break;
 			} else {
