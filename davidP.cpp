@@ -77,7 +77,11 @@ void initSpriteTextures()
     g.sprites[SB_TILE_STONE].set_texture(&g.spriteTextures[SS_TILES]);
 	g.sprites[SB_TILE_STONE].init(0, 0, 50, 50, 1);
 	g.sprites[SB_TILE_WOOD].set_texture(&g.spriteTextures[SS_TILES]);
-    g.sprites[SB_TILE_WOOD].init(50, 0, 50, 50, 1);
+    g.sprites[SB_TILE_WOOD].init(0, 50, 50, 50, 1);
+	g.sprites[SB_TILE_GRASS].set_texture(&g.spriteTextures[SS_TILES]);
+    g.sprites[SB_TILE_GRASS].init(0, 100, 50, 50, 1);
+	g.sprites[SB_TILE_GRASS2].set_texture(&g.spriteTextures[SS_TILES]);
+    g.sprites[SB_TILE_GRASS2].init(50, 100, 50, 50, 1);
 	
 }
 
@@ -99,7 +103,7 @@ void Object::drawSprite()
 
 	glPushMatrix();
 	glColor3f(color[0], color[1], color[2]);
-	glTranslatef(pos[0], pos[1], 0.0f);
+	glTranslatef(pos[0], pos[1], 0);
 	/*
 float cx = 0;
 	float cy = 0;
@@ -204,9 +208,7 @@ void Character::draw()
 	startTime = current_time();
 
 	glColor3f(color[0],color[1],color[2]);
-	glPushMatrix();
-	glTranslatef(pos[0], pos[1], 0.0);
-
+	
 /*	//starting coordinates
 	float cx = 0;
 	float cy = 0;
@@ -234,7 +236,10 @@ void Character::draw()
 	} 
 	glEnd();
 */
+	
 	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(hitbox.pos[0], hitbox.pos[1], 0.0);
 		glColor3f(0,0,1);
 		glBegin(GL_LINE_LOOP);
 		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
@@ -242,6 +247,8 @@ void Character::draw()
 		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
 		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
 		glEnd();
+		glPopMatrix();
+	
 	}
 	
 	/*
@@ -255,6 +262,8 @@ void Character::draw()
 		angl = -angl;	
 	angl = angl*180/PI;
 	*/
+	glPushMatrix();
+	glTranslatef(pos[0], pos[1], 0.0);
 	
 	glRotatef(rot,0,0,1);
 	

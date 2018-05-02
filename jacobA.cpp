@@ -1,3 +1,4 @@
+//Author: Jacob Abbott
 #include <iostream>
 #include <math.h>
 #include <ctime>
@@ -36,11 +37,13 @@ void Player::init()
     //VecMake(0,1,0,rhand_dir);
     rhand_rot = 0;
 
-    VecCopy(pos, hitbox.pos);
-    hitbox.scale[0] = hitbox.scale[1] = pradius/1.41;
+	VecMake(0, -30, 0, hitbox_offset); // shift hitbox
+    VecAdd(pos, hitbox_offset, hitbox.pos);
+    
+    VecMake(30, 30, 0, hitbox.scale);
     hitbox.dynamic=1;
-
-    sprt = &g.sprites[SB_PLAYER_F];
+	
+	sprt = &g.sprites[SB_PLAYER_F];
 }
 
 //move player according to its velocity
@@ -48,8 +51,8 @@ void Character::move()
 {
 	pos[0] += vel[0];
 	pos[1] += vel[1];
-	VecCopy(pos, hitbox.pos);
-
+	VecAdd(pos, hitbox_offset, hitbox.pos);
+    
 }
 
 //manually move player
@@ -57,8 +60,8 @@ void Character::setPos(Flt x, Flt y)
 {
 	pos[0] = x;
 	pos[1] = y;
-	VecCopy(pos, hitbox.pos);
-
+	VecAdd(pos, hitbox_offset, hitbox.pos);
+    
 }
 
 //relatively move player
@@ -66,8 +69,8 @@ void Character::addPos(Flt x, Flt y)
 {
 	pos[0] += x;
 	pos[1] += y;
-	VecCopy(pos, hitbox.pos);
-
+	VecAdd(pos, hitbox_offset, hitbox.pos);
+    
 }
 
 //manually change velocity
@@ -140,6 +143,12 @@ void Character::lookAt(Flt x, Flt y)
 
 }
 
+void Player::die() 
+{
+	state = S_CHAR_DEAD;
+	g.state[S_GAMEOVER] = 1;
+}
+
 void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
 	initx = round((initx/25))*25;
@@ -207,7 +216,7 @@ void Wall::draw(){
 
 }
 
-//
+//rewritten 
 /*
 void wallCollision(Wall object, Enemy being, int num)
 {
@@ -409,21 +418,21 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 void interactDoor()
 {
 	for (int i=0; i<g.number[N_DOORS]; i++) {
-		if(g.player.hitbox.intersect(g.level1.doors[i].trigger))
-			g.level1.doors[i].swing();
+		if(g.player.hitbox.intersect(g.level.doors[i].trigger))
+			g.level.doors[i].swing();
 	/*
-		if (g.player.pos[0] <= g.level1.doors[i].right+50 && 
-				g.player.pos[0] >= g.level1.doors[i].left-50) {
-			if (g.player.pos[1] <= g.level1.doors[i].top+50 &&
-					g.player.pos[1] >= g.level1.doors[i].bot-50) {
-				g.level1.doors[i].swing();
+		if (g.player.pos[0] <= g.level.doors[i].right+50 && 
+				g.player.pos[0] >= g.level.doors[i].left-50) {
+			if (g.player.pos[1] <= g.level.doors[i].top+50 &&
+					g.player.pos[1] >= g.level.doors[i].bot-50) {
+				g.level.doors[i].swing();
 			}
 		}
 		*/
 	}
 }
 
-/* //handled by wall collision
+//rewritten and handled by wall collision
 void doorCollision(Door object, Enemy& being)
 {
 	if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
@@ -439,7 +448,7 @@ void doorCollision(Door object, Enemy& being)
 	}
 
 }
-
+//rewritten and handled by wall collision
 void doorCollision(Door object, Player being)
 {
 	if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
@@ -455,23 +464,17 @@ void doorCollision(Door object, Player being)
 	}
 
 }
-*/
-
-
-void Level::buildLevel1()
-{
-}
 
 void createWall(int mousex, int mousey) 
 {
 	for (int i=0; i<g.number[N_WALLS]; i++) {
 		//std::cout << round((mousex/25))*25 << " " << round((mousey/25))*25 << std::endl;
-		if (g.level1.walls[i].pos[0] == round((mousex/25))*25 && g.level1.walls[i].pos[1] == round((mousey/25))*25) {
+		if (g.level.walls[i].pos[0] == round((mousex/25))*25 && g.level.walls[i].pos[1] == round((mousey/25))*25) {
 			return;
 		}
 	}
 	if (g.number[N_WALLS] < 1000) {
-		g.level1.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
+		g.level.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
 		g.number[N_WALLS]++;
 		std::cout << "# of walls: " << g.number[N_WALLS] << std::endl;   
 	} else {
@@ -487,11 +490,11 @@ void dragWall(int mousex, int mousey)
 		return;
 	if (g.wallChange == true && g.number[N_WALLS]>0) {
 		for (int i=0; i<g.number[N_WALLS]; i++) {
-			if (mousex<=g.level1.walls[i].pos[0]+12.5 && mousex>=g.level1.walls[i].pos[0]-12.5) {
-				if (mousey<=g.level1.walls[i].pos[1]+12.5 && mousey>=g.level1.walls[i].pos[1]-12.5) {
+			if (mousex<=g.level.walls[i].pos[0]+12.5 && mousex>=g.level.walls[i].pos[0]-12.5) {
+				if (mousey<=g.level.walls[i].pos[1]+12.5 && mousey>=g.level.walls[i].pos[1]-12.5) {
 					printf("Wall #%d\n", i);
 					selectedWall = i;
-					g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
+					g.level.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
 					g.wallChange = false;
 					return;
 				}
@@ -499,7 +502,7 @@ void dragWall(int mousex, int mousey)
 		}
 		return;
 	} else if (g.wallChange == false && g.number[N_WALLS]>0) {
-		g.level1.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
+		g.level.walls[selectedWall].initWall(mousex, mousey, 25.0, 25.0);
 	}
 }
 
@@ -508,12 +511,12 @@ void createDoor(int mousex, int mousey)
 	if (g.wallChange == false)
 		return;
 	for (int i=0; i<g.number[N_DOORS]; i++) {
-		if (g.level1.doors[i].pos[0] == round((mousex/25))*25 && g.level1.doors[i].pos[1] == round((mousey/25))*25) {
+		if (g.level.doors[i].pos[0] == round((mousex/25))*25 && g.level.doors[i].pos[1] == round((mousey/25))*25) {
 			return;
 		}
 	}
 	if (g.number[N_DOORS] < 1000) {
-		g.level1.doors[g.number[N_DOORS]].initDoor(mousex, mousey, 50.0, 12.5, true);
+		g.level.doors[g.number[N_DOORS]].initDoor(mousex, mousey, 50.0, 12.5, true);
 		g.number[N_DOORS]++;
 	}
 }
@@ -523,11 +526,11 @@ void dragDoor(int mousex, int mousey)
 	static int selectedDoor;
 	if (g.doorChange == true && g.number[N_DOORS]>0) {
 		for (int i=0; i<g.number[N_DOORS]; i++) {
-			if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
-				if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
+			if (mousex<=g.level.doors[i].pos[0]+12.5 && mousex>=g.level.doors[i].pos[0]-12.5) {
+				if (mousey<=g.level.doors[i].pos[1]+12.5 && mousey>=g.level.doors[i].pos[1]-12.5) {
 					printf("Door #%d\n", i);
 					selectedDoor = i;
-					g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
+					g.level.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level.doors[selectedDoor].isHoriz);
 					g.doorChange = false;
 					return;
 				}
@@ -535,7 +538,7 @@ void dragDoor(int mousex, int mousey)
 		}
 		return;
 	} else if (g.doorChange == false && g.number[N_DOORS]>0) {
-		g.level1.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level1.doors[selectedDoor].isHoriz);
+		g.level.doors[selectedDoor].initDoor(mousex, mousey, 50.0, 12.5, g.level.doors[selectedDoor].isHoriz);
 	}
 }
 
@@ -544,11 +547,11 @@ void rotateDoor(int mousex, int mousey)
 	int selectedDoor;
 	if (g.number[N_DOORS]>0) {
 		for (int i=0; i<g.number[N_DOORS]; i++) {
-			if (mousex<=g.level1.doors[i].pos[0]+12.5 && mousex>=g.level1.doors[i].pos[0]-12.5) {
-				if (mousey<=g.level1.doors[i].pos[1]+12.5 && mousey>=g.level1.doors[i].pos[1]-12.5) {
+			if (mousex<=g.level.doors[i].pos[0]+12.5 && mousex>=g.level.doors[i].pos[0]-12.5) {
+				if (mousey<=g.level.doors[i].pos[1]+12.5 && mousey>=g.level.doors[i].pos[1]-12.5) {
 					printf("Rotate door #%d\n", i);
 					selectedDoor = i;
-					g.level1.doors[selectedDoor].rotate();
+					g.level.doors[selectedDoor].rotate();
 					break;
 				}
 			}
@@ -580,28 +583,36 @@ void Door::rotate()
 
 void saveLevel()
 {
-	std::ofstream testlevel;
-	testlevel.open ("testlevel");
+	char levelName[10] = "levelx";
+	std::cout << "This will overwrite any existing file with your provided name.\nEnter level name: ";
+	std::cin >> levelName;
+	std::ofstream levelOF;
+	levelOF.open (levelName);
 	for (int i=0; i<g.number[N_WALLS]; i++) {
-		testlevel << "wall " << g.level1.walls[i].pos[0] << " " << g.level1.walls[i].pos[1] << "\n";
-		printf("Saved Wall to testlevel\n");
+		levelOF << "wall " << g.level.walls[i].pos[0] << " " << g.level.walls[i].pos[1] << "\n";
+		printf("Saved Wall to level file\n");
 	}
 	for (int i=0; i<g.number[N_DOORS]; i++) {
-		testlevel << "door " << g.level1.doors[i].pos[0] << " " << g.level1.doors[i].pos[1] << " " << g.level1.doors[i].isHoriz << "\n";
-		printf("Saved Door to testlevel\n");
+		levelOF << "door " << g.level.doors[i].pos[0] << " " << g.level.doors[i].pos[1] << " " << g.level.doors[i].isHoriz << "\n";
+		printf("Saved Door to level file\n");
 	}
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		testlevel << "enemy" << " " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
-		printf("Saved enemy to testlevel\n");
+		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
+		printf("Saved enemy to level file\n");
 	}
-	testlevel << "end\n";
-	testlevel.close();
+	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){
+    	levelOF << "tile " << it->first << " " << it->second << "\n";
+    	printf("Saved floor tile to level file\n");
+    }
+
+	levelOF << "end\n";
+	levelOF.close();
 }
 
-void loadLevel()
+void loadLevel(char *levelName)
 {
 	std::ifstream levelread;
-	levelread.open ("testlevel");
+	levelread.open (levelName);
 	if (levelread.is_open()) {
 			char object[6];
 			Flt x, y, horiz;
@@ -611,14 +622,14 @@ void loadLevel()
 			if (!strcmp("wall", object)) {
 				levelread >> x;
 				levelread >> y;
-				g.level1.walls[g.number[N_WALLS]].initWall(x, y, 25.0, 25.0); 
+				g.level.walls[g.number[N_WALLS]].initWall(x, y, 25.0, 25.0); 
 				g.number[N_WALLS]++;   
 				std::cout << "Spawned wall\n" << std::endl;
 			} else if (!strcmp("door", object)) {
 				levelread >> x;
 				levelread >> y;
 				levelread >> horiz;
-				g.level1.doors[g.number[N_DOORS]].initDoor(x, y, 50.0, 12.5, horiz);
+				g.level.doors[g.number[N_DOORS]].initDoor(x, y, 50.0, 12.5, horiz);
 				g.number[N_DOORS]++; 
 				std::cout << "Spawned door\n" << std::endl;  
 			} else if (!strcmp("enemy", object)) {
@@ -626,6 +637,14 @@ void loadLevel()
 				levelread >> y;
 				spawnEnemy(x, y);
 				std::cout << "Spawned enemy" << std::endl;
+			} else if (!strcmp("tile",object)) {
+				int tile, x, y;
+				levelread >> x;
+				levelread >> y;
+				levelread >> tile;
+				char temp[20];
+				sprintf(temp,"%d %d",x,y);
+				g.tilemap[temp]=tile;
 			} else if (!strcmp("end", object)) {
 				break;
 			} else {
@@ -636,8 +655,8 @@ void loadLevel()
 		}
 	} else {
 		printf("Unable to open file\n");
+		exit(1);
 	}
 	levelread.close();
 }
-
 
