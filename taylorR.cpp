@@ -11,6 +11,14 @@ void taylor_func()
 
 }
 
+bool unitTests(){
+	if (!rayBoxTest()) {
+		cout << "Raybox test failed." << endl;
+		return 0;
+	}
+	return 1;
+}
+
 Flt angleFrom(Vec a, Vec b){
 	Flt angl;
 	Vec cross, upz;
@@ -84,11 +92,13 @@ void Enemy::see(){
 	Flt a = acos(VecDot(toPlayer, temp));
 	static char* info_here = g.info.get_place();
 	sprintf(info_here, "See: %f %f %f", len, a, rot);
-	if ((a*180/PI)-rot<(v_fov/2) && len<v_dist){
-		state = S_CHAR_ANGRY;
-	}
-	if (len<v_close){
-		state = S_CHAR_ANGRY;
+	if (!wallBetween(*this,g.player)){
+		if ((a*180/PI)-rot<(v_fov/2) && len<v_dist){
+			state = S_CHAR_ANGRY;
+		}
+		if (len<v_close){
+			state = S_CHAR_ANGRY;
+		}
 	}
 }
 
@@ -308,7 +318,8 @@ void Info::draw(){
 	}
 }
 
-void characterCollision(Character& o1, Character& o2){
+void characterCollision(Character& o1, Character& o2)
+{
 	/*static char* derp = g.info.get_place();
 	if(&g.player == &o2)
 		sprintf(derp, "col: %0.2f", g.player.vel[0]);
@@ -368,12 +379,207 @@ void characterCollision(Character& o1, Character& o2){
 	}
 }
 
+float rayBox(Ray &r, Hitbox &h)
+{
+	float tmin, tmax;
+	float tymin, tymax;
+	
+	if (r.d[0] >= 0) {
+		tmin = (h.pos[0] - h.scale[0] - r.o[0]) / r.d[0];
+		tmax = (h.pos[0] + h.scale[0] - r.o[0]) / r.d[0];
+	}
+	else {
+		tmax = (h.pos[0] - h.scale[0] - r.o[0]) / r.d[0];
+		tmin = (h.pos[0] + h.scale[0] - r.o[0]) / r.d[0];
+	}
+	
+	if (r.d[1] >= 0) {
+		tymin = (h.pos[1] - h.scale[1] - r.o[1]) / r.d[1];
+		tymax = (h.pos[1] + h.scale[1] - r.o[1]) / r.d[1];	
+	}
+	else {
+		tymax = (h.pos[1] - h.scale[1] - r.o[1]) / r.d[1];
+		tymin = (h.pos[1] + h.scale[1] - r.o[1]) / r.d[1];
+	}
+	
+	if ((tmin > tymax) || (tymin > tmax)) 
+        return -1;
+	
+	if (tymin > tmin) 
+        tmin = tymin; 
 
+	if (tmin >= 0)
+		return tmin;
+		
+    if (tymax < tmax) 
+        tmax = tymax;
+        
+	if (tmax >= 0)
+		return tmax;
+		
+	return -1;
+	
+}
 
+bool rayBoxTest()
+{
+	Ray r;
+	Hitbox h;
+	float result;
+	VecMake(2,2,0,h.pos);
+	VecMake(1,1,0,h.scale);
+	
+	VecMake(0,0,0,r.o);
+	VecMake(1,1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=1.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(2,5,0,r.o);
+	VecMake(0,-1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=2.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(0,3,0,r.o);
+	VecMake(1,0,0,r.d);
+	result=rayBox(r,h);
+	if(result!=1.00) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	VecMake(2,5,0,r.o);
+	VecMake(-1,-1,0,r.d);
+	result=rayBox(r,h);
+	if(result!=-1) {
+		printf("%0.2f\n",result);
+		return 0;
+	}
+	
+	return 1;
+}
 
+bool wallBetween(Object& o1, Object& o2)
+{
+	float dist, close=1e10;
+	Ray r;
+	VecCopy(o1.pos,r.o);
+	VecSub(o2.pos,o1.pos,r.d);
+	
+	//Log("Pl: %0.2f %0.2f\n",g.player.pos[0],g.player.pos[1]);
+	//Log("Dir: %0.2f %0.2f\n",r.d[0],r.d[1]);
+	for (int k=0; k<g.number[N_WALLS]; k++) {
+		dist = rayBox(r, g.level.walls[k].hitbox);
+		//Log("%0.2f\n",dist);
+		if (dist>0 && dist<close)
+			close = dist;
+	}
+	
+	for (int k=0; k<g.number[N_DOORS]; k++) {
+		dist = rayBox(r, g.level.doors[k].hitbox);
+		if (dist>0 && dist<close)
+			close = dist;
+	}
+	
+	//printf("%f\n",close);
+	return (close < 1);
+		
+}
 
+string getTile(float x, float y)
+{
+	char holder[20];
+	int xx = round(x/50);
+	int yy = round(y/50);
+	sprintf(holder,"%d %d",xx,yy);
+	return holder;
+}
+void placeTile(float x, float y) 
+{
+	string index = getTile(x,y);
+	switch(g.state[S_TILE]) {
+		case 0:
+			g.tilemap[index]=0;
+			break;
+		case 1:
+			g.tilemap[index]=1;
+			break;
+		case 2:
+			if (RND()<0.04)
+				g.tilemap[index]=3;
+			else
+				g.tilemap[index]=2;
+			break;
+		case 3:
+			g.tilemap[index]=4;
+			break;
+		
+	}
+	
+}
 
+void drawTiles(){
+	int fun=150;
+	//printf("%0.2f %0.2f %0.2f %0.2f\n",round((g.player.pos[0]-(g.xres/2))/50), round((g.player.pos[0]+(g.xres/2))/50), round((g.player.pos[1]-(g.yres/2))/50), round((g.player.pos[1]+(g.yres/2))/50));
+	for(float x = (g.player.pos[0]-(g.xres/2))+fun; x < (g.player.pos[0]+(g.xres/2))+50-fun; x+=50){
+		for(float y = (g.player.pos[1]-(g.yres/2))+fun; y < (g.player.pos[1]+(g.yres/2))+50-fun; y+=50){
+			string index = getTile(x,y);
+			//cout << index << endl;
+			map<string,int>::iterator it = g.tilemap.find(index);
+			if (it == g.tilemap.end())
+				continue;
+			//cout << it->first << ": " << it->second << endl;
+			int tile = it->second;
+			if (tile==0) {
+				g.tilemap.erase (it);
+				continue;
+			}
+			glPushMatrix();
+			glColor3f(1,1,1);
+			glTranslatef(round(x/50)*50, round(y/50)*50, 0);
+			glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_TILES].tex);
+			Sprite* sprt;
+			switch(tile) {
+				case 1:
+					sprt = &g.sprites[SB_TILE_WOOD];
+					break;
+				case 2:
+					sprt = &g.sprites[SB_TILE_GRASS];
+					break;
+				case 3:
+					sprt = &g.sprites[SB_TILE_GRASS2];
+					break;
+				case 4:
+					sprt = &g.sprites[SB_TILE_STONE];
+					break;
+			}
 
+			glBegin(GL_QUADS);
+				glTexCoord2f(sprt->pos[0], sprt->pos[1]);
+				glVertex3f(-25,  25, 0);
+		
+				glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]);
+				glVertex3f( 25,  25, 0);
+		
+				glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]+sprt->h);
+				glVertex3f( 25, -25, 0);
+		
+				glTexCoord2f(sprt->pos[0], sprt->pos[1]+sprt->h);
+				glVertex3f(-25, -25, 0);
+			glEnd();
+			glBindTexture(GL_TEXTURE_2D,0);
+	
+			glPopMatrix();
+		}
+	}	
+}
 
-
-
+void clearTiles(){
+	//not sure what i was expecting
+	g.tilemap.clear();
+}

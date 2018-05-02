@@ -11,6 +11,7 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 #include "defs.h"
 #include "fonts.h"
@@ -39,6 +40,11 @@ const int MAXANIMATIONS = 10;
 const int MAXSPRITES = 10;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
+
+struct Ray {
+	Vec o;
+	Vec d;
+};
 
 class Button {
     public:
@@ -114,6 +120,7 @@ class Hitbox {
 		}
 };
 
+
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_TEST};
 
 class Animation {
@@ -178,6 +185,7 @@ class Character : public Object {
 		
 		int state;
 		int hp;
+		Vec hitbox_offset;
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
 		Hitbox attacks[1];
@@ -186,6 +194,7 @@ class Character : public Object {
 		Character(){
 			anim_handler=NULL;
 			state=S_CHAR_ALIVE;
+			VecMake(0,0,0,hitbox_offset);
 		}
 		~Character(){} //destructor
 		void move();
@@ -238,6 +247,8 @@ class Enemy : public Character {
 
 
 /* MASON FUNCTIONS */
+
+
 class Menu {
 
     public:
@@ -259,7 +270,8 @@ void displayEnemiesKilled();
 /* David FUNCTIONS	*/
 
 void david_func();
-enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, SB_TILE_WOOD, SB_TILE_STONE, SB_};
+enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
+	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, SB_};
 enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
 
 class Texture 
@@ -333,6 +345,7 @@ class Door : public Wall {
 		Hitbox trigger;
         
         void draw();
+        void wallCollision(Door object, Enemy& being);
         //function to open/close door
         void swing();
         void initDoor(Flt, Flt, Flt, Flt, bool);
@@ -396,15 +409,22 @@ class Info {
 		
 };
 
+void placeTile(float, float);
+void drawTiles();
+void clearTiles();
 void taylor_func();
 void spawnEnemy(Flt x, Flt y);
 void characterCollision(Character&, Character&);
 
+bool unitTests();
+float rayBox(Ray&, Hitbox&);
+bool rayBoxTest();
+bool wallBetween(Object&, Object&);
 /* END FUNCTIONS */
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -445,14 +465,14 @@ struct Global {
 	int number[N_];
 	int eKilled;
 	
-	
+	std::map<std::string,int> tilemap;
 	bool wallChange, doorChange;
     Door doors[4];
 	Info info;
 	Animator animator;
 	//
 	int currentLevel;
-	char *levelName[5];
+	char levelName[5][10]; // 5 levels; 10 character names
     Level level;
 
 	#ifdef USE_OPENAL_SOUND
@@ -478,7 +498,7 @@ struct Global {
 		title.text_color = 0x00ffffff;
         
 		hearts.r.left = 100;
-		hearts.r.bot = yres-100;
+		hearts.r.bot = yres-150;
 		hearts.r.center = 1;
 		strcpy(hearts.text, "\u2764");
 		hearts.text_color = 0xff0000;
@@ -499,10 +519,10 @@ struct Global {
         doorChange = true;
 		level.beat = false;
 		currentLevel = 0;
-		levelName[0] = "level1";
-		levelName[1] = "level2";
-		levelName[2] = "level3";
-		levelName[3] = "level4";
+		strcpy(levelName[0], "level1");
+		strcpy(levelName[1], "level2");
+		strcpy(levelName[2], "level3");
+		strcpy(levelName[3], "level4");
 	}
 };
 extern Global g;
