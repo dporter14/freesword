@@ -561,7 +561,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_4:
 			if (e->type == KeyPress)
-			    spawnEnemy(g.savex, g.savey);
+			    spawnEnemy(g.savex, g.savey, 180);
 			break;
 		case XK_0:
 			if (e->type == KeyPress) {
@@ -611,8 +611,10 @@ int checkMouse(XEvent *e)
 			//Right button is down
 			//rbutton=1;
             g.isClicked[M_2] = true;
-            if (g.state[S_LEVELEDIT])
-               rotateDoor(g.savex, g.savey); 
+            if (g.state[S_LEVELEDIT]) {
+               rotateDoor(g.savex, g.savey);
+               rotateEnemy(g.savex, g.savey);
+            }
 		}
 	}
 	x = e->xbutton.x;

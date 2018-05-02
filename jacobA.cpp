@@ -131,7 +131,7 @@ void Character::lookAt(Flt x, Flt y)
 		dir[1]=SGN(dir[1]);
 		dir[0]=0;
 	}
-	swapSprites(dir);
+	swapSprites();
 	Vec base, upz, cross;
 	VecMake(0, 1, 0, base);
 	VecMake(0, 0, 1, upz);
@@ -597,7 +597,7 @@ void saveLevel()
 		printf("Saved Door to level file\n");
 	}
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << "\n";
+		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << g.enemies[i].rot << "\n";
 		printf("Saved enemy to level file\n");
 	}
 	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){
@@ -615,7 +615,7 @@ void loadLevel(char *levelName)
 	levelread.open (levelName);
 	if (levelread.is_open()) {
 			char object[6];
-			Flt x, y, horiz;
+			Flt x, y, horiz, rot;
 		while(!levelread.eof()) {
 			levelread >> object;
 			std::cout << object << std::endl;
@@ -635,7 +635,8 @@ void loadLevel(char *levelName)
 			} else if (!strcmp("enemy", object)) {
 				levelread >> x;
 				levelread >> y;
-				spawnEnemy(x, y);
+				levelread >> rot;
+				spawnEnemy(x, y, rot);
 				std::cout << "Spawned enemy" << std::endl;
 			} else if (!strcmp("tile",object)) {
 				int tile, x, y;

@@ -223,16 +223,16 @@ door 225 250 0
 door 225 650 0
 door 225 500 0
 door 550 1625 1
-enemy 73 254
-enemy 743.955 125
-enemy 793.955 125
-enemy 1004 35
-enemy 69 498
-enemy 74 643
-enemy 84 882
-enemy 368 2660
-enemy 546 2652
-enemy 722 2640
-enemy 296 2325
-enemy 758 2304
+enemy 73 254 0
+enemy 743.955 125 0
+enemy 793.955 125 0
+enemy 1004 35 0
+enemy 69 498 0
+enemy 74 643 0
+enemy 84 882 0
+enemy 368 2660 0
+enemy 546 2652 0
+enemy 722 2640 0
+enemy 296 2325 0
+enemy 758 2304 0
 end

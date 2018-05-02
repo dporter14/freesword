@@ -205,7 +205,7 @@ class Character : public Object {
 		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
-		void swapSprites(Vec direct); //davidP.cpp
+		void swapSprites(); //davidP.cpp
 		
 	private:
 
@@ -238,7 +238,7 @@ class Enemy : public Character {
         Enemy() {
         	v_fov = 45;
         	v_dist = 500;
-        	v_close = 75;
+        	v_close = 100;
 			hp = 1;
         	state = S_CHAR_IDLE;
         }
@@ -272,8 +272,9 @@ void displayEnemiesKilled();
 
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
-	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, SB_};
-enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_};
+	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
+	SB_ITEM_SWORD, SB_};
+enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_ITEMS, SS_};
 
 class Texture 
 {
@@ -413,8 +414,10 @@ class Info {
 void placeTile(float, float);
 void drawTiles();
 void clearTiles();
+
 void taylor_func();
-void spawnEnemy(Flt x, Flt y);
+void spawnEnemy(Flt x, Flt y, Flt rot);
+void rotateEnemy(int, int);
 void characterCollision(Character&, Character&);
 
 bool unitTests();
