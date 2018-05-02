@@ -65,14 +65,16 @@ void Enemy::attackPlayer()
 			addVel(toPlayer[0]/len,toPlayer[1]/len);
 		} else if (VecLen(vel)>0) {
 			addVel(vel[0]*-0.5,vel[1]*-0.5);
-			
+			//if(VecLen(vel)<0.7){
+				setVel(0,0);
+				if(anim_handler==NULL){
+					Animation *act = g.animator.init(A_SWORD_WINDUP);
+					act->add_actor(this);
+				}
+			//}
 		}
 		
-		if(anim_handler==NULL && VecLen(vel)<0.1){
-			setVel(0,0);
-			Animation *act = g.animator.init(A_SWORD_SLASH);
-			act->add_actor(this);
-		}
+		
 	} else if (VecLen(vel)>0) {
 		addVel(vel[0]*-0.5,vel[1]*-0.5);
 	}
@@ -157,6 +159,10 @@ void Animation::init(anim_type t)
 			set_frames(18);
 			can_cancel=0;
 			break;
+		case A_SWORD_WINDUP:
+			set_frames(10);
+			can_cancel=0;
+			break;
 		case A_TEST:
 			test();
 			break;
@@ -171,6 +177,9 @@ void Animation::play()
 			break;
 		case A_SWORD_SLASH2:
 			sword_slash2();
+			break;
+		case A_SWORD_WINDUP:
+			sword_windup();
 			break;
 		case A_TEST:
 			test();
@@ -303,10 +312,51 @@ void Animation::sword_slash2()
 	
 }
 
+void Animation::sword_windup()
+{
+	Enemy* actor = (Enemy*)actors[0];
+	static Vec orig_pos;
+	static Flt orig_rot;
+	if(frame==0){
+		VecCopy(actor->rhand_pos, orig_pos);
+		//VecCopy(actor->rhand_dir, orig_dir);
+		orig_rot = actor->rhand_rot;
+		//actor->rhand_pos[0] = 50;
+		//actor->rhand_pos[1] = 35;
+
+	}
+	if (frame==nframes+1) {
+		VecCopy(orig_pos, actor->rhand_pos);
+		//VecCopy(orig_dir, actor->rhand_dir);
+		actor->rhand_rot = orig_rot;
+		done=1;
+	}
+	
+	if(frame<10){
+		actor->rhand_pos[1] = 50*(float)frame/nframes;
+		float angle = -60*(float)frame/nframes;
+		//actor->rhand_dir[0] = cosf(angle);
+		//actor->rhand_dir[1] = sinf(angle);
+		actor->rhand_rot = angle;
+		//cout << (-100/28)*frame+50 << endl;
+	}
+	
+	if(frame==9) {
+		cancel();
+		Animation *act = g.animator.init(A_SWORD_SLASH);
+		act->add_actor(actor);
+		return;
+	}
+	frame++;
+	
+}
+
 void Animation::test()
 {
 	//do stuff
 }
+
+//Infobox
 
 void Info::draw(){
 	Rect t;
@@ -524,7 +574,7 @@ void placeTile(float x, float y)
 }
 
 void drawTiles(){
-	int fun=150;
+	int fun=0;
 	//printf("%0.2f %0.2f %0.2f %0.2f\n",round((g.player.pos[0]-(g.xres/2))/50), round((g.player.pos[0]+(g.xres/2))/50), round((g.player.pos[1]-(g.yres/2))/50), round((g.player.pos[1]+(g.yres/2))/50));
 	for(float x = (g.player.pos[0]-(g.xres/2))+fun; x < (g.player.pos[0]+(g.xres/2))+50-fun; x+=50){
 		for(float y = (g.player.pos[1]-(g.yres/2))+fun; y < (g.player.pos[1]+(g.yres/2))+50-fun; y+=50){
