@@ -708,7 +708,9 @@ void physics()
 		for(int i=0; i<g.number[N_ENEMIES]; i++){
 			g.enemies[i].see();
 			g.enemies[i].attackPlayer();
-			g.enemies[i].move();
+			if(g.enemies[i].anim_handler == NULL || g.enemies[i].anim_handler->can_cancel ){
+				g.enemies[i].move();
+			}
 		}
 
 
