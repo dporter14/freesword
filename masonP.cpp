@@ -1,5 +1,6 @@
 // Author: Mason Pierce
 // Draws Menu Buttons on pause and other overlay items.
+// Last edited 4/21/2018
 
 #include <iostream>
 #include <ctime>
@@ -17,10 +18,7 @@ void mason_func()
 
 Menu::Menu()
 {
-	//m_height = 0;
-	//m_width = 0;
-	//m_buttonTitle = "";
-    //m_position = 0;
+	nButtons = 0;
 }
 clickState Menu::getOver(float x, float y) {
     for(int loop = 0; loop < nButtons; loop++) {
@@ -30,6 +28,9 @@ clickState Menu::getOver(float x, float y) {
         }
     }
     return C_NONE;
+}
+void resumeGame() {
+	g.state[S_PAUSED] = 0;
 }
 bool Button::isOver(float x, float y) {
 
@@ -63,19 +64,19 @@ void Button::setColor(float color1, float color2, float color3) {
 }
 void Button::draw() {
 
-	for(int i=0; i<g.pauseMenu.nButtons; i++) {
+	for(int i = 0; i < g.pauseMenu.nButtons; i++) {
         if (over) {
-            int w=2;
+            int outlineOffset = 2;
             glColor3f(1.0f, 1.0f, 0.0f);
             //draw a highlight around button
             glLineWidth(3);
 
             glBegin(GL_LINE_LOOP);
-                glVertex2i(r.left-w,  r.bot-w);
-                glVertex2i(r.left-w,  r.top+w);
-                glVertex2i(r.right+w, r.top+w);
-                glVertex2i(r.right+w, r.bot-w);
-                glVertex2i(r.left- w, r.bot-w);
+                glVertex2i(r.left - outlineOffset,  r.bot - outlineOffset);
+                glVertex2i(r.left - outlineOffset,  r.top + outlineOffset);
+                glVertex2i(r.right + outlineOffset, r.top + outlineOffset);
+                glVertex2i(r.right + outlineOffset, r.bot - outlineOffset);
+                glVertex2i(r.left - outlineOffset, r.bot - outlineOffset);
             glEnd();
 
             glLineWidth(1);
@@ -114,18 +115,18 @@ void Menu::draw() {
 	glColor3ub(0, 153, 0);
 
 	for(int loop = 0; loop < nButtons; loop++) {
-		buttons[ loop ].draw();
+		buttons[loop].draw();
 	} 
 
 	glPushMatrix();	
-	glTranslatef(g.xres/2, g.yres/2, 0.0);
+		glTranslatef(g.xres/2, g.yres/2, 0.0);
 
-	glTranslatef(-50, 50.0, 0.0);
-	Rect r;
-	r.bot = 50;
-	r.left = 50;
-	r.center = 1;
-	ggprint8b(&r, 16, 0x00000000, "Pause Menu");
+		glTranslatef(-50, 50.0, 0.0);
+		Rect r;
+		r.bot = 50;
+		r.left = 50;
+		r.center = 1;
+		ggprint8b(&r, 16, 0x00000000, "Pause Menu");
 
 	glPopMatrix();
 	
@@ -134,8 +135,35 @@ void Menu::draw() {
 	tix += endTime - startTime;
 	sprintf(info_here, "Pause Menu Function: %f", tix);
 }
+void MainMenu::draw() {
+	glColor3f(65,135,22);
+	glBegin(GL_QUADS);
+		glVertex2i(0, 0);
+		glVertex2i(0, g.yres);
+		glVertex2i(g.xres, g.yres);
+		glVertex2i(g.xres, 0);
+	glEnd();
+	for(int loop = 0; loop < nButtons; loop++) {
+		buttons[loop].draw();
+	}
+	glPushMatrix();
+		glTranslatef(g.xres/2, g.yres/2, 0.0);
+		glTranslatef(-50, 50.0, 0.0);
+	glPopMatrix();
+}
 
 int detectButtons(int lbutton, int x, int y) {
+	if(g.state[S_STARTUP]) {
+		int click_state = g.mainMenu.getOver(x, y);
+		if(lbutton) {
+			switch(click_state) {
+				case C_STARTGAME:
+					g.state[S_STARTUP] = 0;
+					break;	
+			}
+		}
+	}
+	
 	if(g.state[ S_PAUSED ]) {
 		int click_state= g.pauseMenu.getOver(x, y);
 		if (lbutton) {
@@ -150,7 +178,7 @@ int detectButtons(int lbutton, int x, int y) {
 					break;
 				case C_EDITOR:
     				toggleEditMode();
-					g.state[S_PAUSED] ^= 1;
+					resumeGame();
 					break;
 				case C_NONE:
 					break;
@@ -161,7 +189,6 @@ int detectButtons(int lbutton, int x, int y) {
 	}
 	return 0;
 }
-
 
 void displayEnemiesKilled() {
 

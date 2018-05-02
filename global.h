@@ -38,7 +38,7 @@ const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
 const int MAXSPRITES = 10;
 
-enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
+enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
 class Button {
     public:
@@ -237,11 +237,12 @@ class Menu {
 
     public:
         Menu();
-        void draw();
+        virtual void draw();
         Vec pos;
         Button buttons[MAXBUTTONS];
 		int nButtons;
-
+		
+		//Returns which button the cursor is hovering over.
         clickState getOver(float, float);
 
     private:
@@ -403,7 +404,8 @@ void characterCollision(Character&, Character&);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_};
+enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER,
+			 S_DEBUG, S_LEVELEDIT,S_STARTUP, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -424,6 +426,8 @@ struct Global {
 	
 	
 	Menu pauseMenu;
+	Menu mainMenu;
+
 	Image *bgImage;
 	GLuint bgTexture;
 
@@ -433,9 +437,6 @@ struct Global {
 
 	Texture spriteTextures[SS_];
 	Sprite sprites[SB_];
-
-	Button title;
-	Button button[MAXBUTTONS];
     
 	bool isPressed[K_];
     bool isClicked[M_];
@@ -449,7 +450,6 @@ struct Global {
     Door doors[4];
 	Info info;
 	Animator animator;
-	//
 	int currentLevel;
     Level level1;
 
@@ -468,12 +468,13 @@ struct Global {
 
 		//spriteImage=NULL;
 		
-        
+       /* 
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
+		*/
         
 
 		for(int i = 0; i<K_; i++) {

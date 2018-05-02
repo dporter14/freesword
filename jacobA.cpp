@@ -8,12 +8,12 @@ void toggleEditMode()
 {
 	if (g.state[S_LEVELEDIT] != 1) {
 		g.state[S_LEVELEDIT] = 1;
-		strcpy(g.title.text,"Level Editor Enabled");
-		g.title.text_color = 0x39ff14;
+	//	strcpy(g.title.text,"Level Editor Enabled");
+	//	g.title.text_color = 0x39ff14;
 	} else {
 		g.state[S_LEVELEDIT] = 0;
-		strcpy(g.title.text, "");
-		g.title.text_color = 0x00ffffff;
+	//	strcpy(g.title.text, "");
+	//	g.title.text_color = 0x00ffffff;
 	}
 }
 
