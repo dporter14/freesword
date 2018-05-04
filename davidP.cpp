@@ -82,19 +82,29 @@ void initSpriteTextures()
     g.sprites[SB_TILE_GRASS].init(0, 100, 50, 50, 1);
 	g.sprites[SB_TILE_GRASS2].set_texture(&g.spriteTextures[SS_TILES]);
     g.sprites[SB_TILE_GRASS2].init(50, 100, 50, 50, 1);
+    
+    Image img2 = "./images/sword.png";
+    g.spriteTextures[SS_ITEMS].init(&img2);
+
+    g.sprites[SB_ITEM_SWORD].set_texture(&g.spriteTextures[SS_ITEMS]);
+	//g.sprites[SB_ITEM_SWORD].init(0, 0, 100, 100, 1);
+	
 	
 }
 
-void Character::swapSprites(Vec direct)
+void Character::swapSprites()
 {
-	if(direct[0] > 0)
-		sprt = &g.sprites[SB_PLAYER_R];
-	if(direct[0] < 0)
-		sprt = &g.sprites[SB_PLAYER_L];
-	if(direct[1] > 0)
+	int test = int(rot+360)%360;
+	if(test < 45)
 		sprt = &g.sprites[SB_PLAYER_B];
-	if(direct[1] < 0)
+	else if(test < 135)
+		sprt = &g.sprites[SB_PLAYER_L];
+	else if(test < 225)
 		sprt = &g.sprites[SB_PLAYER_F];
+	else if(test < 315)
+		sprt = &g.sprites[SB_PLAYER_R];
+	else
+		sprt = &g.sprites[SB_PLAYER_B];
 
 }
     
@@ -292,13 +302,32 @@ void Character::draw()
 	*/
 	glRotatef(rhand_rot,0,0,1);
 	
+	/*
 	glBegin(GL_POLYGON);
 	glVertex2f(-3.0f, 0.0f);
 	glVertex2f(-3.0f, 60.0f);
 	glVertex2f(3.0f, 60.0f);
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
-	
+	*/
+	Sprite* sprt;
+	sprt = &g.sprites[SB_ITEM_SWORD];
+	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_ITEMS].tex);
+	glBegin(GL_QUADS);
+		glTexCoord2f(sprt->pos[0], sprt->pos[1]);
+		glVertex3f(-10,  60, 0);
+
+		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]);
+		glVertex3f( 10,  60, 0);
+
+		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]+sprt->h);
+		glVertex3f( 10, 0, 0);
+
+		glTexCoord2f(sprt->pos[0], sprt->pos[1]+sprt->h);
+		glVertex3f(-10, 0, 0);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D,0);
+
 	
 	glPopMatrix();
 

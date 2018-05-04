@@ -29,7 +29,7 @@ Flt angleFrom(Vec a, Vec b){
 	return angl;
 }
 
-void spawnEnemy(Flt x, Flt y){
+void spawnEnemy(Flt x, Flt y, Flt rot){
 	if(g.number[N_ENEMIES]<MAXENEMIES){
 		Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
 		VecMake(x, y, 0, e->pos);
@@ -39,7 +39,7 @@ void spawnEnemy(Flt x, Flt y){
 		e->state = 0;
 		e->max_speed = 6;
 		//VecMake(0,1,0,e->dir);
-		e->rot=0;
+		e->rot=rot;
 		VecMake(0,0,0,e->vel);
 		VecMake(30,0,0,e->rhand_pos);
 		//VecMake(0,1,0,e->rhand_dir);
@@ -50,6 +50,22 @@ void spawnEnemy(Flt x, Flt y){
 		e->sprt = &g.sprites[SS_PLAYER];
 	}
 }
+
+void rotateEnemy(int mousex, int mousey)
+{
+	for (int i=0; i<g.number[N_ENEMIES]; i++) {
+		if (mousex<=g.enemies[i].pos[0]+25 && mousex>=g.enemies[i].pos[0]-25) {
+			if (mousey<=g.enemies[i].pos[1]+25 && mousey>=g.enemies[i].pos[1]-25) {
+				printf("Rotate enemy #%d\n", i);
+				g.enemies[i].rot=int(g.enemies[i].rot+90)%360;
+				g.enemies[i].swapSprites();
+				//break;
+			}
+		}
+	}
+
+}
+
 
 void Enemy::attackPlayer()
 {

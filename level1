@@ -138,7 +138,7 @@ wall 850 0
 door 75 150 1
 door 725 600 1
 door 850 125 0
-enemy 195.498 655
+enemy 195.498 655 180
 tile -1 -2 2
 tile -1 -3 2
 tile -1 -4 2
