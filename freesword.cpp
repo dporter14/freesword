@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 		//		   Apply no physics this frame.
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
-			if (!g.state[S_PAUSED] or g.state[S_STARTUP] == 0) {
+			if (!g.state[S_PAUSED] and !g.state[S_STARTUP]) {
 				animation();
 				physics();
 			}
@@ -364,8 +364,6 @@ void init()
 
 	if (!unitTests())
 		exit(1);
-	
-	g.player.init();
 
 	// X, Y, Z, Vector name you're storing data into. //
 	VecMake(g.xres/2, g.yres/2, 0, g.mainMenu.pos); // Main menu
@@ -454,7 +452,6 @@ void gameUpdate()
 	/*if(g.number[N_ENEMIES]<5){
 	  spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	  }*/
-	spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	static char* info_here = g.info.get_place();
 	sprintf(info_here, "Tilemode: %d %d", g.state[S_TILEEDIT], g.state[S_TILE]);
 }
@@ -586,8 +583,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_4:
 			if (e->type == KeyPress)
-				spawnEnemy(RND()*(g.xres), RND()*(g.yres));
-			    spawnEnemy(g.savex, g.savey);
+			    spawnEnemy(g.savex, g.savey, 0);
 		break;
 			    spawnEnemy(g.savex, g.savey, 180);
 			break;
@@ -600,7 +596,7 @@ int checkKeys(XEvent *e)
 	}
 	return 0;
 
-
+}
 int checkMouse(XEvent *e)
 {
 	int x,y;
@@ -923,7 +919,7 @@ void render(void)
 	} else {
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 		glOrtho(0, g.xres, 0, g.yres, -1, 1);
-		g.mainMenu.draw();	
+		g.mainMenu.draw();
 	}
 	//
 	//screen background
@@ -946,29 +942,6 @@ void render(void)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	*/
 	drawTiles();
-	
-	
-	
-
-	//draw level objects
-    for (int i=0; i<g.number[N_WALLS]; i++) {
-        g.level.walls[i].draw();
-    }
-    for (int i=0; i<g.number[N_DOORS]; i++) {
-        g.level.doors[i].draw();
-    }
-    
-	//draw character
-	if (g.player.state != S_CHAR_DEAD)
-		g.player.draw();
-	
-	
-    for(int i=0; i<g.number[N_ENEMIES]; i++){
-		g.enemies[i].draw();
-	}
-	
-	
-    
 	
 	//Beginning of GUI elements//
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();

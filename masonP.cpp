@@ -126,7 +126,6 @@ void Menu::draw() {
 		r.bot = 50;
 		r.left = 50;
 		r.center = 1;
-		ggprint8b(&r, 16, 0x00000000, "Pause Menu");
 
 	glPopMatrix();
 	
