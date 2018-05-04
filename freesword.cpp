@@ -588,7 +588,7 @@ int checkKeys(XEvent *e)
 			if (e->type == KeyPress)
 				spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 			    spawnEnemy(g.savex, g.savey);
-			break;
+		break;
 		case XK_0:
 			if (e->type == KeyPress) {
 			    if (g.state[S_TILEEDIT])
@@ -597,7 +597,7 @@ int checkKeys(XEvent *e)
 			break;
 	}
 	return 0;
-}
+
 
 int checkMouse(XEvent *e)
 {
@@ -739,12 +739,12 @@ void physics()
 	//player collision
 	for (int i=0; i<1000; i++) {
 		for (int j=0; j<g.number[N_ENEMIES]; j++) {
-			wallCollision(g.level1.doors[i], g.enemies[j]);
-			wallCollision(g.level1.walls[i], g.enemies[j]);
+			wallCollision(g.level.doors[i], g.enemies[j]);
+			wallCollision(g.level.walls[i], g.enemies[j]);
 		}
 
-		wallCollision(g.level1.walls[i], g.player);
-		wallCollision(g.level1.doors[i], g.player);
+		wallCollision(g.level.walls[i], g.player);
+		wallCollision(g.level.doors[i], g.player);
 	}
 
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
@@ -889,10 +889,10 @@ void render(void)
 
 		//draw level objects
 		for (int i=0; i<g.number[N_WALLS]; i++) {
-			g.level1.walls[i].draw();
+			g.level.walls[i].draw();
 		}
 		for (int i=0; i<g.number[N_DOORS]; i++) {
-			g.level1.doors[i].draw();
+			g.level.doors[i].draw();
 		}
 
 		if (g.state[S_DEBUG])
