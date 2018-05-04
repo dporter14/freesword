@@ -70,6 +70,18 @@ void initSpriteTextures()
     g.sprites[SB_PLAYER_R].init(0,150, 50, 75, 1);
     g.sprites[SB_PLAYER_L].set_texture(&g.spriteTextures[SS_PLAYER]);
     g.sprites[SB_PLAYER_L].init(0,225, 50, 75, 1);
+
+    Image enemyGuy = "./images/enemysprites.png";
+    g.spriteTextures[SS_ENEMY_NORMAL].init(&enemyGuy);
+
+    g.sprites[SB_ENEMY_NORMAL_F].set_texture(&g.spriteTextures[SS_ENEMY_NORMAL]);
+	g.sprites[SB_ENEMY_NORMAL_F].init(0,  0, 50, 75, 1);
+	g.sprites[SB_ENEMY_NORMAL_B].set_texture(&g.spriteTextures[SS_ENEMY_NORMAL]);
+    g.sprites[SB_ENEMY_NORMAL_B].init(0, 75, 50, 75, 1);
+    g.sprites[SB_ENEMY_NORMAL_R].set_texture(&g.spriteTextures[SS_ENEMY_NORMAL]);
+    g.sprites[SB_ENEMY_NORMAL_R].init(0,150, 50, 75, 1);
+    g.sprites[SB_ENEMY_NORMAL_L].set_texture(&g.spriteTextures[SS_ENEMY_NORMAL]);
+    g.sprites[SB_ENEMY_NORMAL_L].init(0,225, 50, 75, 1);
 	
     Image img = "./images/tiles.png";
     g.spriteTextures[SS_TILES].init(&img);
@@ -95,16 +107,56 @@ void initSpriteTextures()
 void Character::swapSprites()
 {
 	int test = int(rot+360)%360;
-	if(test < 45)
-		sprt = &g.sprites[SB_PLAYER_B];
-	else if(test < 135)
-		sprt = &g.sprites[SB_PLAYER_L];
-	else if(test < 225)
-		sprt = &g.sprites[SB_PLAYER_F];
-	else if(test < 315)
-		sprt = &g.sprites[SB_PLAYER_R];
-	else
-		sprt = &g.sprites[SB_PLAYER_B];
+	if(test < 45) {
+		switch(type) {
+			case CHA_PLAYER:
+				sprt = &g.sprites[SB_PLAYER_B];
+				break;
+			case CHA_ENEMY_NORMAL:
+				sprt = &g.sprites[SB_ENEMY_NORMAL_B];
+				break;
+			}
+	}
+	else if(test < 135) {
+		switch(type) {
+			case CHA_PLAYER:
+				sprt = &g.sprites[SB_PLAYER_L];
+				break;
+			case CHA_ENEMY_NORMAL:
+				sprt = &g.sprites[SB_ENEMY_NORMAL_L];
+				break;
+			}
+	}
+	else if(test < 225) {
+		switch(type) {
+			case CHA_PLAYER:
+				sprt = &g.sprites[SB_PLAYER_F];
+				break;
+			case CHA_ENEMY_NORMAL:
+				sprt = &g.sprites[SB_ENEMY_NORMAL_F];
+				break;
+			}
+	}
+	else if(test < 315) {
+		switch(type) {
+			case CHA_PLAYER:
+				sprt = &g.sprites[SB_PLAYER_R];
+				break;
+			case CHA_ENEMY_NORMAL:
+				sprt = &g.sprites[SB_ENEMY_NORMAL_R];
+				break;
+			}
+	}
+	else {
+		switch(type) {
+			case CHA_PLAYER:
+				sprt = &g.sprites[SB_PLAYER_B];
+				break;
+			case CHA_ENEMY_NORMAL:
+				sprt = &g.sprites[SB_ENEMY_NORMAL_B];
+				break;
+			}
+	}
 
 }
     
