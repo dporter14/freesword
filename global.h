@@ -39,7 +39,7 @@ const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
 const int MAXSPRITES = 10;
 
-enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
+enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
 struct Ray {
 	Vec o;
@@ -254,19 +254,24 @@ class Menu {
 
     public:
         Menu();
-        void draw();
+        virtual void draw();
         Vec pos;
         Button buttons[MAXBUTTONS];
 		int nButtons;
-
+		
+		//Returns which button the cursor is hovering over.
         clickState getOver(float, float);
 
     private:
 };
+class MainMenu : public Menu {
+	public:
+		void draw();
+};
 void mason_func();
-void pauseMenu();
 void displayTitle();
 void displayEnemiesKilled();
+int detectButtons(int, int, int);
 
 /* David FUNCTIONS	*/
 
@@ -428,7 +433,7 @@ bool wallBetween(Object&, Object&);
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
+enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -449,6 +454,8 @@ struct Global {
 	
 	
 	Menu pauseMenu;
+	Menu mainMenu;
+
 	Image *bgImage;
 	GLuint bgTexture;
 
@@ -474,7 +481,6 @@ struct Global {
     Door doors[4];
 	Info info;
 	Animator animator;
-	//
 	int currentLevel;
 	char levelName[5][10]; // 5 levels; 10 character names
     Level level;
@@ -494,12 +500,13 @@ struct Global {
 
 		//spriteImage=NULL;
 		
-        
+       /* 
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
+		*/
         
 		hearts.r.left = 100;
 		hearts.r.bot = yres-150;
