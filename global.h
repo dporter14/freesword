@@ -169,7 +169,8 @@ class Animator {
 };
 
 enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING, S_CHAR_IDLE, S_CHAR_ANGRY};
-		
+enum char_type {CHA_PLAYER, CHA_ENEMY_NORMAL, CHA_};
+
 class Character : public Object {
 	public:
 		//define color and radius of circle until we have sprite
@@ -186,6 +187,7 @@ class Character : public Object {
 		
 		int state;
 		int hp;
+		int type;
 		Vec hitbox_offset;
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
@@ -206,6 +208,7 @@ class Character : public Object {
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
 		void swapSprites(); //davidP.cpp
+
 		
 	private:
 
@@ -219,6 +222,7 @@ class Player : public Character {
 		void die();
 		Player(){
 			hp = 3;
+			type = CHA_PLAYER;
 		}
         ~Player(){}
         
@@ -241,6 +245,7 @@ class Enemy : public Character {
         	v_close = 100;
 			hp = 1;
         	state = S_CHAR_IDLE;
+        	type = CHA_ENEMY_NORMAL;
         }
     private:
 };
@@ -277,9 +282,11 @@ int detectButtons(int, int, int);
 
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
+	SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
+	SB_ENEMY_NORMAL_L,
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
 	SB_ITEM_SWORD, SB_};
-enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_ITEMS, SS_};
+enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_ITEMS, SS_};
 
 class Texture 
 {
