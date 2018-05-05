@@ -38,6 +38,7 @@ const int MAXBUTTONS = 4;
 const int MAXENEMIES = 100;
 const int MAXANIMATIONS = 10;
 const int MAXSPRITES = 10;
+const int MAXITEMS = 10;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
@@ -87,7 +88,7 @@ class Object {
 		Hitbox* hitbox;
 		void drawSprite();
 		Sprite* sprt;
-		virtual void draw() = 0;
+		//virtual void draw() = 0;
 };
 
 enum hit_type {H_HURTBOX, H_ATTACK, H_TRIGGER};
@@ -220,8 +221,10 @@ class Player : public Character {
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
 		void die();
+		int ammo;
 		Player(){
 			hp = 3;
+			ammo = 3;
 			type = CHA_PLAYER;
 		}
         ~Player(){}
@@ -285,8 +288,8 @@ enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L,
 	SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
 	SB_ENEMY_NORMAL_L,
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
-	SB_ITEM_SWORD, SB_};
-enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_ITEMS, SS_};
+	SB_ITEM_SWORD, SB_ITEM_POTION, SB_ITEM_AMMO, SB_};
+enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_SWORD, SS_POTION, SS_AMMO, SS_};
 
 class Texture 
 {
@@ -327,6 +330,19 @@ void initSpriteTextures();
 
 		
 /* JACOB FUNCTIONS */
+
+enum Items {I_POTION, I_AMMO, I_};
+
+class Item : public Object {
+	public:
+		Items type;
+		Hitbox hitbox;
+
+		void useItem();
+		void spawnAmmo(Flt, Flt);
+		void spawnPotion(Flt, Flt);
+		void draw();
+};
 
 class Wall : public Object {
 
@@ -377,6 +393,15 @@ class Level {
 		bool beat; 
 
     private:
+};
+
+class Sounds {
+	public:
+		ALuint alSourceTheme;
+		ALuint alBufferTheme;
+                ALuint alSourceSwordSwing;
+                ALuint alBufferSwordSwing;
+	private:
 };
 
 void toggleEditMode();
@@ -449,7 +474,7 @@ enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVE
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ITEMS, N_};
 
 struct Global {
 	// screen res
@@ -473,10 +498,15 @@ struct Global {
 	Texture spriteTextures[SS_];
 	Sprite sprites[SB_];
 
+	Item items[MAXITEMS];
+
 	Button title;
 	Button hearts;
 	Button button[MAXBUTTONS];
     
+	//sound
+	Sounds sounds;
+
 	bool isPressed[K_];
     bool isClicked[M_];
 	int state[S_];
@@ -492,13 +522,8 @@ struct Global {
 	char levelName[5][10]; // 5 levels; 10 character names
     Level level;
 
-	#ifdef USE_OPENAL_SOUND
-		ALuint alBufferDrip, alBufferTick;
-		ALuint alSourceDrip, alSourceTick;
-	#endif
 	Global() {
 		xres = 1200; yres = 900;
-//		xres = 1087; yres = 800;
 		savex = savey = 0;
 		
 		bgImage=NULL;

@@ -96,9 +96,25 @@ void Enemy::attackPlayer()
 	}
 }
 
-void Enemy::kill(){
+void Enemy::kill()
+{
 	g.eKilled++;
 	state = S_CHAR_DEAD;
+	if (g.number[N_ITEMS] < 10) {
+		if (RND()*100 < 25) {
+			std::cout << N_ITEMS << std::endl;
+			g.items[g.number[N_ITEMS]].type = I_POTION;
+			std::cout << "Set type\n" << std::endl;
+			g.items[g.number[N_ITEMS]].spawnPotion(pos[0], pos[1]);
+			std::cout << "Spawn\n" << std::endl;
+			g.number[N_ITEMS]++;
+		}
+		if (RND()*100 < 10) {
+			g.items[g.number[N_ITEMS]].type = I_AMMO;
+			g.items[g.number[N_ITEMS]].spawnAmmo(pos[0], pos[1]);
+			g.number[N_ITEMS]++;
+		}
+	}
 }
 
 void Enemy::see(){

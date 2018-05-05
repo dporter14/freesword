@@ -96,11 +96,20 @@ void initSpriteTextures()
     g.sprites[SB_TILE_GRASS2].init(50, 100, 50, 50, 1);
     
     Image img2 = "./images/sword.png";
-    g.spriteTextures[SS_ITEMS].init(&img2);
+    g.spriteTextures[SS_SWORD].init(&img2);
 
-    g.sprites[SB_ITEM_SWORD].set_texture(&g.spriteTextures[SS_ITEMS]);
+    g.sprites[SB_ITEM_SWORD].set_texture(&g.spriteTextures[SS_SWORD]);
 	//g.sprites[SB_ITEM_SWORD].init(0, 0, 100, 100, 1);
+
+	Image potion = "./images/Potion.png";
+	g.spriteTextures[SS_POTION].init(&potion);
+	g.sprites[SB_ITEM_POTION].set_texture(&g.spriteTextures[SS_POTION]);
+	g.sprites[SB_ITEM_POTION].init(0, 0, 100, 100, 1);	
 	
+	Image ammo = "./images/ArrowAmmo.png";
+	g.spriteTextures[SS_AMMO].init(&ammo);
+	g.sprites[SB_ITEM_AMMO].set_texture(&g.spriteTextures[SS_AMMO]);
+	g.sprites[SB_ITEM_AMMO].init(0, 0, 100, 100, 1);	
 	
 }
 
@@ -364,7 +373,7 @@ void Character::draw()
 	*/
 	Sprite* sprt;
 	sprt = &g.sprites[SB_ITEM_SWORD];
-	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_ITEMS].tex);
+	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_SWORD].tex);
 	glBegin(GL_QUADS);
 		glTexCoord2f(sprt->pos[0], sprt->pos[1]);
 		glVertex3f(-10,  60, 0);
