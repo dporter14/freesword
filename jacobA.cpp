@@ -25,52 +25,70 @@ void Player::init()
     //player shape radius
     pradius = 30;
     VecMake(50,75,0,scale);
-    //player shape
     state = 0;
     max_speed = 8;
     //VecMake(0,1,0,dir);
     rot = 0;
+    fake_rot = 0;
     VecMake(0,0,0,vel);
     VecMake(50,50,0,pos);
     VecMake(1.0, 1.0, 1.0, color);
-    VecMake(16, 0, 0,rhand_pos);
-    //VecMake(0,1,0,rhand_dir);
-    rhand_rot = 0;
-
+    
+    sprt = &g.sprites[SB_PLAYER_F];
+	
+	//hitbox
 	VecMake(0, -30, 0, hitbox_offset); // shift hitbox
     VecAdd(pos, hitbox_offset, hitbox.pos);
-    
     VecMake(30, 30, 0, hitbox.scale);
     hitbox.dynamic=1;
 	
-	sprt = &g.sprites[SB_PLAYER_F];
+	//weapon
+	VecMake(1.0, 1.0, 1.0, weapon.color);
+	VecMake(0, 60, 10, weapon.pos);
+    VecAdd(weapon.pos, pos, weapon.pos);
+    VecMake(10, 30, 0, weapon.scale);
+    weapon.rot = 0;
+	weapon.sprt = &g.sprites[SB_ITEM_SWORD];
+	weapon.parent = this;
 }
 
 //move player according to its velocity
 void Character::move()
 {
+	Vec diff;
+	VecCopy(pos,diff);
 	pos[0] += vel[0];
 	pos[1] += vel[1];
+	//calc difference between new and old positions
+	VecSub(pos, diff, diff);
 	VecAdd(pos, hitbox_offset, hitbox.pos);
+	VecAdd(weapon.pos, diff, weapon.pos);
     
 }
 
 //manually move player
 void Character::setPos(Flt x, Flt y)
 {
-	pos[0] = x;
-	pos[1] = y;
-	VecAdd(pos, hitbox_offset, hitbox.pos);
-    
+	//calc difference between new and old positions
+	Vec diff;
+	VecMake(x,y,0,diff);
+	VecSub(diff, pos, diff);
+
+	//update accordingly
+	VecAdd(pos, diff, pos);
+	VecAdd(pos, diff, hitbox.pos);
+    VecAdd(weapon.pos, diff, weapon.pos);
 }
 
 //relatively move player
 void Character::addPos(Flt x, Flt y)
 {
-	pos[0] += x;
-	pos[1] += y;
-	VecAdd(pos, hitbox_offset, hitbox.pos);
-    
+	Vec diff;
+	VecMake(x,y,0,diff);
+	
+	VecAdd(pos, diff, pos);
+	VecAdd(hitbox.pos, diff, hitbox.pos);
+    VecAdd(weapon.pos, diff, weapon.pos);
 }
 
 //manually change velocity
@@ -124,14 +142,8 @@ void Character::lookAt(Flt x, Flt y)
 	VecMake(x-pos[0], y-pos[1], 0, dir);
 	Flt scale = 1/VecLen(dir);
 	VecS(scale, dir, dir);
-	if (ABS(dir[0])>ABS(dir[1])){
-		dir[0]=SGN(dir[0]);
-		dir[1]=0;
-	} else {
-		dir[1]=SGN(dir[1]);
-		dir[0]=0;
-	}
-	swapSprites();
+	VecAddS(60, dir, pos, weapon.pos);
+	
 	Vec base, upz, cross;
 	VecMake(0, 1, 0, base);
 	VecMake(0, 0, 1, upz);
@@ -140,6 +152,17 @@ void Character::lookAt(Flt x, Flt y)
 	if (VecDot(upz, cross)<0)
 		angl = -angl;
 	rot = angl*180/PI;
+	weapon.rot = rot;
+	weapon.fake_rot = rot;
+	/*if (ABS(dir[0])>ABS(dir[1])){
+		dir[0]=SGN(dir[0]);
+		dir[1]=0;
+	} else {
+		dir[1]=SGN(dir[1]);
+		dir[0]=0;
+	}*/
+	swapSprites();
+	
 
 }
 
@@ -411,8 +434,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 
 	trigger.type = H_TRIGGER;
 	VecCopy(pos, trigger.pos);
-	VecCopy(temp, trigger.scale); 
-
+	VecCopy(temp, trigger.scale);
 }
 
 void interactDoor()

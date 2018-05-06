@@ -38,16 +38,25 @@ void spawnEnemy(Flt x, Flt y, Flt rot){
 		VecMake(50,75,0,e->scale);
 		e->state = 0;
 		e->max_speed = 6;
-		//VecMake(0,1,0,e->dir);
 		e->rot=rot;
+		e->fake_rot=0;
 		VecMake(0,0,0,e->vel);
-		VecMake(30,0,0,e->rhand_pos);
-		//VecMake(0,1,0,e->rhand_dir);
-		e->rhand_rot=0;
+		
+		e->swapSprites();
+		
+		//hitbox
 		e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 		e->hitbox.dynamic=1;
-	
-		e->sprt = &g.sprites[SS_PLAYER];
+		
+		//weapon
+		VecMake(1.0, 1.0, 1.0, e->weapon.color);
+		VecMake(0, 60, 10, e->weapon.pos);
+		VecAdd(e->weapon.pos, e->pos, e->weapon.pos);
+		VecCopy(e->weapon.pos, e->weapon.fake_pos);
+		VecMake(10, 30, 0, e->weapon.scale);
+		e->weapon.rot=0;
+		e->weapon.sprt = &g.sprites[SB_ITEM_SWORD];
+		e->weapon.parent = e;
 	}
 }
 
@@ -65,7 +74,6 @@ void rotateEnemy(int mousex, int mousey)
 	}
 
 }
-
 
 void Enemy::attackPlayer()
 {
@@ -85,7 +93,7 @@ void Enemy::attackPlayer()
 				setVel(0,0);
 				if(anim_handler==NULL){
 					Animation *act = g.animator.init(A_SWORD_WINDUP);
-					act->add_actor(this);
+					act->add_actor(&weapon);
 				}
 			//}
 		}
@@ -179,6 +187,14 @@ void Animation::init(anim_type t)
 			set_frames(10);
 			can_cancel=0;
 			break;
+		case A_BOW_DRAW:
+			set_frames(10);
+			can_cancel=1;
+			break;
+		case A_BOW_RELEASE:
+			set_frames(10);
+			can_cancel=1;
+			break;
 		case A_TEST:
 			test();
 			break;
@@ -196,6 +212,12 @@ void Animation::play()
 			break;
 		case A_SWORD_WINDUP:
 			sword_windup();
+			break;
+		case A_BOW_DRAW:
+			bow_draw();
+			break;
+		case A_BOW_RELEASE:
+			bow_release();
 			break;
 		case A_TEST:
 			test();
@@ -233,30 +255,34 @@ void Animation::sword_slash()
 	double startTime, endTime;
 	startTime = current_time();
 	
-	Player* actor = (Player*)actors[0];
+	Weapon* actor = (Weapon*)actors[0];
+	
 	static Vec orig_pos;
 	static Flt orig_rot;
 	if(frame==0){
-		VecCopy(actor->rhand_pos, orig_pos);
-		//VecCopy(actor->rhand_dir, orig_dir);
-		orig_rot = actor->rhand_rot;
-		//actor->rhand_pos[0] = 50;
-		actor->rhand_pos[1] = 35;
+		//VecCopy(actor->pos, orig_pos);
+		//VecCopy(actor->dir, orig_dir);
+		orig_rot = actor->rot;
+		//actor->pos[0] = 50;
+		//actor->fake_pos[1] += 35;
 
 	}
 	if (frame==nframes+1) {
-		VecCopy(orig_pos, actor->rhand_pos);
-		//VecCopy(orig_dir, actor->rhand_dir);
-		actor->rhand_rot = orig_rot;
+		VecCopy(actor->pos, actor->fake_pos);
+		//VecCopy(orig_dir, actor->dir);
+		actor->rot = orig_rot;
 		done=1;
 	}
-	
+	Vec dir;
+	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
+		
 	if(frame<10){
-		actor->rhand_pos[0] = (-100/float(9))*float(frame)+50;
-		float angle = (90/float(9))*float(frame)+(-30);
-		//actor->rhand_dir[0] = cosf(angle);
-		//actor->rhand_dir[1] = sinf(angle);
-		actor->rhand_rot = angle;
+		float angle = 90*(float(frame)/9.0)+(orig_rot-30);
+		actor->pos[0] += (-100/float(9))*float(frame)+50;
+		actor->pos[1] += (-100/float(9))*float(frame)+50;
+		//actor->dir[0] = cosf(angle);
+		//actor->dir[1] = sinf(angle);
+		actor->rot = angle;
 		//cout << (-100/28)*frame+50 << endl;
 	}
 	
@@ -264,9 +290,7 @@ void Animation::sword_slash()
 		can_cancel=1;
 	
 	if (frame==4) {
-		Vec dir;
-		VecMake(-sin(actor->rot*PI/180), cos(actor->rot*PI/180), 0, dir);
-		VecAddS(60, dir, actor->pos, actor->attacks[0].pos);
+		VecAddS(60, dir, orig_pos, actor->attacks[0].pos);
 		actor->attacks[0].scale[0] =
 		actor->attacks[0].scale[1] = 40;
 		actor->attacks[0].active = 1;
@@ -285,37 +309,37 @@ void Animation::sword_slash()
 
 void Animation::sword_slash2()
 {
-	Player* actor = (Player*)actors[0];
+	Weapon* actor = (Weapon*)actors[0];
 	static Vec orig_pos;
 	static Flt orig_rot;
 	if(frame==0){
-		VecCopy(actor->rhand_pos, orig_pos);
-		//VecCopy(actor->rhand_dir, orig_dir);
-		orig_rot = actor->rhand_rot;
-		//actor->rhand_pos[0] = 50;
-		actor->rhand_pos[1] = 35;
+		VecCopy(actor->pos, orig_pos);
+		//VecCopy(actor->dir, orig_dir);
+		orig_rot = actor->rot;
+		//actor->pos[0] = 50;
+		actor->pos[1] = 35;
 
 	}
 	if (frame==nframes+1) {
-		VecCopy(orig_pos, actor->rhand_pos);
-		//VecCopy(orig_dir, actor->rhand_dir);
-		actor->rhand_rot = orig_rot;
+		VecCopy(orig_pos, actor->pos);
+		//VecCopy(orig_dir, actor->dir);
+		actor->rot = orig_rot;
 		done=1;
 	}
+	Vec dir;
 	
 	if(frame<10){
-		actor->rhand_pos[0] = (100/float(9))*float(frame)-50;
+		actor->pos[0] = (100/float(9))*float(frame)-50;
 		float angle = (-90/float(9))*float(frame)+(30);
-		//actor->rhand_dir[0] = cosf(angle);
-		//actor->rhand_dir[1] = sinf(angle);
-		actor->rhand_rot = angle;
+		//actor->dir[0] = cosf(angle);
+		//actor->dir[1] = sinf(angle);
+		actor->rot = angle;
 		//cout << (-100/28)*frame+50 << endl;
 	}
+	VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
 	
 	if (frame==4) {
-		Vec dir;
-		VecMake(-sin(actor->rot*PI/180), cos(actor->rot*PI/180), 0, dir);
-		VecAddS(60, dir, actor->pos, actor->attacks[0].pos);
+		VecAddS(60, dir, orig_pos, actor->attacks[0].pos);
 		actor->attacks[0].scale[0] =
 		actor->attacks[0].scale[1] = 40;
 		actor->attacks[0].active = 1;
@@ -334,26 +358,26 @@ void Animation::sword_windup()
 	static Vec orig_pos;
 	static Flt orig_rot;
 	if(frame==0){
-		VecCopy(actor->rhand_pos, orig_pos);
-		//VecCopy(actor->rhand_dir, orig_dir);
-		orig_rot = actor->rhand_rot;
-		//actor->rhand_pos[0] = 50;
-		//actor->rhand_pos[1] = 35;
+		VecCopy(actor->pos, orig_pos);
+		//VecCopy(actor->dir, orig_dir);
+		orig_rot = actor->rot;
+		//actor->pos[0] = 50;
+		//actor->pos[1] = 35;
 
 	}
 	if (frame==nframes+1) {
-		VecCopy(orig_pos, actor->rhand_pos);
-		//VecCopy(orig_dir, actor->rhand_dir);
-		actor->rhand_rot = orig_rot;
+		VecCopy(orig_pos, actor->pos);
+		//VecCopy(orig_dir, actor->dir);
+		actor->rot = orig_rot;
 		done=1;
 	}
 	
 	if(frame<10){
-		actor->rhand_pos[1] = 50*(float)frame/nframes;
+		actor->pos[1] = 50*(float)frame/nframes;
 		float angle = -60*(float)frame/nframes;
-		//actor->rhand_dir[0] = cosf(angle);
-		//actor->rhand_dir[1] = sinf(angle);
-		actor->rhand_rot = angle;
+		//actor->dir[0] = cosf(angle);
+		//actor->dir[1] = sinf(angle);
+		actor->rot = angle;
 		//cout << (-100/28)*frame+50 << endl;
 	}
 	
@@ -366,6 +390,13 @@ void Animation::sword_windup()
 	frame++;
 	
 }
+void Animation::bow_draw() {
+	
+	if(frame==12)
+		frame=1;
+}
+
+void Animation::bow_release() {}
 
 void Animation::test()
 {
@@ -591,7 +622,6 @@ void placeTile(float x, float y)
 
 void drawTiles(){
 	int fun=0;
-	//printf("%0.2f %0.2f %0.2f %0.2f\n",round((g.player.pos[0]-(g.xres/2))/50), round((g.player.pos[0]+(g.xres/2))/50), round((g.player.pos[1]-(g.yres/2))/50), round((g.player.pos[1]+(g.yres/2))/50));
 	for(float x = (g.player.pos[0]-(g.xres/2))+fun; x < (g.player.pos[0]+(g.xres/2))+50-fun; x+=50){
 		for(float y = (g.player.pos[1]-(g.yres/2))+fun; y < (g.player.pos[1]+(g.yres/2))+50-fun; y+=50){
 			string index = getTile(x,y);
@@ -607,7 +637,7 @@ void drawTiles(){
 			}
 			glPushMatrix();
 			glColor3f(1,1,1);
-			glTranslatef(round(x/50)*50, round(y/50)*50, 0);
+			glTranslatef(round(x/50)*50, round(y/50)*50, -900);
 			glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_TILES].tex);
 			Sprite* sprt;
 			switch(tile) {

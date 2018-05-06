@@ -576,44 +576,54 @@ int checkKeys(XEvent *e)
 int checkMouse(XEvent *e)
 {
 	int x,y;
-	int lbutton=0;
-	//int rbutton=0;
 	
     if (e->type == ButtonRelease) {
-        g.isClicked[M_1] = false;
-        g.wallChange = true;
-        g.isClicked[M_2] = false;
-        g.doorChange = true;
+    	if (e->xbutton.button==1) {
+			g.isClicked[M_1] = false;
+			g.wallChange = true;
+			g.doorChange = true;
+		} else if (e->xbutton.button==3) {
+			g.isClicked[M_2] = false;
+			if (!g.state[S_LEVELEDIT]) {
+				if (g.player.anim_handler!=NULL 
+				&& g.player.anim_handler->type == A_BOW_DRAW
+				&& g.player.anim_handler->can_cancel) {
+					g.player.anim_handler->cancel();
+					Animation *act = g.animator.init(A_BOW_RELEASE);
+					act->add_actor(&g.player.weapon);
+				}
+			}
+		}
         return 0;
     }
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
-			//Left button is down
-			//lbutton=1;
-            //(void)lbutton;
 			g.isClicked[M_1] = true;
             if (g.state[S_LEVELEDIT]){
             
             } else {
-				if(g.player.anim_handler==NULL){
+				if(g.player.weapon.anim_handler==NULL){
 					g.player.setVel(0,0);
 					Animation *act = g.animator.init(A_SWORD_SLASH);
-					act->add_actor(&g.player);
-				} else if (g.player.anim_handler->type == A_SWORD_SLASH
-					&& g.player.anim_handler->can_cancel) {
-					g.player.anim_handler->cancel();
+					act->add_actor(&g.player.weapon);
+				} else if (g.player.weapon.anim_handler->type == A_SWORD_SLASH
+					&& g.player.weapon.anim_handler->can_cancel) {
+					g.player.weapon.anim_handler->cancel();
 					Animation *act = g.animator.init(A_SWORD_SLASH2);
-					act->add_actor(&g.player);
+					act->add_actor(&g.player.weapon);
 				}
 			}
-		}
-		if (e->xbutton.button==3) {
-			//Right button is down
-			//rbutton=1;
-            g.isClicked[M_2] = true;
+		} else if (e->xbutton.button==3) {
+			g.isClicked[M_2] = true;
             if (g.state[S_LEVELEDIT]) {
                rotateDoor(g.savex, g.savey);
                rotateEnemy(g.savex, g.savey);
+            } else {
+            	if(g.player.anim_handler==NULL) {
+					g.player.setVel(0,0);
+					Animation *act = g.animator.init(A_BOW_DRAW);
+					act->add_actor(&g.player.weapon);
+				}
             }
 		}
 	}
@@ -640,7 +650,7 @@ int checkMouse(XEvent *e)
 	//for menu buttons
 	if(g.state[ S_PAUSED ]) {
 		int click_state= g.pauseMenu.getOver(x, y);
-		if (lbutton) {
+		if (g.isClicked[M_1]) {
 			switch (click_state) {
 				case C_RESUME:
 					//resumeGame();
@@ -710,7 +720,7 @@ void physics()
 		for(int i=0; i<g.number[N_ENEMIES]; i++){
 			g.enemies[i].see();
 			g.enemies[i].attackPlayer();
-			if(g.enemies[i].anim_handler == NULL || g.enemies[i].anim_handler->can_cancel ){
+			if(g.enemies[i].weapon.anim_handler == NULL || g.enemies[i].weapon.anim_handler->can_cancel ){
 				g.enemies[i].move();
 			}
 		}
@@ -731,7 +741,6 @@ void physics()
 			}
 			wallCollision(g.level.walls[i], g.player);
 		}
-
 	
 
 		for (int i=0; i<g.number[N_ENEMIES]; i++) {
@@ -742,9 +751,9 @@ void physics()
 			characterCollision(g.enemies[i], g.player);
 		}
 	
-		for (int i=0; i<g.player.nattacks; i++){
+		for (int i=0; i<g.player.weapon.nattacks; i++){
 			for(int j=0; j<g.number[N_ENEMIES]; j++){
-				if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
+				if(g.player.weapon.attacks[i].intersect(g.enemies[j].hitbox)){
 					if (!wallBetween(g.player,g.enemies[j])){
 						g.enemies[j].hp--;
 						if (g.enemies[j].hp < 1) {
@@ -801,14 +810,19 @@ void render(void)
 	glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_COLOR_MATERIAL);
 	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendEquation(GL_MAX);
 	//init matrices
 	glMatrixMode (GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//this sets to 2D mode (no perspective)
 
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
-    glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -1, 1);
+    glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -100, 1000);
 
 
 
@@ -834,8 +848,6 @@ void render(void)
 	*/
 	drawTiles();
 	
-	
-	
 
 	//draw level objects
     for (int i=0; i<g.number[N_WALLS]; i++) {
@@ -854,6 +866,7 @@ void render(void)
 		g.enemies[i].draw();
 	}
 	
+	//glDisable(GL_DEPTH_TEST);
 	
     
 	
@@ -878,7 +891,6 @@ void render(void)
 
     
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
-	//glDisable(GL_DEPTH_TEST);
 	
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
 	displayEnemiesKilled();

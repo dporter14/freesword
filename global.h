@@ -64,30 +64,29 @@ class Button {
 		void setColor(float, float, float);
 };
 
-enum wep_type {W_NONE, W_SWORD};
-
-class Weapon {
-    wep_type type;
-    Weapon(){
-        type=W_SWORD;
-    }
-};
-
 class Animation;
 class Hitbox;
 class Sprite;
+class Character;
 
 class Object {
 	public:
 		Vec color;
 		Vec pos;
+		Vec fake_pos;
+		bool faking;
+		
 		Vec scale;
 		Flt rot;
+		Flt fake_rot;
 		Animation* anim_handler; //
 		Hitbox* hitbox;
 		void drawSprite();
 		Sprite* sprt;
-		virtual void draw() = 0;
+		//virtual void draw() = 0;
+		Object() {
+			faking=0;
+		}
 };
 
 enum hit_type {H_HURTBOX, H_ATTACK, H_TRIGGER};
@@ -121,7 +120,8 @@ class Hitbox {
 };
 
 
-enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_SWORD_WINDUP, A_TEST};
+enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_SWORD_WINDUP, 
+	A_BOW_DRAW, A_BOW_RELEASE, A_TEST};
 
 class Animation {
 	public:
@@ -147,6 +147,8 @@ class Animation {
 		void sword_slash();
 		void sword_slash2();
 		void sword_windup();
+		void bow_draw();
+		void bow_release();
 		void test();
 
 
@@ -168,8 +170,23 @@ class Animator {
 		
 };
 
+enum wep_type {W_NONE, W_SWORD, W_BOW};
+
+class Weapon : public Object {
+	public:
+		wep_type type;
+		// will change to support multiple attacks at once
+		Hitbox attacks[1];
+		int nattacks;
+		Character* parent;
+		Weapon(){
+			type=W_NONE;
+			nattacks=0;
+		}
+};
+
 enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING, S_CHAR_IDLE, S_CHAR_ANGRY};
-		
+
 class Character : public Object {
 	public:
 		//define color and radius of circle until we have sprite
@@ -181,8 +198,9 @@ class Character : public Object {
 		//Vec pos; // inherited from object
 		Vec vel; // char's velocity
 		//Vec dir; // char's orientation
-		Vec rhand_pos; //pos of right hand
-		Flt rhand_rot; //orientation of right hand
+		//Vec rhand_pos; //pos of right hand
+		//Flt rhand_rot; //orientation of right hand
+		Weapon weapon;
 		
 		int state;
 		int hp;
@@ -273,8 +291,10 @@ void displayEnemiesKilled();
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
-	SB_ITEM_SWORD, SB_};
-enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_ITEMS, SS_};
+	SB_ITEM_SWORD, SB_ITEM_BOW, SB_ITEM_ARROW, 
+	SB_ICON_HEART, SB_};
+	
+enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_SWORD, SS_BOW, SS_};
 
 class Texture 
 {
