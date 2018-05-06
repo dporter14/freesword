@@ -13,12 +13,12 @@ void toggleEditMode()
 {
 	if (g.state[S_LEVELEDIT] != 1) {
 		g.state[S_LEVELEDIT] = 1;
-	//	strcpy(g.title.text,"Level Editor Enabled");
-	//	g.title.text_color = 0x39ff14;
+		strcpy(g.title.text,"Level Editor Enabled");
+		g.title.text_color = 0x39ff14;
 	} else {
 		g.state[S_LEVELEDIT] = 0;
-	//	strcpy(g.title.text, "");
-	//	g.title.text_color = 0x00ffffff;
+		strcpy(g.title.text, "");
+		g.title.text_color = 0x00ffffff;
 	}
 }
 
@@ -589,7 +589,7 @@ void saveLevel()
 		printf("Saved Door to level file\n");
 	}
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << g.enemies[i].rot << "\n";
+		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << " " << g.enemies[i].rot << "\n";
 		printf("Saved enemy to level file\n");
 	}
 	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){

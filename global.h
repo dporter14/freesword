@@ -519,7 +519,7 @@ struct Global {
 	Info info;
 	Animator animator;
 	int currentLevel;
-	char levelName[5][10]; // 5 levels; 10 character names
+	char levelName[4][10]; // 4 levels; 10 character names
     Level level;
 
 	Global() {
@@ -558,7 +558,8 @@ struct Global {
 		for (int i=0; i<M_; i++) {
             isClicked[i] = false;
         }
-        wallChange = true;
+        state[S_STARTUP] = 1;
+		wallChange = true;
         doorChange = true;
 		level.beat = false;
 		currentLevel = 0;
