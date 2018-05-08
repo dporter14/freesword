@@ -44,11 +44,11 @@ void Player::init()
 	
 	//weapon
 	VecMake(1.0, 1.0, 1.0, weapon.color);
-	VecMake(0, 60, 10, weapon.pos);
+	VecMake(0, 0, 0, weapon.pos);
     VecAdd(weapon.pos, pos, weapon.pos);
-    VecMake(10, 30, 0, weapon.scale);
+    weapon.dist = 40;
     weapon.rot = 0;
-	weapon.sprt = &g.sprites[SB_ITEM_SWORD];
+	swapWeapon(W_SWORD);
 	weapon.parent = this;
 }
 
@@ -142,7 +142,7 @@ void Character::lookAt(Flt x, Flt y)
 	VecMake(x-pos[0], y-pos[1], 0, dir);
 	Flt scale = 1/VecLen(dir);
 	VecS(scale, dir, dir);
-	VecAddS(60, dir, pos, weapon.pos);
+	VecAddS(weapon.dist, dir, pos, weapon.pos);
 	
 	Vec base, upz, cross;
 	VecMake(0, 1, 0, base);
@@ -153,7 +153,8 @@ void Character::lookAt(Flt x, Flt y)
 		angl = -angl;
 	rot = angl*180/PI;
 	weapon.rot = rot;
-	weapon.fake_rot = rot;
+	if (!weapon.faking)
+		weapon.fake_rot = rot;
 	/*if (ABS(dir[0])>ABS(dir[1])){
 		dir[0]=SGN(dir[0]);
 		dir[1]=0;

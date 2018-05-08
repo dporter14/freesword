@@ -35,9 +35,9 @@
 #endif
 
 const int MAXBUTTONS = 4;
-const int MAXENEMIES = 100;
+const int MAXENEMIES = 105;
+const int MAXARROWS = 110;
 const int MAXANIMATIONS = 10;
-const int MAXSPRITES = 10;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
 
@@ -80,7 +80,6 @@ class Object {
 		Flt rot;
 		Flt fake_rot;
 		Animation* anim_handler; //
-		Hitbox* hitbox;
 		void drawSprite();
 		Sprite* sprt;
 		//virtual void draw() = 0;
@@ -179,9 +178,23 @@ class Weapon : public Object {
 		Hitbox attacks[1];
 		int nattacks;
 		Character* parent;
+		//distance to parent
+		Flt dist;
 		Weapon(){
 			type=W_NONE;
 			nattacks=0;
+		}
+};
+
+class Arrow : public Object {
+	public:
+		Hitbox hitbox;
+		Vec vel;
+		Flt speed;
+		void draw();
+		void move();
+		Arrow(){
+			speed=20;
 		}
 };
 
@@ -239,7 +252,7 @@ class Player : public Character {
 			hp = 3;
 		}
         ~Player(){}
-        
+        void swapWeapon(wep_type);
         
     private:
 };
@@ -324,6 +337,12 @@ class Sprite {
 			
 		void nextFrame() {
 			frame = (frame+1)%nframes;
+			VecCopy(start,pos);
+			pos[0] += w*frame;
+		}
+		
+		void setFrame(int fram) {
+			frame = fram;
 			VecCopy(start,pos);
 			pos[0] += w*frame;
 		}
@@ -444,6 +463,7 @@ bool unitTests();
 float rayBox(Ray&, Hitbox&);
 bool rayBoxTest();
 bool wallBetween(Object&, Object&);
+void spawnArrow();
 /* END FUNCTIONS */
 
 
@@ -457,7 +477,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TI
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ARROWS, N_};
 
 struct Global {
 	// screen res
@@ -466,7 +486,7 @@ struct Global {
 	int savex, savey;
 	Player player;
 	Enemy enemies[MAXENEMIES];
-	
+	Arrow arrows[MAXARROWS];
 	
 	Menu pauseMenu;
 	Image *bgImage;

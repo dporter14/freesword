@@ -197,8 +197,9 @@ int main(int argc, char *argv[])
 		while(physicsCountdown >= physicsRate) {
 			//6. Apply physics
 			if (!g.state[S_PAUSED]) {
+				physics();
 				animation();
-		    	physics();
+		    	
 			}
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
@@ -220,6 +221,7 @@ void advance()
 		g.number[N_DOORS] = 0;
 		g.number[N_WALLS] = 0;
 		g.number[N_ENEMIES] = 0;
+		g.number[N_ARROWS] = 0;
 		clearTiles();
 		g.currentLevel++;
 		loadLevel(g.levelName[g.currentLevel]);	
@@ -535,6 +537,14 @@ int checkKeys(XEvent *e)
                 g.state[S_TILEEDIT] ^= 1;
             }
             break;
+		case XK_q:
+        	if (e->type == KeyPress) {
+        		if (g.player.weapon.type == W_SWORD){
+	                g.player.swapWeapon(W_BOW);}
+	        	else
+	        		g.player.swapWeapon(W_SWORD);
+            }
+            break;
 		case XK_1:
 			if (e->type == KeyPress) {
 				if (g.state[S_TILEEDIT])
@@ -585,12 +595,12 @@ int checkMouse(XEvent *e)
 		} else if (e->xbutton.button==3) {
 			g.isClicked[M_2] = false;
 			if (!g.state[S_LEVELEDIT]) {
-				if (g.player.anim_handler!=NULL 
-				&& g.player.anim_handler->type == A_BOW_DRAW
-				&& g.player.anim_handler->can_cancel) {
-					g.player.anim_handler->cancel();
+				if (g.player.weapon.anim_handler!=NULL 
+				&& g.player.weapon.anim_handler->type == A_BOW_DRAW) {
+					g.player.weapon.anim_handler->cancel();
 					Animation *act = g.animator.init(A_BOW_RELEASE);
 					act->add_actor(&g.player.weapon);
+					spawnArrow();
 				}
 			}
 		}
@@ -603,6 +613,7 @@ int checkMouse(XEvent *e)
             
             } else {
 				if(g.player.weapon.anim_handler==NULL){
+					g.player.swapWeapon(W_SWORD);
 					g.player.setVel(0,0);
 					Animation *act = g.animator.init(A_SWORD_SLASH);
 					act->add_actor(&g.player.weapon);
@@ -619,8 +630,9 @@ int checkMouse(XEvent *e)
                rotateDoor(g.savex, g.savey);
                rotateEnemy(g.savex, g.savey);
             } else {
-            	if(g.player.anim_handler==NULL) {
+            	if(g.player.weapon.anim_handler==NULL) {
 					g.player.setVel(0,0);
+					g.player.swapWeapon(W_BOW);
 					Animation *act = g.animator.init(A_BOW_DRAW);
 					act->add_actor(&g.player.weapon);
 				}
@@ -763,11 +775,48 @@ void physics()
 				}
 			}
 		}
+	
+		int i=0;
+		bool flag;
+		std::cout << g.number[N_ARROWS] << std::endl;
+		while (i<g.number[N_ARROWS]){
+			g.arrows[i].move();
+			static char* info_here = g.info.get_place();
+			sprintf(info_here, "See: %f %f %f %f", g.arrows[i].speed, g.arrows[i].rot, g.arrows[i].pos[0], g.arrows[i].pos[1]);
+			for(int j=0; j<g.number[N_ENEMIES]; j++){
+				if(g.arrows[i].hitbox.intersect(g.enemies[j].hitbox)){
+					g.enemies[j].hp--;
+					if (g.enemies[j].hp < 1) {
+						g.enemies[j].kill();
+					}
+				}
+			}
+			flag=0;
+			for (int j=0; j<g.number[N_WALLS]; j++) {
+				if(g.arrows[i].hitbox.intersect(g.level.walls[j].hitbox)){
+					g.arrows[i]=g.arrows[g.number[N_ARROWS]-1];
+					--g.number[N_ARROWS];
+					flag=1;
+					break;
+				}
+			}
+			if (!flag) {
+				for (int j=0; j<g.number[N_DOORS]; j++) {
+					if(g.arrows[i].hitbox.intersect(g.level.doors[j].hitbox)){
+						g.arrows[i]=g.arrows[--g.number[N_ARROWS]];
+						flag=1;
+						break;
+					}
+				}
+			}
+			if (!flag)
+				i++;
+		}
 
 		static int invinFrames = 0;
 		for (int n=0; n<g.number[N_ENEMIES]; n++) {
-			for (int i=0; i<g.enemies[n].nattacks; i++){
-				if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
+			for (int i=0; i<g.enemies[n].weapon.nattacks; i++){
+				if (g.enemies[n].weapon.attacks[i].intersect(g.player.hitbox)) {
 					if (!wallBetween(g.enemies[n],g.player)){
 						if (!invinFrames) {
 							//prevent overflow
@@ -864,6 +913,9 @@ void render(void)
 	
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 		g.enemies[i].draw();
+	}
+	for(int i=0; i<g.number[N_ARROWS]; i++){
+		g.arrows[i].draw();
 	}
 	
 	//glDisable(GL_DEPTH_TEST);
