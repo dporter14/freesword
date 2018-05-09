@@ -18,27 +18,28 @@
 #include "log.h"
 
 #ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#include <mach/mach_init.h>
-#include <mach/mach_time.h>
+	#include <mach/clock.h>
+	#include <mach/mach.h>
+	#include <mach/mach_init.h>
+	#include <mach/mach_time.h>
 #endif
 
 #define USE_OPENAL_SOUND
 
 #ifdef USE_OPENAL_SOUND
-#ifdef __MACH__
-#include <AL/alut.h>
-#else
-#include </usr/include/AL/alut.h>
-#endif //USE_OPENAL_SOUND
+	#ifdef __MACH__
+		#include <AL/alut.h>
+	#else
+		#include </usr/include/AL/alut.h>
+	#endif //USE_OPENAL_SOUND
 #endif
 
 const int MAXBUTTONS = 4;
-const int MAXENEMIES = 100;
-const int MAXANIMATIONS = 10;
-const int MAXSPRITES = 10;
-const int MAXITEMS = 10;
+const int MAXENEMIES = 105;
+const int MAXARROWS = 110;
+const int MAXANIMATIONS = 50;
+const int MAXSPRITES = 20;
+const int MAXITEMS = 20;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
@@ -49,207 +50,243 @@ struct Ray {
 
 class Button {
     public:
-	Rect r;
-	char text[32];
-	int over;
-	int down;
-	int click;
-	float color[3];
-	float dColor[3];
-	unsigned int text_color;
-	void draw();
-	bool isOver(float, float);
-	clickState state;
+	    Rect r;
+	    char text[32];
+	    int over;
+	    int down;
+	    int click;
+	    float color[3];
+	    float dColor[3];
+	    unsigned int text_color;
+	    void draw();
+        bool isOver(float, float);
+		clickState state;
 
-	void setRect(float, float, float, float);
-	void setColor(float, float, float);
-};
-
-enum wep_type {W_NONE, W_SWORD};
-
-class Weapon {
-    wep_type type;
-    Weapon(){
-	type=W_SWORD;
-    }
+		void setRect(float, float, float, float);
+		void setColor(float, float, float);
 };
 
 class Animation;
 class Hitbox;
 class Sprite;
+class Character;
 
 class Object {
-    public:
-	Vec color;
-	Vec pos;
-	Vec scale;
-	Flt rot;
-	Animation* anim_handler; //
-	Hitbox* hitbox;
-	void drawSprite();
-	Sprite* sprt;
-	//virtual void draw() = 0;
+	public:
+		Vec color;
+		Vec pos;
+		Vec fake_pos;
+		bool faking;
+		
+		Vec orig_pos;
+		Flt orig_rot;
+		Vec scale;
+		Flt rot;
+		Flt fake_rot;
+		Animation* anim_handler; //
+		void drawSprite();
+		Sprite* sprt;
+		//virtual void draw() = 0;
+		Object() {
+			faking=0;
+		}
 };
 
 enum hit_type {H_HURTBOX, H_ATTACK, H_TRIGGER};
 
 class Hitbox {
-    public:
-	Vec pos;
-	Vec scale;
-	Flt rot;
-	hit_type type;
-	//bool collision; // will this collide with other hitboxes?
-	bool active; // is this thing on?
-	bool dynamic; // can it move?
-	Hitbox () {}
-	Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
-	    type = t;
-	    VecCopy(p, pos);
-	    VecCopy(s, scale);
-	    active = 1;
-	    rot=r;
-	}
-
-	bool intersect(Hitbox other) {
-	    return (
-		    pos[0]+scale[0] > other.pos[0]-other.scale[0] &&
-		    pos[0]-scale[0] < other.pos[0]+other.scale[0] &&
-		    pos[1]+scale[1] > other.pos[1]-other.scale[1] &&
-		    pos[1]-scale[1] < other.pos[1]+other.scale[1]
-		   );
-	}
+	public:
+		Vec pos;
+		Vec scale;
+		Flt rot;
+		hit_type type;
+		//bool collision; // will this collide with other hitboxes?
+		bool active; // is this thing on?
+		bool dynamic; // can it move?
+		Hitbox () {}
+		Hitbox (hit_type t, Vec p, Vec s, Flt r = 0) {
+			type = t;
+			VecCopy(p, pos);
+			VecCopy(s, scale);
+			active = 1;
+			rot=r;
+		}
+		 
+		bool intersect(Hitbox other) {
+			return (
+				pos[0]+scale[0] > other.pos[0]-other.scale[0] &&
+				pos[0]-scale[0] < other.pos[0]+other.scale[0] &&
+				pos[1]+scale[1] > other.pos[1]-other.scale[1] &&
+				pos[1]-scale[1] < other.pos[1]+other.scale[1]
+			);
+		}
 };
 
 
-enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_SWORD_WINDUP, A_TEST};
+enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_SWORD_WINDUP, 
+	A_BOW_DRAW, A_BOW_RELEASE, A_SPECIAL_WINDUP, A_SPECIAL_RELEASE, A_TEST};
 
+		
 class Animation {
-    public:
-	int frame, nframes;
-	bool done;
-	bool can_cancel;
+	public:
+		int frame, nframes;
+		bool done;
+		bool can_cancel;
+		
+		int type;
 
-	int type;
+		Object *actors[2];
+		int nactors;
 
-	Object *actors[2];
-	int nactors;
+		void init(anim_type);
+		void play();
+		void add_actor(Object* actor);
+		void set_frames(int frames);
+		void set_duration(float duration);
+		void cancel();
 
-	void init(anim_type);
-	void play();
-	void add_actor(Object* actor);
-	void set_frames(int frames);
-	void set_duration(float duration);
-	void cancel();
+		Animation(){};
+		~Animation(){};
 
-	Animation(){};
-	~Animation(){};
-
-	void sword_slash();
-	void sword_slash2();
-	void sword_windup();
-	void test();
+		void sword_slash();
+		void sword_slash2();
+		void sword_windup();
+		void bow_draw();
+		void bow_release();
+		void special_windup();
+		void special_release();
+		void test();
 
 
 };
 
 class Animator {
-    public:
-	void play();
-	Rect r;
-	Animator(){
-	    nanims=0;
-	}
-	Animation* init(anim_type);
-	void checkin(Animation* anim);
+	public:
+		void play();
+		Rect r;
+		Animator(){
+			nanims=0;
+		}
+		Animation* init(anim_type);
+		void checkin(Animation* anim);
+		int nanims;
+	
+		Animation anims[MAXANIMATIONS];
+		
+		
+};
 
-    private:
-	Animation anims[MAXANIMATIONS];
-	int nanims;
+enum wep_type {W_NONE, W_SWORD, W_BOW};
 
+class Weapon : public Object {
+	public:
+		wep_type type;
+		// will change to support multiple attacks at once
+		Hitbox attacks[1];
+		int nattacks;
+		Character* parent;
+		//distance to parent
+		Flt dist;
+		Weapon(){
+			type=W_NONE;
+			nattacks=0;
+		}
+};
+
+class Arrow : public Object {
+	public:
+		Hitbox hitbox;
+		Vec vel;
+		Flt speed;
+		void draw();
+		void move();
+		Arrow(){
+			speed=20;
+		}
 };
 
 enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING, S_CHAR_IDLE, S_CHAR_ANGRY};
 enum char_type {CHA_PLAYER, CHA_ENEMY_NORMAL, CHA_};
 
 class Character : public Object {
-    public:
-	//define color and radius of circle until we have sprite
-	//char* sprite_file;
-	//Vec color; //inherit from object
-	Flt pradius;
-	Flt max_speed;
+	public:
+		//define color and radius of circle until we have sprite
+		//char* sprite_file;
+		//Vec color; //inherit from object
+		Flt pradius;
+		Flt max_speed;
+        
+		//Vec pos; // inherited from object
+		Vec vel; // char's velocity
+		//Vec dir; // char's orientation
+		//Vec rhand_pos; //pos of right hand
+		//Flt rhand_rot; //orientation of right hand
+		Weapon weapon;
+		
+		int state;
+		int hp;
+		int type;
+		Vec hitbox_offset;
+		Hitbox hitbox;
+		// will change to support multiple attacks at once
+		Hitbox attacks[1];
+		int nattacks;
+		//constructor
+		Character(){
+			anim_handler=NULL;
+			state=S_CHAR_ALIVE;
+			VecMake(0,0,0,hitbox_offset);
+		}
+		~Character(){} //destructor
+		void move();
+		void lookAt(Flt x, Flt y);
+		void setPos(Flt x, Flt y);
+		void addPos(Flt x, Flt y);
+		virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
+		virtual void addVel(Flt x, Flt y) = 0;
+		void draw();
+		void swapSprites(); //davidP.cpp
 
-	//Vec pos; // inherited from object
-	Vec vel; // char's velocity
-	//Vec dir; // char's orientation
-	Vec rhand_pos; //pos of right hand
-	Flt rhand_rot; //orientation of right hand
-
-	int state;
-	int hp;
-	int type;
-	Vec hitbox_offset;
-	Hitbox hitbox;
-	// will change to support multiple attacks at once
-	Hitbox attacks[1];
-	int nattacks;
-	//constructor
-	Character(){
-	    anim_handler=NULL;
-	    state=S_CHAR_ALIVE;
-	    VecMake(0,0,0,hitbox_offset);
-	}
-	~Character(){} //destructor
-	void move();
-	void lookAt(Flt x, Flt y);
-	void setPos(Flt x, Flt y);
-	void addPos(Flt x, Flt y);
-	virtual void setVel(Flt x, Flt y) = 0; //redefined in chilren
-	virtual void addVel(Flt x, Flt y) = 0;
-	void draw();
-	void swapSprites(); //davidP.cpp
-
-
-    private:
+		
+	private:
 
 };
 
 class Player : public Character {
     public:
-	void init();
-	void setVel(Flt x, Flt y);
-	void addVel(Flt x, Flt y);
-	void die();
-	int ammo;
-	Player(){
-	    hp = 3;
-	    ammo = 3;
-	    type = CHA_PLAYER;
-	}
-	~Player(){}
-
-
+    	void init();
+        void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		void die();
+		int ammo;
+		Player(){
+			hp = 3;
+			ammo = 3;
+			type = CHA_PLAYER;
+		}
+        ~Player(){}
+        void swapWeapon(wep_type);
+        
     private:
 };
 
 class Enemy : public Character {
     Flt v_fov, v_dist, v_close;
     public:
-    void draw();
-    void setVel(Flt x, Flt y);
-    void addVel(Flt x, Flt y);
-    void attackPlayer();
-    void kill();
-    void see();
-    Enemy() {
-	v_fov = 45;
-	v_dist = 500;
-	v_close = 100;
-	hp = 1;
-	state = S_CHAR_IDLE;
-	type = CHA_ENEMY_NORMAL;
-    }
+    	void draw();
+    	void setVel(Flt x, Flt y);
+		void addVel(Flt x, Flt y);
+		void attackPlayer();
+        void kill();
+        void see();
+        Enemy() {
+        	v_fov = 45;
+        	v_dist = 500;
+        	v_close = 100;
+			hp = 1;
+        	state = S_CHAR_IDLE;
+        	type = CHA_ENEMY_NORMAL;
+        }
     private:
 };
 
@@ -261,20 +298,20 @@ class Enemy : public Character {
 class Menu {
 
     public:
-	Menu();
-	virtual void draw();
-	Vec pos;
-	Button buttons[MAXBUTTONS];
-	int nButtons;
-
-	//Returns which button the cursor is hovering over.
-	clickState getOver(float, float);
+        Menu();
+        virtual void draw();
+        Vec pos;
+        Button buttons[MAXBUTTONS];
+		int nButtons;
+		
+		//Returns which button the cursor is hovering over.
+        clickState getOver(float, float);
 
     private:
 };
 class MainMenu : public Menu {
-    public:
-	void draw();
+	public:
+		void draw();
 };
 void mason_func();
 void displayTitle();
@@ -285,45 +322,55 @@ int detectButtons(int, int, int);
 
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
-    SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
-    SB_ENEMY_NORMAL_L,
-    SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
-    SB_ITEM_SWORD, SB_ITEM_POTION, SB_ITEM_AMMO, SB_TREASURE, 
-	SB_HEART, SB_FREESWORD, SB_BACK, SB_};
+	SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
+	SB_ENEMY_NORMAL_L, SB_DOOR_HORIZ, SB_DOOR_VERT,
+	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
+	SB_ITEM_SWORD, SB_ITEM_BOW, SB_ITEM_ARROW, 
+	SB_ICON_HEART, SB_ITEM_POTION, SB_ITEM_AMMO, 
+	SB_SPECIAL, SB_TREASURE, SB_HEART, SB_FREESWORD, SB_BACK, SB_};
+
 enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_SWORD, 
-	SS_POTION, SS_AMMO, SS_TREASURE, SS_HEART, SS_FREESWORD, SS_BACK, SS_};
+	SS_POTION, SS_AMMO,  SS_DOOR, SS_SPECIAL, SS_BOW,
+	SS_TREASURE, SS_HEART, SS_FREESWORD, SS_BACK, SS_};
 
 class Texture 
 {
-    public:
-	Image *img;
-	GLuint tex;
-	float h,w;
+	public:
+		Image *img;
+		GLuint tex;
+		float h,w;
 
-	void init(Image *pic);
+		void init(Image *pic);
 };
 
 class Sprite {
-    public:
-	int nframes;
-	int frame;
-	Texture* spriteTex;
-	Vec start, pos;
-	float w, h;
+	public:
+		int nframes;
+		int frame;
+		Texture* spriteTex;
+		Vec start, pos;
+		float w, h;
 
-	void set_texture(Texture* tt) {
-	    spriteTex = tt;
-	    VecMake(0, 0, 0, pos);
-	    w=h=1;
-	}
-
-	void init(float x, float y, float h, float w, int n);
-
-	void nextFrame() {
-	    frame = (frame+1)%nframes;
-	    VecCopy(start,pos);
-	    pos[0] += w*frame;
-	}
+		void set_texture(Texture* tt) {
+			spriteTex = tt;
+			VecMake(0, 0, 0, pos);
+			w=h=1;
+		}
+		
+		void init(float x, float y, float h, float w, int n);
+			
+		void nextFrame() {
+			frame = (frame+1)%nframes;
+			VecCopy(start,pos);
+			pos[0] += w*frame;
+		}
+		
+		void setFrame(int fram) {
+			//printf("%f\n",w);
+			frame = fram;
+			VecCopy(start,pos);
+			pos[0] += w*frame;
+		}
 };
 enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
 
@@ -463,44 +510,50 @@ bool unitTests();
 float rayBox(Ray&, Hitbox&);
 bool rayBoxTest();
 bool wallBetween(Object&, Object&);
+void spawnArrow();
 /* END FUNCTIONS */
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
 enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
-paused: game paused?
-gameover: gameover?
-player:
-0 - idle
-1 - dead
-2 - attacking
+	paused: game paused?
+	gameover: gameover?
+	player:
+		0 - idle
+		1 - dead
+		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ITEMS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ITEMS, N_ARROWS, N_};
 
 struct Global {
-    // screen res
-    int xres, yres;
-    // mouse position
-    int savex, savey;
-    Player player;
-    Enemy enemies[MAXENEMIES];
+	// screen res
+	int xres, yres;
+	// mouse position
+	int savex, savey;
+	Player player;
+	Enemy enemies[MAXENEMIES];
+	Arrow arrows[MAXARROWS];
+	
+	Menu pauseMenu;
+	Menu mainMenu;
 
+	Image *bgImage;
+	GLuint bgTexture;
 
-    Menu pauseMenu;
-    Menu mainMenu;
+	//Image *spriteImage;
+	//GLuint spriteTextures[SI_];
+	//float* spriteBox[SI_];
 
-    Image *bgImage;
-    GLuint bgTexture;
+	Texture spriteTextures[SS_];
+	Sprite sprites[SB_];
 
-    //Image *spriteImage;
-    //GLuint spriteTextures[SI_];
-    //float* spriteBox[SI_];
+	Item items[MAXITEMS];
 
-    Texture spriteTextures[SS_];
-    Sprite sprites[SB_];
-
-    Item items[MAXITEMS];
+	Button arrowCount;
+	Object arrowIcon;
+    
+    
 	Object treasure;	
     Object hearts[5];
 	Object freesword;
@@ -536,18 +589,22 @@ struct Global {
 
 	eKilled = 0;
 
-	//spriteImage=NULL;
-
-
-	title.r.left = xres/2;
-	title.r.bot	= yres-100;
+	title.r.left = xres/2-50;
+	title.r.bot = yres-150;
 	title.r.center = 1;
-	strcpy(title.text, "");
-	title.text_color = 0x00ffffff;
-
-	for (int i = 0; i<K_; i++) {
-	    isPressed[i] = false;
-	}
+	
+		arrowCount.r.left = xres-130;
+		arrowCount.r.bot = yres-150;
+		arrowCount.r.center = 1;
+		strcpy(arrowCount.text, "Arrows");
+		arrowCount.text_color = 0xffffff;
+		
+		arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
+		VecMake(xres-150, yres-120, 0, arrowIcon.pos);
+		VecMake(50, 9, 0, arrowIcon.scale);
+		VecMake(1,1,1,arrowIcon.color);
+		arrowIcon.fake_rot = 45;
+		
 	for (int i = 0; i<S_; i++) {
 	    state[i] = 0;
 	}
@@ -570,7 +627,7 @@ struct Global {
    	victory = false;
 
 	for (int i=0; i<5; i++) {
-		hearts[i].pos[0] = 28+(i*56);
+		hearts[i].pos[0] = 50+(i*56);
 		hearts[i].pos[1] = 800;
 		VecMake(28, 28, 0, hearts[i].scale);
 		VecMake(1, 1, 1, hearts[i].color);
@@ -578,7 +635,7 @@ struct Global {
 	}
 	freesword.pos[0] = xres/2;
 	freesword.pos[1] = yres/2;
-	VecMake(100, 100, 0, freesword.scale);
+	VecMake(120, 120, 0, freesword.scale);
 	VecMake(1, 1, 1, freesword.color);
 	freesword.sprt = &sprites[SB_FREESWORD];
 	titleback.pos[0] = xres/2;
@@ -586,8 +643,8 @@ struct Global {
 	VecMake(600, 450, 0, titleback.scale);
 	VecMake(1, 1, 1, titleback.color);
 	titleback.sprt = &sprites[SB_BACK];
-	treasure.pos[0] = (xres/2)-500;
-	treasure.pos[1] = (yres/2)-600;
+	treasure.pos[0] = (xres/2);
+	treasure.pos[1] = (yres/2)-200;
 	VecMake(192, 192, 1, treasure.scale);
 	VecMake(1, 1, 1, treasure.color);
 	treasure.sprt = &sprites[SB_TREASURE];

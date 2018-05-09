@@ -196,9 +196,9 @@ int main(int argc, char *argv[])
 	while(physicsCountdown >= physicsRate) {
 	    //6. Apply physics
 	    if (!g.state[S_PAUSED]) {
-		animation();
-		physics();
-	    }
+			physics();
+			animation();
+		}
 	    //7. Reduce the countdown by our physics-rate
 	    physicsCountdown -= physicsRate;
 	}
@@ -219,6 +219,8 @@ void advance()
 	g.number[N_DOORS] = 0;
 	g.number[N_WALLS] = 0;
 	g.number[N_ENEMIES] = 0;
+	g.number[N_ARROWS] = 0;
+	g.number[N_ITEMS] = 0;
 	clearTiles();
 	g.currentLevel++;
 	if (g.currentLevel > 3) {
@@ -282,9 +284,9 @@ void initOpengl(void)
 void init()
 {
 
-    g.player.init();
-    g.currentLevel = 3;
-    g.state[S_STARTUP] = 1;
+	g.player.init();
+	g.currentLevel = 0;
+	g.state[S_STARTUP] = 1;
 
     if (!unitTests())
 	exit(1);
@@ -318,8 +320,8 @@ void init()
      * PAUSE MENU BUTTON INITIALIZATION *
      */
 
-    // Width, height, left, bot
-    b.setRect(140, 60, off[0], off[1] + 320);
+	// Width, height, left, bot
+	b.setRect(140, 60, off[0], off[1] + 240);
 
     strcpy(b.text, "Resume");
     b.down = 0;
@@ -344,13 +346,13 @@ void init()
 
     Button &b2 = g.pauseMenu.buttons[g.pauseMenu.nButtons];
 
-    b2.setRect(140, 60, off[0], off[1] - 80);
-    strcpy(b2.text, "Level Editor");
-    b2.down = 0;
-    b2.click = 0;
-    b2.setColor(0.8f, 0.8f, 1.0f);
-    b2.text_color = 0x00ffffff;
-    b2.state = C_EDITOR;
+	b2.setRect(140, 60, off[0], off[1] + 80);
+	strcpy(b2.text, "Level Editor");
+	b2.down = 0;
+	b2.click = 0;
+	b2.setColor(0.8f, 0.8f, 1.0f);
+	b2.text_color = 0x00ffffff;
+	b2.state = C_EDITOR;
 
     g.pauseMenu.nButtons++;
 }
@@ -384,339 +386,426 @@ int checkKeys(XEvent *e)
 	return 0;
     int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
 
-    switch (key) {
-	case XK_Shift_L:
-	case XK_Shift_R:
-	    if (e->type == KeyPress)
-		g.isPressed[K_SHIFT]=1;
-	    else
-		g.isPressed[K_SHIFT]=0;
-	    break;
-	case XK_Escape:
-	    return 1;
-	case XK_r:
-	    resetGame();
-	    break;
-	case XK_equal:
-	    break;
-	case XK_minus:
-	    break;
-	case XK_a:
-	    if (e->type == KeyPress)
-		g.isPressed[K_A]=1;
-	    else
-		g.isPressed[K_A]=0;
-	    break;
-	case XK_d:
-	    if (e->type == KeyPress)
-		g.isPressed[K_D]=1;
-	    else
-		g.isPressed[K_D]=0;
-	    break;
-	case XK_w:
-	    if (e->type == KeyPress)
-		g.isPressed[K_W]=1;
-	    else
-		g.isPressed[K_W]=0;
-	    break;
-	case XK_s:
-	    if (e->type == KeyPress)
-		g.isPressed[K_S]=1;
-	    else
-		g.isPressed[K_S]=0;
-	    break;
-	case XK_e:
-	    if (e->type == KeyPress)
-		interactDoor();
-	    break;
-	case XK_p:
-	    if (e->type == KeyPress)
-		g.state[S_PAUSED] ^= 1;
-	    break;
-	case XK_o:
-	    if (e->type == KeyPress)
-		g.state[S_DEBUG] ^= 1;
-	    break;
-	case XK_z:
-	    if (e->type == KeyPress) {
-		createWall(g.savex, g.savey);
-		static char* info_here = g.info.get_place();
-		sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
-	    }
-	    break;
-	    if (e->type == KeyPress) {
-		if (g.state[S_LEVELEDIT]) {
-		    createWall(g.savex, g.savey);
-		}
-	    }
-	    break;
-	case XK_x:
-	    if (e->type == KeyPress) {
-		if (g.state[S_LEVELEDIT]) {
-		    createDoor(g.savex, g.savey);
-		}
-	    }
-	    break;
-	case XK_b: 
-	    if (e->type == KeyPress) {
-		if (g.state[S_LEVELEDIT]) {
-		    saveLevel();
-		}
-	    }
-	    break;
-	case XK_f:
-	    if (e->type == KeyPress) {
-		if (g.state[S_LEVELEDIT]) {
-		    //loadLevel((char *)"level2");
-		}
-	    }
-	    break;
-	case XK_l:
-	    if (e->type == KeyPress)
-		toggleEditMode();
-	    break;
-	case XK_t:
-	    if (e->type == KeyPress) {
-		g.state[S_TILEEDIT] ^= 1;
-	    }
-	    break;
-	case XK_1:
-	    if (e->type == KeyPress) {
-		if (g.state[S_TILEEDIT])
-		    g.state[S_TILE]=1;
-		else
-		    david_func();
-	    }
-	    break;
-	case XK_2:
-	    if (e->type == KeyPress) {
-		if (g.state[S_TILEEDIT])
-		    g.state[S_TILE]=2;
-		else
-		    taylor_func();
-	    }
-	    break;
-	case XK_3:
-	    if (e->type == KeyPress) {
-		if (g.state[S_TILEEDIT])
-		    g.state[S_TILE]=3;
-		else
-		    mason_func();
-	    }
-	    break;
-	case XK_4:
-	    if (g.state[S_LEVELEDIT]) {
-		if (e->type == KeyPress)
-		    spawnEnemy(g.savex, g.savey, 180);
-	    }
-	    break;
-	case XK_0:
-	    if (e->type == KeyPress) {
-		if (g.state[S_TILEEDIT])
-		    g.state[S_TILE]=0;
-	    }
-	    break;
-    }
-    return 0;
+	switch (key) {
+		case XK_Shift_L:
+		case XK_Shift_R:
+			if (e->type == KeyPress)
+				g.isPressed[K_SHIFT]=1;
+			else
+				g.isPressed[K_SHIFT]=0;
+			break;
+		case XK_Escape:
+			return 1;
+		case XK_r:
+			resetGame();
+			break;
+		case XK_equal:
+			break;
+		case XK_minus:
+			break;
+		case XK_a:
+			if (e->type == KeyPress)
+				g.isPressed[K_A]=1;
+			else
+				g.isPressed[K_A]=0;
+			break;
+		case XK_d:
+			if (e->type == KeyPress)
+				g.isPressed[K_D]=1;
+			else
+				g.isPressed[K_D]=0;
+			break;
+		case XK_w:
+			if (e->type == KeyPress)
+				g.isPressed[K_W]=1;
+			else
+				g.isPressed[K_W]=0;
+			break;
+		case XK_s:
+			if (e->type == KeyPress)
+				g.isPressed[K_S]=1;
+			else
+				g.isPressed[K_S]=0;
+			break;
+		case XK_e:
+			if (e->type == KeyPress)
+				interactDoor();
+			break;
+		case XK_p:
+			if (e->type == KeyPress)
+				g.state[S_PAUSED] ^= 1;
+			break;
+		case XK_o:
+			if (e->type == KeyPress)
+				g.state[S_DEBUG] ^= 1;
+			break;
+		case XK_z:
+			if (e->type == KeyPress) {
+				createWall(g.savex, g.savey);
+				static char* info_here = g.info.get_place();
+				sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+			}
+			break;
+			if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createWall(g.savex, g.savey);
+                }
+            }
+            break;
+        case XK_x:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    createDoor(g.savex, g.savey);
+                }
+            }
+            break;
+        case XK_b: 
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                    saveLevel();
+                }
+            }
+            break;
+        case XK_f:
+            if (e->type == KeyPress) {
+                if (g.state[S_LEVELEDIT]) {
+                	//loadLevel((char *)"level2");
+                }
+            }
+            break;
+        case XK_l:
+            if (e->type == KeyPress)
+    			toggleEditMode();
+            break;
+        case XK_t:
+        	if (e->type == KeyPress) {
+                g.state[S_TILEEDIT] ^= 1;
+            }
+            break;
+		case XK_q:
+        	if (e->type == KeyPress) {
+        		if (g.player.weapon.type == W_SWORD){
+	                g.player.swapWeapon(W_BOW);}
+	        	else
+	        		g.player.swapWeapon(W_SWORD);
+            }
+            break;
+		case XK_1:
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=1;
+				else
+					david_func();
+			}
+			break;
+		case XK_2:
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=2;
+				else
+					taylor_func();
+			}
+			break;
+		case XK_3:
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=3;
+				else
+					mason_func();
+			}
+			break;
+		case XK_4:
+			if (g.state[S_LEVELEDIT]) {
+				if (e->type == KeyPress)
+					spawnEnemy(g.savex, g.savey, 180);
+			}
+			break;
+		case XK_0:
+			if (e->type == KeyPress) {
+				if (g.state[S_TILEEDIT])
+					g.state[S_TILE]=0;
+			}
+			break;
+	}
+	return 0;
 }
 
 int checkMouse(XEvent *e)
 {
-    int x,y;
-    int lbutton=0;
-    //int rbutton=0;
-
+	int x,y;
+	
     if (e->type == ButtonRelease) {
-	g.isClicked[M_1] = false;
-	g.wallChange = true;
-	g.isClicked[M_2] = false;
-	g.doorChange = true;
-	return 0;
-    }
-    if (e->type == ButtonPress) {
-	if (e->xbutton.button==1) {
-	    //Left button is down
-	    lbutton=1;
-	    g.isClicked[M_1] = true;
-	    (void)lbutton;
-	    if (g.state[S_LEVELEDIT]){
-
-	    } else {
-		if(g.player.anim_handler==NULL){
-		    g.player.setVel(0,0);
-		    Animation *act = g.animator.init(A_SWORD_SLASH);
-		    act->add_actor(&g.player);
-		} else if (g.player.anim_handler->type == A_SWORD_SLASH
-			&& g.player.anim_handler->can_cancel) {
-		    g.player.anim_handler->cancel();
-		    Animation *act = g.animator.init(A_SWORD_SLASH2);
-		    act->add_actor(&g.player);
+    	if (e->xbutton.button==1) {
+			g.isClicked[M_1] = false;
+			g.wallChange = true;
+			g.doorChange = true;
+			if (!g.state[S_LEVELEDIT]) {
+				if (g.player.weapon.anim_handler!=NULL 
+				&& g.player.weapon.anim_handler->type == A_SPECIAL_WINDUP) {
+					//printf("%d\n",g.player.weapon.anim_handler->frame);
+					if(g.player.weapon.anim_handler->frame>75){
+						//printf("is 1\n");
+						//printf("cancel 1\n");
+						g.player.weapon.anim_handler->cancel();
+						Animation *act = g.animator.init(A_SPECIAL_RELEASE);
+						act->add_actor(&g.player.weapon);
+					} else {
+						//printf("bef %d\n",g.animator.nanims);
+						//printf("1: %d\n",g.animator.anims[0].done);
+						g.player.weapon.anim_handler->cancel();
+						//printf("1: %d\n",g.animator.anims[0].done);
+						
+						
+					}
+				}
+			}
+		} else if (e->xbutton.button==3) {
+			g.isClicked[M_2] = false;
+			if (!g.state[S_LEVELEDIT]) {
+				if (g.player.weapon.anim_handler!=NULL 
+				&& g.player.weapon.anim_handler->type == A_BOW_DRAW) {
+					if(g.player.weapon.anim_handler->frame>30)
+						spawnArrow();
+					g.player.weapon.anim_handler->cancel();
+					Animation *act = g.animator.init(A_BOW_RELEASE);
+					act->add_actor(&g.player.weapon);
+				}
+			}
 		}
-	    }
-	}
-	if (e->xbutton.button==3) {
-	    //Right button is down
-	    //rbutton=1;
-	    g.isClicked[M_2] = true;
-	    if (g.state[S_LEVELEDIT]) {
-		rotateDoor(g.savex, g.savey);
-		rotateEnemy(g.savex, g.savey);
-	    }
-	}
+        //return 0;
     }
-    x = e->xbutton.x;
-    y = e->xbutton.y;
-    y = g.yres-y;
-    //printf("%d %d\n",x,y);
-    if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
-	//Mouse moved
-	g.savex = g.player.pos[0]-(g.xres/2)+x;
-	g.savey = g.player.pos[1]-(g.yres/2)+y;
-    }
+	if (e->type == ButtonPress) {
+		if (e->xbutton.button==1) {
+			g.isClicked[M_1] = true;
+            if (g.state[S_LEVELEDIT]){
+            
+            } else {
+				if(g.player.weapon.anim_handler==NULL){
+					g.player.swapWeapon(W_SWORD);
+					g.player.setVel(0,0);
+					Animation *act = g.animator.init(A_SWORD_SLASH);
+					act->add_actor(&g.player.weapon);
+				} else if (g.player.weapon.anim_handler->type == A_SWORD_SLASH
+					&& g.player.weapon.anim_handler->can_cancel) {
+					g.player.weapon.anim_handler->cancel();
+					Animation *act = g.animator.init(A_SWORD_SLASH2);
+					act->add_actor(&g.player.weapon);
+				}
+			}
+		} else if (e->xbutton.button==3) {
+			g.isClicked[M_2] = true;
+            if (g.state[S_LEVELEDIT]) {
+               rotateDoor(g.savex, g.savey);
+               rotateEnemy(g.savex, g.savey);
+            } else {
+            	if(g.player.weapon.anim_handler==NULL && g.player.ammo) {
+					g.player.setVel(0,0);
+					g.player.swapWeapon(W_BOW);
+					Animation *act = g.animator.init(A_BOW_DRAW);
+					act->add_actor(&g.player.weapon);
+				}
+            }
+		}
+	}
+	x = e->xbutton.x;
+	y = e->xbutton.y;
+	y = g.yres-y;
+	//printf("%d %d\n",x,y);
+	if (g.savex != e->xbutton.x || g.savey != e->xbutton.y) {
+		//Mouse moved
+		g.savex = g.player.pos[0]-(g.xres/2)+x;
+		g.savey = g.player.pos[1]-(g.yres/2)+y;
+	}
 
-    if (g.isClicked[M_1] == true) {
-	if (g.state[S_LEVELEDIT]){
-	    if (g.state[S_TILEEDIT]) {
-		placeTile(g.savex, g.savey);
-	    } else {
-		dragWall(g.savex, g.savey);
-		dragDoor(g.savex, g.savey);
-	    }
+	if (g.isClicked[M_1] == true) {
+		if (g.state[S_LEVELEDIT]){
+			if (g.state[S_TILEEDIT]) {
+				placeTile(g.savex, g.savey);
+			} else {
+				dragWall(g.savex, g.savey);
+				dragDoor(g.savex, g.savey);
+			}
+		}
 	}
-    }
-    //for menu buttons
-    int m = detectButtons(lbutton, x, y);
-    if(m == 1)
-	return 1;
-    return 0;
+	//for menu buttons
+	int m = detectButtons(g.isClicked[M_1], x, y);
+	if(m == 1)
+		return 1;
+	return 0;
 }
 
 
 void animation(){
-    g.animator.play();
+	if (0&&g.isClicked[M_1] && g.player.weapon.anim_handler!=NULL 
+		&& g.player.weapon.anim_handler->type == A_SWORD_SLASH
+		&& g.player.weapon.anim_handler->frame == 16) {
+		g.player.weapon.anim_handler->cancel();
+		Animation *act = g.animator.init(A_SPECIAL_WINDUP);
+		act->add_actor(&g.player.weapon);
+	}
+	g.animator.play();
+	
 }
 
 void physics()
 {
-    if (g.state[S_GAMEOVER]) {
-	return;
-    }
-
-    Player *p = &g.player;
-    if (g.isPressed[K_W]) {
-	p->addVel(0,1);
-    } else if (g.isPressed[K_S]) {
-	p->addVel(0,-1);
-    } else if (ABS(g.player.vel[1]) > 0.1) {
-	//keep player from maintaining velocity
-	p->setVel(p->vel[0],p->vel[1]*0.9);
-    } else {
-	p->setVel(p->vel[0],0);
-    }
-
-    if (g.isPressed[K_D]) {
-	p->addVel(1,0);
-    } else if (g.isPressed[K_A]) {
-	p->addVel(-1,0);
-    } else if (ABS(g.player.vel[0]) > 0.1) {
-	//keep player from maintaining velocity
-	p->setVel(p->vel[0]*0.9,p->vel[1]);
-    } else {
-	p->setVel(0,p->vel[1]);
-    }
-
-    // if not attacking
-    if(g.player.anim_handler == NULL || g.player.anim_handler->can_cancel ){
-	//update player position
-	p->move();
-	//look at last known mouse pos
-	g.player.lookAt(g.savex,g.savey);
-    }
-
-    if(!g.state[S_LEVELEDIT]){
-	for(int i=0; i<g.number[N_ENEMIES]; i++){
-	    g.enemies[i].see();
-	    g.enemies[i].attackPlayer();
-	    if(g.enemies[i].anim_handler == NULL || g.enemies[i].anim_handler->can_cancel ){
-		g.enemies[i].move();
-	    }
+	if (g.state[S_GAMEOVER]) {
+		return;
 	}
 
-
-	//player collision
-	for (int i=0; i<g.number[N_DOORS]; i++) {
-	    if(!g.level.doors[i].isOpen){
-		for (int j=0; j<g.number[N_ENEMIES]; j++) {
-		    wallCollision(g.level.doors[i], g.enemies[j]);
-		}
-		wallCollision(g.level.doors[i], g.player);
-	    }
-	}
-	for (int i=0; i<g.number[N_WALLS]; i++) {
-	    for (int j=0; j<g.number[N_ENEMIES]; j++) {
-		wallCollision(g.level.walls[i], g.enemies[j]);
-	    }
-	    wallCollision(g.level.walls[i], g.player);
+	Player *p = &g.player;
+	if (g.isPressed[K_W]) {
+		p->addVel(0,1);
+	} else if (g.isPressed[K_S]) {
+		p->addVel(0,-1);
+	} else if (ABS(g.player.vel[1]) > 0.1) {
+		//keep player from maintaining velocity
+		p->setVel(p->vel[0],p->vel[1]*0.9);
+	} else {
+		p->setVel(p->vel[0],0);
 	}
 
-
-
-	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-	    for (int j=0; j<g.number[N_ENEMIES]; j++) {
-		if (i!=j)
-		    characterCollision(g.enemies[i], g.enemies[j]);
-	    }
-	    characterCollision(g.enemies[i], g.player);
+	if (g.isPressed[K_D]) {
+		p->addVel(1,0);
+	} else if (g.isPressed[K_A]) {
+		p->addVel(-1,0);
+	} else if (ABS(g.player.vel[0]) > 0.1) {
+		//keep player from maintaining velocity
+		p->setVel(p->vel[0]*0.9,p->vel[1]);
+	} else {
+		p->setVel(0,p->vel[1]);
 	}
 
-	for (int i=0; i<g.player.nattacks; i++){
-	    for(int j=0; j<g.number[N_ITEMS]; j++){
-		if(g.player.attacks[i].intersect(g.items[j].hitbox)){
-		    g.items[j].useItem();
-		}
-	    }
+	// if not attacking
+	if(g.player.anim_handler == NULL || g.player.anim_handler->can_cancel ){
+		//update player position
+		p->move();
+		//look at last known mouse pos
+		g.player.lookAt(g.savex,g.savey);
 	}
-	for (int i=0; i<g.player.nattacks; i++){
-	    for(int j=0; j<g.number[N_ENEMIES]; j++){
-		if(g.player.attacks[i].intersect(g.enemies[j].hitbox)){
-		    if (!wallBetween(g.player,g.enemies[j])){
-			g.enemies[j].hp--;
-			if (g.enemies[j].hp < 1) {
-			    g.enemies[j].kill();
+
+	if(!g.state[S_LEVELEDIT]){
+		for(int i=0; i<g.number[N_ENEMIES]; i++){
+			g.enemies[i].see();
+			g.enemies[i].attackPlayer();
+			if(g.enemies[i].weapon.anim_handler == NULL || g.enemies[i].weapon.anim_handler->can_cancel ){
+				g.enemies[i].move();
 			}
-		    }
 		}
-	    }
-	}
 
-	static int invinFrames = 0;
-	for (int n=0; n<g.number[N_ENEMIES]; n++) {
-	    for (int i=0; i<g.enemies[n].nattacks; i++){
-		if (g.enemies[n].attacks[i].intersect(g.player.hitbox)) {
-		    if (!wallBetween(g.enemies[n],g.player)){
-			if (!invinFrames) {
-			    //prevent overflow
-			    invinFrames = 60;
 
-			    VecMake(1.0,0.2,0.2,g.player.color);
-			    g.player.hp--;
-			    //invinFrames++;
+		//player collision
+		for (int i=0; i<g.number[N_DOORS]; i++) {
+			if(!g.level.doors[i].isOpen){
+				for (int j=0; j<g.number[N_ENEMIES]; j++) {
+					wallCollision(g.level.doors[i], g.enemies[j]);
+				}
+				wallCollision(g.level.doors[i], g.player);
 			}
-			if (g.player.hp < 1) {
-			    g.player.die();
-			}
-		    }
 		}
-	    }
+		for (int i=0; i<g.number[N_WALLS]; i++) {
+			for (int j=0; j<g.number[N_ENEMIES]; j++) {
+				wallCollision(g.level.walls[i], g.enemies[j]);
+			}
+			wallCollision(g.level.walls[i], g.player);
+		}
+
+
+
+		for (int i=0; i<g.number[N_ENEMIES]; i++) {
+			for (int j=0; j<g.number[N_ENEMIES]; j++) {
+				if (i!=j)
+					characterCollision(g.enemies[i], g.enemies[j]);
+			}
+			characterCollision(g.enemies[i], g.player);
+		}
+
+		for (int i=0; i<g.player.weapon.nattacks; i++){
+			for(int j=0; j<g.number[N_ITEMS]; j++){
+				if(g.player.weapon.attacks[i].intersect(g.items[j].hitbox)){
+					g.items[j].useItem();
+				}
+			}
+		}
+		
+		for (int i=0; i<g.player.weapon.nattacks; i++){
+			for(int j=0; j<g.number[N_ENEMIES]; j++){
+				if(g.player.weapon.attacks[i].intersect(g.enemies[j].hitbox)){
+					if (!wallBetween(g.player,g.enemies[j])){
+						g.enemies[j].hp--;
+						if (g.enemies[j].hp < 1) {
+							g.enemies[j].kill();
+						}
+					}
+				}
+			}
+		}
+	
+		int i=0;
+		bool flag;
+		//std::cout << g.number[N_ARROWS] << std::endl;
+		while (i<g.number[N_ARROWS]){
+			g.arrows[i].move();
+			static char* info_here = g.info.get_place();
+			sprintf(info_here, "See: %f %f %f %f", g.arrows[i].speed, g.arrows[i].rot, g.arrows[i].pos[0], g.arrows[i].pos[1]);
+			for(int j=0; j<g.number[N_ENEMIES]; j++){
+				if(g.arrows[i].hitbox.intersect(g.enemies[j].hitbox)){
+					g.enemies[j].hp--;
+					if (g.enemies[j].hp < 1) {
+						g.enemies[j].kill();
+					}
+				}
+			}
+			flag=0;
+			for (int j=0; j<g.number[N_WALLS]; j++) {
+				if(g.arrows[i].hitbox.intersect(g.level.walls[j].hitbox)){
+					g.arrows[i]=g.arrows[g.number[N_ARROWS]-1];
+					--g.number[N_ARROWS];
+					flag=1;
+					break;
+				}
+			}
+			if (!flag) {
+				for (int j=0; j<g.number[N_DOORS]; j++) {
+					if(g.arrows[i].hitbox.intersect(g.level.doors[j].hitbox) && !g.level.doors[j].isOpen){
+						g.arrows[i]=g.arrows[--g.number[N_ARROWS]];
+						flag=1;
+						break;
+					}
+				}
+			}
+			if (!flag)
+				i++;
+		}
+
+		static int invinFrames = 0;
+		for (int n=0; n<g.number[N_ENEMIES]; n++) {
+			for (int i=0; i<g.enemies[n].weapon.nattacks; i++){
+				if (g.enemies[n].weapon.attacks[i].intersect(g.player.hitbox)) {
+					if (!wallBetween(g.enemies[n],g.player)){
+						if (!invinFrames) {
+							//prevent overflow
+							invinFrames = 60;
+
+							VecMake(1.0,0.2,0.2,g.player.color);
+							g.player.hp--;
+							//invinFrames++;
+						}
+						if (g.player.hp < 1) {
+							g.player.die();
+						}
+					}
+				}
+			}
+		}
+		//start counting down invincibility frames
+		if (invinFrames > 0) {
+			invinFrames--;
+		}
+		else {
+			VecMake(1.0, 1.0, 1.0, g.player.color);	
+		}
 	}
-	//start counting down invincibility frames
-	if (invinFrames > 0) {
-	    invinFrames--;
-	}
-	else {
-	    VecMake(1.0, 1.0, 1.0, g.player.color);	
-	}
-    }
 }
 
 
@@ -729,47 +818,56 @@ void render(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //glEnable(GL_DEPTH_TEST);
 
-    //init matrices
-    glMatrixMode (GL_PROJECTION); glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-    //this sets to 2D mode (no perspective)
+	glEnable(GL_COLOR_MATERIAL);
+	
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendEquation(GL_MAX);
+	//init matrices
+	glMatrixMode (GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	//this sets to 2D mode (no perspective)
 
     //glOrtho(0, g.xres, 0, g.yres, -1, 1);
 
     if (g.state[S_STARTUP] == 0) {
 
-	glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -1, 1);
+		glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -100, 1000);
 
-	drawTiles();
+		drawTiles();
+		
+		//draw level objects
+		for (int i=0; i<g.number[N_WALLS]; i++) {
+			g.level.walls[i].draw();
+		}
+		for (int i=0; i<g.number[N_DOORS]; i++) {
+			g.level.doors[i].draw();
+		}
 
-	//draw level objects
-	for (int i=0; i<g.number[N_WALLS]; i++) {
-	    g.level.walls[i].draw();
-	}
-	for (int i=0; i<g.number[N_DOORS]; i++) {
-	    g.level.doors[i].draw();
-	}
+		//draw character
+		if (g.player.state != S_CHAR_DEAD)
+			g.player.draw();
+
+
+		for(int i=0; i<g.number[N_ENEMIES]; i++){
+			g.enemies[i].draw();
+		}
+
+		for (int i=0; i<g.number[N_ITEMS]; i++) {
+			g.items[i].draw();
+		}	
+
+		for (int i=0; i<g.number[N_ARROWS]; i++) {
+			g.arrows[i].draw();
+		}	
+
+		//Beginning of GUI elements//
+		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+		glOrtho(0, g.xres, 0, g.yres, -1, 1);
+		if (g.state[S_DEBUG])
+			g.info.draw();
+
 	
-	for (int i=0; i<g.number[N_ITEMS]; i++) {
-	    g.items[i].draw();
-	}
-
-	//draw character
-	if (g.player.state != S_CHAR_DEAD)
-	    g.player.draw();
-
-
-	for (int i=0; i<g.number[N_ENEMIES]; i++){
-	    g.enemies[i].draw();
-	}
-
-
-	if (g.victory) {
-   		g.titleback.pos[0] = 50;
-		g.titleback.pos[1] = 50;
-		g.titleback.drawSprite();
-		g.treasure.drawSprite();	    
-	}
 
 	//Beginning of GUI elements//
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
@@ -784,21 +882,23 @@ void render(void)
 	    strcpy(g.title.text,"GAME OVER");
 	    g.title.text_color = 0xff0000;
 	}
-
-	if (!g.victory) {	
+	if (g.victory) {
+   		g.titleback.drawSprite();
+		g.treasure.drawSprite();	    
+	} else {	
 		for (int i=0; i<g.player.hp; i++) {
 			g.hearts[i].drawSprite();
 		}
-	}
-	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-
-    g.number[N_ENEMIES] = 0;
+		
+		ggprint16(&g.arrowCount.r, 0, g.arrowCount.text_color, "x%d", g.player.ammo);
+		g.arrowIcon.drawSprite();
+		}
 	} else {
-	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	glOrtho(0, g.xres, 0, g.yres, -1, 1);
-	g.titleback.drawSprite();
-	g.freesword.drawSprite();
-	g.mainMenu.draw();
+		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+		glOrtho(0, g.xres, 0, g.yres, -1, 1);
+		g.titleback.drawSprite();
+		g.freesword.drawSprite();
+		g.mainMenu.draw();
     }
 
     //glOrtho(0, g.xres, 0, g.yres, -1, 1);

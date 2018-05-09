@@ -97,14 +97,14 @@ void initSpriteTextures()
     
     Image img2 = "./images/sword.png";
     g.spriteTextures[SS_SWORD].init(&img2);
-
     g.sprites[SB_ITEM_SWORD].set_texture(&g.spriteTextures[SS_SWORD]);
+    //if the sprite is the whole image, no init
 	//g.sprites[SB_ITEM_SWORD].init(0, 0, 100, 100, 1);
-
+	
 	Image potion = "./images/Potion.png";
 	g.spriteTextures[SS_POTION].init(&potion);
 	g.sprites[SB_ITEM_POTION].set_texture(&g.spriteTextures[SS_POTION]);
-	g.sprites[SB_ITEM_POTION].init(0, 0, 100, 100, 1);	
+	//g.sprites[SB_ITEM_POTION].init(0, 0, 100, 100, 1);	
 	
 	Image ammo = "./images/ArrowAmmo.png";
 	g.spriteTextures[SS_AMMO].init(&ammo);
@@ -131,6 +131,28 @@ void initSpriteTextures()
 	g.sprites[SB_BACK].set_texture(&g.spriteTextures[SS_BACK]);
 	g.sprites[SB_BACK].init(0, 0, 1200, 900, 1);
 
+	Image img3 = "./images/bow.png";
+    g.spriteTextures[SS_BOW].init(&img3);
+
+    g.sprites[SB_ITEM_BOW].set_texture(&g.spriteTextures[SS_BOW]);
+	g.sprites[SB_ITEM_BOW].init(0, 0, 100, 150, 4);
+	g.sprites[SB_ITEM_ARROW].set_texture(&g.spriteTextures[SS_BOW]);
+	g.sprites[SB_ITEM_ARROW].init(0, 150, 100, 15, 1);
+	
+	Image img4 = "./images/door.png";
+    g.spriteTextures[SS_DOOR].init(&img4);
+	g.sprites[SB_DOOR_HORIZ].set_texture(&g.spriteTextures[SS_DOOR]);
+	g.sprites[SB_DOOR_HORIZ].init(0, 0, 100, 35, 1);
+	g.sprites[SB_DOOR_VERT].set_texture(&g.spriteTextures[SS_DOOR]);
+	g.sprites[SB_DOOR_VERT].init(0, 35, 35, 100, 1);
+	
+	Image img5 = "./images/special.png";
+    g.spriteTextures[SS_SPECIAL].init(&img5);
+
+    g.sprites[SB_SPECIAL].set_texture(&g.spriteTextures[SS_SPECIAL]);
+	g.sprites[SB_SPECIAL].init(0, 0, 23, 81, 5);
+	
+	
 }
 
 void Character::swapSprites()
@@ -194,7 +216,11 @@ void Object::drawSprite()
 
 	glPushMatrix();
 	glColor3f(color[0], color[1], color[2]);
-	glTranslatef(pos[0], pos[1], 0);
+	//if(faking)
+	//	glTranslatef(fake_pos[0], fake_pos[1], fake_pos[2]);
+	//else
+	glTranslatef(pos[0], pos[1], pos[2]);
+	glRotatef(fake_rot,0,0,1);
 	/*
 float cx = 0;
 	float cy = 0;
@@ -298,7 +324,6 @@ void Character::draw()
 	double startTime, endTime;
 	startTime = current_time();
 
-	glColor3f(color[0],color[1],color[2]);
 	
 /*	//starting coordinates
 	float cx = 0;
@@ -353,10 +378,10 @@ void Character::draw()
 		angl = -angl;	
 	angl = angl*180/PI;
 	*/
-	glPushMatrix();
-	glTranslatef(pos[0], pos[1], 0.0);
+	//glPushMatrix();
+	//glTranslatef(pos[0], pos[1], 0.0);
 	
-	glRotatef(rot,0,0,1);
+	//glRotatef(rot,0,0,1);
 	
 	/*
 	//head triangle 
@@ -371,8 +396,8 @@ void Character::draw()
 	*/
 
 	//hand stuff
-	glColor3f(0.6f, 0.6f, 0.6f);
-	glTranslatef(rhand_pos[0], rhand_pos[1], 0.0);
+	//glColor3f(0.6f, 0.6f, 0.6f);
+	//glTranslatef(weapon.pos[0], weapon.pos[1], 0.0);
 	
 	/*
 	angl = acos(VecDot(rhand_dir, up));	
@@ -381,7 +406,7 @@ void Character::draw()
 		angl = -angl;	
 	angl = angl*180/PI;
 	*/
-	glRotatef(rhand_rot,0,0,1);
+	//glRotatef(weapon.rot,0,0,1);
 	
 	/*
 	glBegin(GL_POLYGON);
@@ -391,46 +416,57 @@ void Character::draw()
 	glVertex2f(3.0f, 0.0f);
 	glEnd();
 	*/
+	/*
 	Sprite* sprt;
 	sprt = &g.sprites[SB_ITEM_SWORD];
 	glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_SWORD].tex);
 	glBegin(GL_QUADS);
+		//top-left
 		glTexCoord2f(sprt->pos[0], sprt->pos[1]);
 		glVertex3f(-10,  60, 0);
 
+		//top-right
 		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]);
 		glVertex3f( 10,  60, 0);
 
+		//bottom-right
 		glTexCoord2f(sprt->pos[0]+sprt->w, sprt->pos[1]+sprt->h);
 		glVertex3f( 10, 0, 0);
 
+		//bottom-left
 		glTexCoord2f(sprt->pos[0], sprt->pos[1]+sprt->h);
 		glVertex3f(-10, 0, 0);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D,0);
-
 	
 	glPopMatrix();
-
+	*/
 	if (g.state[S_DEBUG]) {
-		for(int i=0; i<nattacks; i++){
+		for(int i=0; i<weapon.nattacks; i++){
 			glColor3f(1,1,0);
 			glBegin(GL_LINE_LOOP);
-			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
-				attacks[i].pos[1]+attacks[i].scale[1]);
-			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
-				attacks[i].pos[1]+attacks[i].scale[1]);
-			glVertex2f(attacks[i].pos[0]-attacks[i].scale[0], 
-				attacks[i].pos[1]-attacks[i].scale[1]);
-			glVertex2f(attacks[i].pos[0]+attacks[i].scale[0], 
-				attacks[i].pos[1]-attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]+weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]+weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]-weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]+weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]-weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]-weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]+weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]-weapon.attacks[i].scale[1]);
 			glEnd();
 		}
 	}
-
+	//glDisable(GL_DEPTH_TEST);
 	//draw player
-	drawSprite();
-
+	int temp = int(rot+360)%360;
+	if (temp < 45 || temp > 315) {
+		weapon.drawSprite();
+		drawSprite();
+	} else {
+		drawSprite();
+		weapon.drawSprite();
+	}
+	//glEnable(GL_DEPTH_TEST);
 	//return time spent
 	endTime = current_time();
 	tix += endTime - startTime;
@@ -470,6 +506,43 @@ void Enemy::draw(){
 		glEnd();
 		glPopMatrix();
 	}
+}
+
+
+void Arrow::draw(){
+	
+	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(hitbox.pos[0], hitbox.pos[1], 0.0);
+		glColor3f(1,1,0);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
+		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
+		glEnd();
+		glPopMatrix();
+	
+	}
+	/*
+	if (g.state[S_DEBUG]) {
+		for(int i=0; i<weapon.nattacks; i++){
+			glColor3f(1,1,0);
+			glBegin(GL_LINE_LOOP);
+			glVertex2f(weapon.attacks[i].pos[0]+weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]+weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]-weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]+weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]-weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]-weapon.attacks[i].scale[1]);
+			glVertex2f(weapon.attacks[i].pos[0]+weapon.attacks[i].scale[0], 
+				weapon.attacks[i].pos[1]-weapon.attacks[i].scale[1]);
+			glEnd();
+		}
+	}*/
+	
+	drawSprite();
+	
 }
 
 /*

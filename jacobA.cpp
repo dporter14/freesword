@@ -4,7 +4,7 @@
 #include <ctime>
 #define USE_OPENAL_SOUND
 #ifdef USE_OPENAL_SOUND
-#include </usr/include/AL/alut.h>
+//#include </usr/include/AL/alut.h>
 #endif
 #include "global.h"
 
@@ -26,57 +26,73 @@ void toggleEditMode()
 //init player
 void Player::init()
 {
-	//player shape radius, not used after sprite implementation
-	pradius = 30;
-	VecMake(50,75,0,scale);
-	//player shape
-	state = 0;
-	max_speed = 8;
-	//VecMake(0,1,0,dir);
-	rot = 0;
-	VecMake(0,0,0,vel);
-	VecMake(50,50,0,pos);
-	VecMake(1.0, 1.0, 1.0, color);
-	VecMake(16, 0, 0,rhand_pos);
-	//VecMake(0,1,0,rhand_dir);
-	rhand_rot = 0;
-
-	//shift hitbox
-	VecMake(0, -30, 0, hitbox_offset);
-	VecAdd(pos, hitbox_offset, hitbox.pos);
-
-	VecMake(30, 30, 0, hitbox.scale);
-	hitbox.dynamic=1;
-
-	//set player sprite
-	sprt = &g.sprites[SB_PLAYER_F];
+    //player shape radius
+    pradius = 30;
+    VecMake(50,75,0,scale);
+    state = 0;
+    max_speed = 8;
+    //VecMake(0,1,0,dir);
+    rot = 0;
+    fake_rot = 0;
+    VecMake(0,0,0,vel);
+    VecMake(50,50,0,pos);
+    VecMake(1.0, 1.0, 1.0, color);
+    
+    sprt = &g.sprites[SB_PLAYER_F];
+	
+	//hitbox
+	VecMake(0, -30, 0, hitbox_offset); // shift hitbox
+    VecAdd(pos, hitbox_offset, hitbox.pos);
+    VecMake(30, 30, 0, hitbox.scale);
+    hitbox.dynamic=1;
+	
+	//weapon
+	VecMake(1.0, 1.0, 1.0, weapon.color);
+	VecMake(0, 0, 0, weapon.pos);
+    VecAdd(weapon.pos, pos, weapon.pos);
+    weapon.dist = 40;
+    weapon.rot = 0;
+	swapWeapon(W_SWORD);
+	weapon.parent = this;
 }
 
 //move player according to its velocity
 void Character::move()
 {
+	Vec diff;
+	VecCopy(pos,diff);
 	pos[0] += vel[0];
 	pos[1] += vel[1];
+	//calc difference between new and old positions
+	VecSub(pos, diff, diff);
 	VecAdd(pos, hitbox_offset, hitbox.pos);
-
+	VecAdd(weapon.pos, diff, weapon.pos);
+    
 }
 
 //manually move player
 void Character::setPos(Flt x, Flt y)
 {
-	pos[0] = x;
-	pos[1] = y;
-	VecAdd(pos, hitbox_offset, hitbox.pos);
+	//calc difference between new and old positions
+	Vec diff;
+	VecMake(x,y,0,diff);
+	VecSub(diff, pos, diff);
 
+	//update accordingly
+	VecAdd(pos, diff, pos);
+	VecAdd(pos, diff, hitbox.pos);
+    VecAdd(weapon.pos, diff, weapon.pos);
 }
 
 //relatively move player
 void Character::addPos(Flt x, Flt y)
 {
-	pos[0] += x;
-	pos[1] += y;
-	VecAdd(pos, hitbox_offset, hitbox.pos);
-
+	Vec diff;
+	VecMake(x,y,0,diff);
+	
+	VecAdd(pos, diff, pos);
+	VecAdd(hitbox.pos, diff, hitbox.pos);
+    VecAdd(weapon.pos, diff, weapon.pos);
 }
 
 //manually change velocity
@@ -130,14 +146,8 @@ void Character::lookAt(Flt x, Flt y)
 	VecMake(x-pos[0], y-pos[1], 0, dir);
 	Flt scale = 1/VecLen(dir);
 	VecS(scale, dir, dir);
-	if (ABS(dir[0])>ABS(dir[1])){
-		dir[0]=SGN(dir[0]);
-		dir[1]=0;
-	} else {
-		dir[1]=SGN(dir[1]);
-		dir[0]=0;
-	}
-	swapSprites();
+	VecAddS(weapon.dist, dir, pos, weapon.pos);
+	
 	Vec base, upz, cross;
 	VecMake(0, 1, 0, base);
 	VecMake(0, 0, 1, upz);
@@ -146,6 +156,18 @@ void Character::lookAt(Flt x, Flt y)
 	if (VecDot(upz, cross)<0)
 		angl = -angl;
 	rot = angl*180/PI;
+	weapon.rot = rot;
+	if (!weapon.faking)
+		weapon.fake_rot = rot;
+	/*if (ABS(dir[0])>ABS(dir[1])){
+		dir[0]=SGN(dir[0]);
+		dir[1]=0;
+	} else {
+		dir[1]=SGN(dir[1]);
+		dir[0]=0;
+	}*/
+	swapSprites();
+	
 
 }
 
@@ -215,19 +237,19 @@ void Wall::draw(){
 
 //rewritten 
 /*
-   void wallCollision(Wall object, Enemy being, int num)
-   {
-   if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
-   && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
-   if (being.pos[0] < object.left+5)
-   g.enemies[num].pos[0] = object.left-10;
-   else if (being.pos[0] > object.right-5) 
-   g.enemies[num].pos[0] = object.right+10;
-   if (being.pos[1] < object.bot+5)
-   g.enemies[num].pos[1] = object.bot-10;
-   else if (being.pos[1] > object.top-5)
-   g.enemies[num].pos[1] = object.top+10;
-   }
+void wallCollision(Wall object, Enemy being, int num)
+{
+	if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+			&& being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+		if (being.pos[0] < object.left+5)
+			g.enemies[num].pos[0] = object.left-10;
+		else if (being.pos[0] > object.right-5) 
+			g.enemies[num].pos[0] = object.right+10;
+		if (being.pos[1] < object.bot+5)
+			g.enemies[num].pos[1] = object.bot-10;
+		else if (being.pos[1] > object.top-5)
+			g.enemies[num].pos[1] = object.top+10;
+	}
 
 
    }
@@ -310,6 +332,8 @@ void Door::swing()
 	//open/close door based on door's current orientation
 	if (isHoriz) {
 		if (isOpen) {
+			fake_rot = 0;
+			sprt = &g.sprites[SB_DOOR_HORIZ];
 			if (openedFrom == false) {
 				pos[0] = pos[0] - (scale[1]) + (scale[0]);
 				pos[1] = pos[1] + (scale[1]) - (scale[0]);
@@ -321,15 +345,21 @@ void Door::swing()
 			if (g.player.pos[1] > pos[1]) {
 				pos[0] = pos[0] - (scale[1]) + (scale[0]);
 				pos[1] = pos[1] + (scale[1]) - (scale[0]);
+				fake_rot = 180;
+				sprt = &g.sprites[SB_DOOR_VERT];
 				openedFrom = false;
 			} else {
 				pos[0] = pos[0] + (scale[0]) - (scale[1]);
 				pos[1] = pos[1] + (scale[0]) - (scale[1]);
 				openedFrom = true;
+				fake_rot = 0;
+				sprt = &g.sprites[SB_DOOR_VERT];
 			}
 		}
 	} else {
 		if (isOpen) {
+			fake_rot = 180;
+			sprt = &g.sprites[SB_DOOR_VERT];
 			if (openedFrom == false) {
 				pos[0] = pos[0] - (scale[0]) + (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
@@ -341,10 +371,15 @@ void Door::swing()
 			if (g.player.pos[0] < pos[0]) {
 				pos[0] = pos[0] - (scale[0]) + (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
+				fake_rot = 180;
+				sprt = &g.sprites[SB_DOOR_HORIZ];
 				openedFrom = false;
+				
 			} else {
 				pos[0] = pos[0] + (scale[0]) - (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
+				fake_rot = 0;
+				sprt = &g.sprites[SB_DOOR_HORIZ];
 				openedFrom = true;
 			}
 		}
@@ -394,14 +429,18 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 	Flt tempf;
 	if (isHoriz) {
 		Wall::initWall(initx, inity, width, height);
+		sprt = &g.sprites[SB_DOOR_HORIZ];
 	} else {
 		tempf = width;
 		width = height;
 		height = tempf;
 		Wall::initWall(initx, inity, width, height);
+		fake_rot = -180;
+		sprt = &g.sprites[SB_DOOR_VERT];
+		
 	}
 
-	VecMake(0.0, 0.0, 1.0, color);
+	VecMake(1.0, 1.0, 1.0, color);
 
 	Vec temp;
 	VecMake(20, 20, 0, temp);
@@ -409,8 +448,9 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 
 	trigger.type = H_TRIGGER;
 	VecCopy(pos, trigger.pos);
-	VecCopy(temp, trigger.scale); 
-
+	VecCopy(temp, trigger.scale);
+	
+	
 }
 
 void interactDoor()
@@ -419,15 +459,15 @@ void interactDoor()
 	for (int i=0; i<g.number[N_DOORS]; i++) {
 		if(g.player.hitbox.intersect(g.level.doors[i].trigger))
 			g.level.doors[i].swing();
-		/*
-		   if (g.player.pos[0] <= g.level.doors[i].right+50 && 
-		   g.player.pos[0] >= g.level.doors[i].left-50) {
-		   if (g.player.pos[1] <= g.level.doors[i].top+50 &&
-		   g.player.pos[1] >= g.level.doors[i].bot-50) {
-		   g.level.doors[i].swing();
-		   }
-		   }
-		   */
+	/*
+		if (g.player.pos[0] <= g.level.doors[i].right+50 && 
+				g.player.pos[0] >= g.level.doors[i].left-50) {
+			if (g.player.pos[1] <= g.level.doors[i].top+50 &&
+					g.player.pos[1] >= g.level.doors[i].bot-50) {
+				g.level.doors[i].swing();
+			}
+		}
+		*/
 	}
 }
 
@@ -607,9 +647,9 @@ void saveLevel()
 		printf("Saved enemy to level file\n");
 	}
 	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){
-		levelOF << "tile " << it->first << " " << it->second << "\n";
-		printf("Saved floor tile to level file\n");
-	}
+    	levelOF << "tile " << it->first << " " << it->second << "\n";
+    	printf("Saved floor tile to level file\n");
+    }
 
 	levelOF << "end\n";
 	levelOF.close();
@@ -624,7 +664,7 @@ void loadLevel(char *levelName)
 		Flt x, y, horiz, rot;
 		while(!levelread.eof()) {
 			levelread >> object;
-			std::cout << object << std::endl;
+			//std::cout << object << std::endl;
 			if (!strcmp("wall", object)) {
 				levelread >> x;
 				levelread >> y;
@@ -774,15 +814,29 @@ void Item::spawnAmmo(Flt x, Flt y)
 	pos[0] = x;
 	pos[1] = y;
 	VecMake(1, 1, 1, color);
-	VecMake(25, 25, 0, scale);
+	VecMake(50, 50, 0, scale);
 	sprt = &g.sprites[SB_ITEM_AMMO];
 
 	VecCopy(pos, hitbox.pos);
-	VecCopy(scale, hitbox.scale);
+	VecS(0.5, scale, hitbox.scale);
 
 }
 
 void Item::draw()
 {
 	drawSprite();
+	//hitbox
+	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(hitbox.pos[0], hitbox.pos[1], 0.0);
+		glColor3f(1,1,0);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
+		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
+		glEnd();
+		glPopMatrix();
+	
+	}
 }
