@@ -33,7 +33,7 @@ void spawnEnemy(Flt x, Flt y, Flt rot){
 	if(g.number[N_ENEMIES]<MAXENEMIES){
 		Enemy *e = &g.enemies[g.number[N_ENEMIES]++];
 		VecMake(x, y, 0, e->pos);
-		VecMake(0.2, 0.2, 0.2, e->color);
+		VecMake(1.0, 1.0, 1.0, e->color);
 		e->pradius = 25;
 		VecMake(50,75,0,e->scale);
 		e->state = 0;
@@ -47,6 +47,8 @@ void spawnEnemy(Flt x, Flt y, Flt rot){
 		//hitbox
 		e->hitbox.scale[0] = e->hitbox.scale[1] = e->pradius;
 		e->hitbox.dynamic=1;
+	
+		//e->sprt = &g.sprites[SB_ENEMY_NORMAL_F];
 		
 		//weapon
 		VecMake(1.0, 1.0, 1.0, e->weapon.color);
@@ -108,22 +110,46 @@ void Enemy::attackPlayer()
 	}
 }
 
-void Enemy::kill(){
+void Enemy::kill()
+{
 	g.eKilled++;
+	if(weapon.anim_handler!=NULL){
+		weapon.anim_handler->cancel();
+	}
 	state = S_CHAR_DEAD;
+	if (g.number[N_ITEMS] < 10) {
+		if (RND()*100 < 25) {
+			std::cout << N_ITEMS << std::endl;
+			g.items[g.number[N_ITEMS]].type = I_POTION;
+			std::cout << "Set type\n" << std::endl;
+			g.items[g.number[N_ITEMS]].spawnPotion(pos[0], pos[1]);
+			std::cout << "Spawn\n" << std::endl;
+			g.number[N_ITEMS]++;
+		} else if (RND()*100 < 13) {
+			g.items[g.number[N_ITEMS]].type = I_AMMO;
+			g.items[g.number[N_ITEMS]].spawnAmmo(pos[0], pos[1]);
+			g.number[N_ITEMS]++;
+		}
+	}
 }
 
 void Enemy::see(){
-	Vec toPlayer, temp;
+	Vec toPlayer;
 	VecSub(g.player.pos, pos, toPlayer);
 	Flt len = VecLen(toPlayer);
 	VecS(1/len, toPlayer, toPlayer);
-	VecMake(0,1,0,temp);
-	Flt a = acos(VecDot(toPlayer, temp));
-	//static char* info_here = g.info.get_place();
-	//sprintf(info_here, "See: %f %f %f %f", len, v_dist, a*180/PI, rot);
+	
+	Vec base, upz, cross;
+	VecMake(0, 1, 0, base);
+	VecMake(0, 0, 1, upz);
+	Flt angl = acos(VecDot(toPlayer, base));	
+	VecCross(base, toPlayer, cross);
+	if (VecDot(upz, cross)<0)
+		angl=-angl+2*PI;
+	static char* info_here = g.info.get_place();
+	sprintf(info_here, "See: %f %f %f %f", len, v_dist, angl*180/PI, rot);
 	if (!wallBetween(*this,g.player)){
-		if ((a*180/PI)-rot<(v_fov/2) && len<v_close){
+		if (ABS((angl*180/PI)-rot)<(v_fov/2) && len<v_dist){
 			state = S_CHAR_ANGRY;
 		}
 		if (len<v_close){
@@ -649,9 +675,11 @@ bool wallBetween(Object& o1, Object& o2)
 	}
 	
 	for (int k=0; k<g.number[N_DOORS]; k++) {
-		dist = rayBox(r, g.level.doors[k].hitbox);
-		if (dist>0 && dist<close)
-			close = dist;
+		if(!g.level.doors[k].isOpen){
+			dist = rayBox(r, g.level.doors[k].hitbox);
+			if (dist>0 && dist<close)
+				close = dist;
+		}
 	}
 	
 	//printf("%f\n",close);
@@ -662,14 +690,18 @@ bool wallBetween(Object& o1, Object& o2)
 string getTile(float x, float y)
 {
 	char holder[20];
-	int xx = round(x/50);
-	int yy = round(y/50);
+	int xx = floor((x/50)+0.5);
+	int yy = floor((y/50)+0.5);
+	//printf("%f %f\n",(x/50)+0.5,(y/50)+0.5);
 	sprintf(holder,"%d %d",xx,yy);
 	return holder;
 }
 void placeTile(float x, float y) 
 {
+	//static char* info_here = g.info.get_place();
+	
 	string index = getTile(x,y);
+	//sprintf(info_here, "tile: %f %f %s", x, y, index.c_str());
 	switch(g.state[S_TILE]) {
 		case 0:
 			g.tilemap[index]=0;
@@ -693,11 +725,11 @@ void placeTile(float x, float y)
 
 void drawTiles(){
 	int fun=0;
-	for(float x = (g.player.pos[0]-(g.xres/2))+fun; x < (g.player.pos[0]+(g.xres/2))+100-fun; x+=50){
-		for(float y = (g.player.pos[1]-(g.yres/2))+fun; y < (g.player.pos[1]+(g.yres/2))+100-fun; y+=50){
-			//printf("%0.2f %0.2f\n",x,y);
-	
-			string index = getTile(x,y);
+	float x = floor(g.player.pos[0]/50+0.5)*50;
+	float y = floor(g.player.pos[1]/50+0.5)*50;
+	for(int i = -12+fun; i < 13-fun; i++){
+		for(int j = -9+fun; j < 10-fun; j++){
+			string index = getTile(x+50*i,y+50*j);
 			//cout << index << endl;
 			map<string,int>::iterator it = g.tilemap.find(index);
 			if (it == g.tilemap.end())
@@ -710,7 +742,7 @@ void drawTiles(){
 			}
 			glPushMatrix();
 			glColor3f(1,1,1);
-			glTranslatef(round(x/50)*50, round(y/50)*50, -900);
+			glTranslatef(x+50*i, y+50*j, -10);
 			glBindTexture(GL_TEXTURE_2D, g.spriteTextures[SS_TILES].tex);
 			Sprite* sprt;
 			switch(tile) {
@@ -773,6 +805,7 @@ void Player::swapWeapon(wep_type type){
 
 void spawnArrow(){
 	if(g.number[N_ARROWS]<MAXARROWS){
+		g.player.ammo--;
 		int num=g.number[N_ARROWS];
 		g.number[N_ARROWS]++;
 		Arrow& arrow = g.arrows[num];

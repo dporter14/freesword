@@ -2,6 +2,10 @@
 #include <iostream>
 #include <math.h>
 #include <ctime>
+#define USE_OPENAL_SOUND
+#ifdef USE_OPENAL_SOUND
+//#include </usr/include/AL/alut.h>
+#endif
 #include "global.h"
 
 
@@ -207,19 +211,7 @@ void Wall::draw(){
 	startTime = current_time();
 	//printf("Blah: %s",sprt);
 	drawSprite();
-	/*
-	glColor3f(color[0],color[1],color[2]);
-
-	glPushMatrix();
-	glTranslatef(pos[0], pos[1], 0);
-	glBegin(GL_POLYGON);
-	glVertex2f(-(scale[0]), scale[1]);
-	glVertex2f(-(scale[0]), -(scale[1]));
-	glVertex2f(scale[0], -(scale[1]));
-	glVertex2f(scale[0], scale[1]);
-	glEnd();
-	glPopMatrix();
-	*/
+	
 	glPushMatrix();
 	glTranslatef(hitbox.pos[0], hitbox.pos[1], 0);
 	if (g.state[S_DEBUG]) {
@@ -425,9 +417,10 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 		width = height;
 		height = tempf;
 		Wall::initWall(initx, inity, width, height);
+		fake_rot = -180;
 	}
 
-	VecMake(0.0, 0.0, 1.0, color);
+	VecMake(1.0, 1.0, 1.0, color);
 
 	Vec temp;
 	VecMake(20, 20, 0, temp);
@@ -436,6 +429,8 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 	trigger.type = H_TRIGGER;
 	VecCopy(pos, trigger.pos);
 	VecCopy(temp, trigger.scale);
+	
+	sprt = &g.sprites[SB_THE_DOOR];
 }
 
 void interactDoor()
@@ -620,7 +615,7 @@ void saveLevel()
 		printf("Saved Door to level file\n");
 	}
 	for (int i=0; i<g.number[N_ENEMIES]; i++) {
-		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << g.enemies[i].rot << "\n";
+		levelOF << "enemy " << g.enemies[i].pos[0] << " " << g.enemies[i].pos[1] << " " << g.enemies[i].rot << "\n";
 		printf("Saved enemy to level file\n");
 	}
 	for (std::map<std::string,int>::iterator it=g.tilemap.begin(); it!=g.tilemap.end(); ++it){
@@ -637,8 +632,8 @@ void loadLevel(char *levelName)
 	std::ifstream levelread;
 	levelread.open (levelName);
 	if (levelread.is_open()) {
-			char object[6];
-			Flt x, y, horiz, rot;
+		char object[6];
+		Flt x, y, horiz, rot;
 		while(!levelread.eof()) {
 			levelread >> object;
 			std::cout << object << std::endl;
@@ -661,6 +656,7 @@ void loadLevel(char *levelName)
 				levelread >> rot;
 				spawnEnemy(x, y, rot);
 				std::cout << "Spawned enemy" << std::endl;
+				std::cout << g.number[N_ENEMIES] << std::endl;
 			} else if (!strcmp("tile",object)) {
 				int tile, x, y;
 				levelread >> x;
@@ -675,7 +671,6 @@ void loadLevel(char *levelName)
 				std::cout << "Error: Unrecognized data\n" << std::endl;
 				exit(1);
 			}
-				
 		}
 	} else {
 		printf("Unable to open file\n");
@@ -684,3 +679,130 @@ void loadLevel(char *levelName)
 	levelread.close();
 }
 
+void initSound() 
+{
+	#ifdef USE_OPENAL_SOUND
+	//mostly taken from framework
+	alutInit(0, NULL);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("alutInit() failure.\n");
+		return;
+	}
+
+	alGetError();
+
+	float vec[6] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alListenerfv(AL_ORIENTATION, vec);
+	alListenerf(AL_GAIN, 1.0f);
+
+	//Buffer holds sound info
+	//Source holds actual sound
+	//ALuint data type, need alBuffer and alSource
+	g.sounds.alBufferTheme = alutCreateBufferFromFile("./sounds/Theme.wav");
+	//Generate source and then place in buffer
+	alGenSources(1, &g.sounds.alSourceTheme);
+	alSourcei(g.sounds.alSourceTheme, AL_BUFFER, g.sounds.alBufferTheme);
+	//Set volume, pitch, loop (yes for theme)
+	alSourcef(g.sounds.alSourceTheme, AL_GAIN, 1.0f);
+	alSourcef(g.sounds.alSourceTheme, AL_PITCH, 1.0f);
+	alSourcei(g.sounds.alSourceTheme, AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("Setting theme source failure\n");
+		return;
+	}
+        
+        g.sounds.alBufferSwordSwing = alutCreateBufferFromFile("./sounds/SwordSwing.wav");
+        alGenSources(1, &g.sounds.alSourceSwordSwing);
+        alSourcei(g.sounds.alSourceSwordSwing, AL_BUFFER, g.sounds.alBufferSwordSwing);
+        alSourcef(g.sounds.alSourceSwordSwing, AL_GAIN, 1.0f);
+        alSourcef(g.sounds.alSourceSwordSwing, AL_PITCH, 1.0f);
+        alSourcei(g.sounds.alSourceSwordSwing, AL_LOOPING, AL_TRUE);
+        if (alGetError() != AL_NO_ERROR) {
+            printf("Setting sword swing source failre\n");
+            return;
+        }
+
+	#endif
+}
+
+void cleanupSound()
+{
+	#ifdef USE_OPENAL_SOUND
+	alDeleteSources(1, &g.sounds.alSourceTheme);
+
+	alDeleteBuffers(1, &g.sounds.alSourceTheme);
+
+	ALCcontext *Context = alcGetCurrentContext();
+
+	ALCdevice *Device = alcGetContextsDevice(Context);
+
+	alcMakeContextCurrent(NULL);
+
+	alcDestroyContext(Context);
+
+	alcCloseDevice(Device);
+	#endif
+}
+
+void playSound(ALuint source)
+{
+	#ifdef USE_OPENAL_SOUND
+	alSourcePlay(source);
+	#endif 
+}
+
+void Item::useItem()
+{
+	if (type == I_POTION) {
+		g.player.hp++;
+	} else if (type == I_AMMO) {
+		g.player.ammo++;
+	}
+	g.number[N_ITEMS]--;
+}
+
+void Item::spawnPotion(Flt x, Flt y)
+{
+	pos[0] = x;
+	pos[1] = y;
+	VecMake(1, 1, 1, color);
+	VecMake(25, 25, 0, scale);
+	sprt = &g.sprites[SB_ITEM_POTION];
+	
+	VecCopy(pos, hitbox.pos);
+	VecCopy(scale, hitbox.scale);
+
+}
+
+void Item::spawnAmmo(Flt x, Flt y)
+{
+	pos[0] = x;
+	pos[1] = y;
+	VecMake(1, 1, 1, color);
+	VecMake(50, 50, 0, scale);
+	sprt = &g.sprites[SB_ITEM_AMMO];
+	
+	VecCopy(pos, hitbox.pos);
+	VecS(0.5, scale, hitbox.scale);
+
+}
+
+void Item::draw()
+{
+	drawSprite();
+	//hitbox
+	if (g.state[S_DEBUG]) {
+		glPushMatrix();
+		glTranslatef(hitbox.pos[0], hitbox.pos[1], 0.0);
+		glColor3f(1,1,0);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], hitbox.scale[1]);
+		glVertex2f(-hitbox.scale[0], -hitbox.scale[1]);
+		glVertex2f(hitbox.scale[0], -hitbox.scale[1]);
+		glEnd();
+		glPopMatrix();
+	
+	}
+}

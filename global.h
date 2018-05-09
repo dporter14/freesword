@@ -38,8 +38,10 @@ const int MAXBUTTONS = 4;
 const int MAXENEMIES = 105;
 const int MAXARROWS = 110;
 const int MAXANIMATIONS = 10;
+const int MAXSPRITES = 10;
+const int MAXITEMS = 10;
 
-enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_};
+enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
 struct Ray {
 	Vec o;
@@ -199,6 +201,7 @@ class Arrow : public Object {
 };
 
 enum char_state {S_CHAR_ALIVE, S_CHAR_DEAD, S_CHAR_DYING, S_CHAR_IDLE, S_CHAR_ANGRY};
+enum char_type {CHA_PLAYER, CHA_ENEMY_NORMAL, CHA_};
 
 class Character : public Object {
 	public:
@@ -217,6 +220,7 @@ class Character : public Object {
 		
 		int state;
 		int hp;
+		int type;
 		Vec hitbox_offset;
 		Hitbox hitbox;
 		// will change to support multiple attacks at once
@@ -237,6 +241,7 @@ class Character : public Object {
 		virtual void addVel(Flt x, Flt y) = 0;
 		void draw();
 		void swapSprites(); //davidP.cpp
+
 		
 	private:
 
@@ -248,8 +253,11 @@ class Player : public Character {
         void setVel(Flt x, Flt y);
 		void addVel(Flt x, Flt y);
 		void die();
+		int ammo;
 		Player(){
 			hp = 3;
+			ammo = 3;
+			type = CHA_PLAYER;
 		}
         ~Player(){}
         void swapWeapon(wep_type);
@@ -272,6 +280,7 @@ class Enemy : public Character {
         	v_close = 100;
 			hp = 1;
         	state = S_CHAR_IDLE;
+        	type = CHA_ENEMY_NORMAL;
         }
     private:
 };
@@ -285,29 +294,36 @@ class Menu {
 
     public:
         Menu();
-        void draw();
+        virtual void draw();
         Vec pos;
         Button buttons[MAXBUTTONS];
 		int nButtons;
-
+		
+		//Returns which button the cursor is hovering over.
         clickState getOver(float, float);
 
     private:
 };
+class MainMenu : public Menu {
+	public:
+		void draw();
+};
 void mason_func();
-void pauseMenu();
 void displayTitle();
 void displayEnemiesKilled();
+int detectButtons(int, int, int);
 
 /* David FUNCTIONS	*/
 
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
+	SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
+	SB_ENEMY_NORMAL_L, SB_THE_DOOR,
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
 	SB_ITEM_SWORD, SB_ITEM_BOW, SB_ITEM_ARROW, 
-	SB_ICON_HEART, SB_};
-	
-enum Sprite_sheet {SS_PLAYER, SS_TILES, SS_SWORD, SS_BOW, SS_};
+	SB_ICON_HEART, SB_ITEM_POTION, SB_ITEM_AMMO, SB_};
+enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_SWORD, 
+	SS_POTION, SS_BOW, SS_AMMO, SS_DOOR, SS_};
 
 class Texture 
 {
@@ -354,6 +370,19 @@ void initSpriteTextures();
 
 		
 /* JACOB FUNCTIONS */
+
+enum Items {I_POTION, I_AMMO, I_};
+
+class Item : public Object {
+	public:
+		Items type;
+		Hitbox hitbox;
+
+		void useItem();
+		void spawnAmmo(Flt, Flt);
+		void spawnPotion(Flt, Flt);
+		void draw();
+};
 
 class Wall : public Object {
 
@@ -404,6 +433,15 @@ class Level {
 		bool beat; 
 
     private:
+};
+
+class Sounds {
+	public:
+		ALuint alSourceTheme;
+		ALuint alBufferTheme;
+                ALuint alSourceSwordSwing;
+                ALuint alBufferSwordSwing;
+	private:
 };
 
 void toggleEditMode();
@@ -468,7 +506,7 @@ void spawnArrow();
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
+enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -477,7 +515,7 @@ enum State {S_PAUSED, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TI
 		1 - dead
 		2 - attacking
 */	
-enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ARROWS, N_};
+enum NumberOf {N_ENEMIES, N_ANIMS, N_BUTTONS, N_WALLS, N_DOORS, N_ITEMS, N_ARROWS, N_};
 
 struct Global {
 	// screen res
@@ -489,6 +527,8 @@ struct Global {
 	Arrow arrows[MAXARROWS];
 	
 	Menu pauseMenu;
+	Menu mainMenu;
+
 	Image *bgImage;
 	GLuint bgTexture;
 
@@ -499,10 +539,17 @@ struct Global {
 	Texture spriteTextures[SS_];
 	Sprite sprites[SB_];
 
+	Item items[MAXITEMS];
+
 	Button title;
 	Button hearts;
 	Button button[MAXBUTTONS];
+	Button arrowCount;
+	Object arrowIcon;
     
+	//sound
+	Sounds sounds;
+
 	bool isPressed[K_];
     bool isClicked[M_];
 	int state[S_];
@@ -514,18 +561,12 @@ struct Global {
     Door doors[4];
 	Info info;
 	Animator animator;
-	//
 	int currentLevel;
-	char levelName[5][10]; // 5 levels; 10 character names
+	char levelName[4][10]; // 4 levels; 10 character names
     Level level;
 
-	#ifdef USE_OPENAL_SOUND
-		ALuint alBufferDrip, alBufferTick;
-		ALuint alSourceDrip, alSourceTick;
-	#endif
 	Global() {
 		xres = 1200; yres = 900;
-//		xres = 1087; yres = 800;
 		savex = savey = 0;
 		
 		bgImage=NULL;
@@ -534,12 +575,13 @@ struct Global {
 
 		//spriteImage=NULL;
 		
-        
+       /* 
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
+		*/
         
 		hearts.r.left = 100;
 		hearts.r.bot = yres-150;
@@ -547,6 +589,17 @@ struct Global {
 		strcpy(hearts.text, "\u2764");
 		hearts.text_color = 0xff0000;
 
+		arrowCount.r.left = xres-130;
+		arrowCount.r.bot = yres-180;
+		arrowCount.r.center = 1;
+		strcpy(arrowCount.text, "Arrows");
+		arrowCount.text_color = 0xffffff;
+		arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
+		VecMake(xres-150, yres-150, 0, arrowIcon.pos);
+		VecMake(50, 9, 0, arrowIcon.scale);
+		VecMake(1,1,1,arrowIcon.color);
+		arrowIcon.fake_rot = 45;
+		
 		for(int i = 0; i<K_; i++) {
 			isPressed[i] = false;
 		}
@@ -559,7 +612,8 @@ struct Global {
 		for (int i=0; i<M_; i++) {
             isClicked[i] = false;
         }
-        wallChange = true;
+        state[S_STARTUP] = 1;
+		wallChange = true;
         doorChange = true;
 		level.beat = false;
 		currentLevel = 0;

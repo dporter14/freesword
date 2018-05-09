@@ -116,17 +116,17 @@ double current_time()
 	struct timespec now;
 
 	//https://gist.github.com/jbenet/1087739
-	#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
-		clock_serv_t cclock;
-		mach_timespec_t mts;
-		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-		clock_get_time(cclock, &mts);
-		mach_port_deallocate(mach_task_self(), cclock);
-		now.tv_sec = mts.tv_sec;
-		now.tv_nsec = mts.tv_nsec;
-	#else
-		clock_gettime(CLOCK_REALTIME, &now);
-	#endif
+#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	now.tv_sec = mts.tv_sec;
+	now.tv_nsec = mts.tv_nsec;
+#else
+	clock_gettime(CLOCK_REALTIME, &now);
+#endif
 
 	return now.tv_sec + now.tv_nsec*1e-9;
 }
@@ -141,7 +141,7 @@ double physicsCountdown = 0.0;
 double timeSpan = 0.0;
 double timeDiff(struct timespec *start, struct timespec *end) {
 	return (double)(end->tv_sec - start->tv_sec ) +
-			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+		(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
 void timeCopy(struct timespec *dest, struct timespec *source) {
 	memcpy(dest, source, sizeof(struct timespec));
@@ -149,20 +149,20 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 
 //-----------------------------------------------------------------------------
 /*
-double timeDiff(struct timespec *start, struct timespec *end)
-{
-    return (double)(end->tv_sec = start->tv_sec) +
-        (double)(end->tv_nsec - start->tv_nsec) * oobillion;
-}
-*/
+   double timeDiff(struct timespec *start, struct timespec *end)
+   {
+   return (double)(end->tv_sec = start->tv_sec) +
+   (double)(end->tv_nsec - start->tv_nsec) * oobillion;
+   }
+   */
 int main(int argc, char *argv[])
 {
 	if (argc) {}
 	if (argv[0]) {}
 	logOpen();
 	initOpengl();
-	init();
 	initialize_fonts();
+	init();
 	srand((unsigned int)time(NULL));
 	timePause = current_time();
 	timeStart = current_time();
@@ -199,13 +199,12 @@ int main(int argc, char *argv[])
 			if (!g.state[S_PAUSED]) {
 				physics();
 				animation();
-		    	
 			}
 			//7. Reduce the countdown by our physics-rate
 			physicsCountdown -= physicsRate;
 		}
 		//Always render every frame.
-	///	DisplayTime1();
+		///	DisplayTime1();
 		render();
 		x11.swapBuffers();
 	}
@@ -229,90 +228,6 @@ void advance()
 		g.player.hp = 3;
 	}
 }	
-
-/*======================================================
-   SOUND =================================================
-  ======================================================*/
-void initSound()
-{
-	#ifdef USE_OPENAL_SOUND
-	alutInit(0, NULL);
-	if (alGetError() != AL_NO_ERROR) {
-		printf("ERROR: alutInit()\n");
-		return;
-	}
-	//Clear error state.
-	alGetError();
-	//
-	//Setup the listener.
-	//Forward and up vectors are used.
-	float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
-	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
-	alListenerfv(AL_ORIENTATION, vec);
-	alListenerf(AL_GAIN, 1.0f);
-	//
-	//Buffer holds the sound information.
-	g.alBufferDrip = alutCreateBufferFromFile("./sounds/drip.wav");
-	g.alBufferTick = alutCreateBufferFromFile("./sounds/tick.wav");
-	//
-	//Source refers to the sound.
-	//Generate a source, and store it in a buffer.
-	alGenSources(1, &g.alSourceDrip);
-	alSourcei(g.alSourceDrip, AL_BUFFER, g.alBufferDrip);
-	//Set volume and pitch to normal, no looping of sound.
-	alSourcef(g.alSourceDrip, AL_GAIN, 1.0f);
-	alSourcef(g.alSourceDrip, AL_PITCH, 1.0f);
-	alSourcei(g.alSourceDrip, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
-		printf("ERROR: setting source\n");
-		return;
-	}
-	//Generate a source, and store it in a buffer.
-	alGenSources(1, &g.alSourceTick);
-	alSourcei(g.alSourceTick, AL_BUFFER, g.alBufferTick);
-	//Set volume and pitch to normal, no looping of sound.
-	alSourcef(g.alSourceTick, AL_GAIN, 1.0f);
-	alSourcef(g.alSourceTick, AL_PITCH, 1.0f);
-	alSourcei(g.alSourceTick, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
-		printf("ERROR: setting source\n");
-		return;
-	}
-	#endif //USE_OPENAL_SOUND
-	return;
-}
-
-void cleanupSound()
-{
-	#ifdef USE_OPENAL_SOUND
-	//First delete the source.
-	alDeleteSources(1, &g.alSourceDrip);
-	alDeleteSources(1, &g.alSourceTick);
-	//Delete the buffer.
-	alDeleteBuffers(1, &g.alBufferDrip);
-	alDeleteBuffers(1, &g.alBufferTick);
-	//Close out OpenAL itself.
-	//Get active context.
-	ALCcontext *Context = alcGetCurrentContext();
-	//Get device for active context.
-	ALCdevice *Device = alcGetContextsDevice(Context);
-	//Disable context.
-	alcMakeContextCurrent(NULL);
-	//Release context(s).
-	alcDestroyContext(Context);
-	//Close device.
-	alcCloseDevice(Device);
-	#endif //USE_OPENAL_SOUND
-	return;
-}
-
-void playSound(ALuint source)
-{
-	#ifdef USE_OPENAL_SOUND
-		alSourcePlay(source);
-	#endif //USE_OPENAL_SOUND
-	return;
-}
 
 void initOpengl(void)
 {
@@ -342,7 +257,7 @@ void initOpengl(void)
 	//
 	g.bgImage = &img[0];
 	Log("Dimensions: %d %d\n", g.bgImage->width, g.bgImage->height);
-				
+
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.bgTexture);
@@ -352,7 +267,7 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 			g.bgImage->width, g.bgImage->height,
 			0, GL_RGBA, GL_UNSIGNED_BYTE, g.bgImage->data);
-	
+
 	initSpriteTextures();
 }
 
@@ -360,22 +275,46 @@ void initOpengl(void)
 
 void init()
 {
+
+	g.player.init();
+	g.currentLevel = 0;
+	g.state[S_STARTUP] = 1;
+
 	if (!unitTests())
 		exit(1);
-	
-	g.player.init();
-
-    //
+	//
 	//initialize buttons...
 	VecMake((g.xres/2) - 70, g.yres/2, 0, g.pauseMenu.pos);	
+	VecMake((g.xres/2), g.yres/2, 0, g.mainMenu.pos);
 
 	Vec off; VecCopy(g.pauseMenu.pos, off);
-	g.pauseMenu.nButtons =0;
-	//size and position
+	Vec off2; VecCopy(g.mainMenu.pos, off2);	
+
+	// Main menu button accessor. //
+	Button &mb = g.mainMenu.buttons[g.mainMenu.nButtons];
+	// Pause menu button accessor. //
 	Button &b = g.pauseMenu.buttons[g.pauseMenu.nButtons];
 
+	/*									
+	 * MAIN MENU BUTTON INITIALIZATION *
+	 */
+	mb.setRect(300, 100, off[0], off[1] + 160);	
+	strcpy(mb.text, "Start game");
+	mb.down = 0;
+	mb.click = 0;
+	mb.setColor(0.47f, 0.79f, 0.58f);
+	mb.text_color = 0x00000000;
+	mb.state = C_STARTGAME;
+
+	g.mainMenu.nButtons++;
+
+	/*
+	 * PAUSE MENU BUTTON INITIALIZATION *
+	 */
+
 	// Width, height, left, bot
-	b.setRect(140, 60, off[0], off[1] + 320);
+	b.setRect(140, 60, off[0], off[1] + 240);
+
 	strcpy(b.text, "Resume");
 	b.down = 0;
 	b.click = 0;
@@ -386,7 +325,7 @@ void init()
 	g.pauseMenu.nButtons++;
 
 	Button &b1 = g.pauseMenu.buttons[g.pauseMenu.nButtons];
-		
+
 	b1.setRect(140, 60, off[0], off[1] + 160);
 	strcpy(b1.text, "Quit");
 	b1.down = 0;
@@ -399,7 +338,7 @@ void init()
 
 	Button &b2 = g.pauseMenu.buttons[g.pauseMenu.nButtons];
 
-	b2.setRect(140, 60, off[0], off[1] - 80);
+	b2.setRect(140, 60, off[0], off[1] + 80);
 	strcpy(b2.text, "Level Editor");
 	b2.down = 0;
 	b2.click = 0;
@@ -424,13 +363,11 @@ void gameUpdate()
 			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
 		}
 	}
-	if (g.number[N_ENEMIES] == 0) {
+	/*if (g.number[N_ENEMIES] == 0) {
 		g.level.beat = true;
 		advance();
-	}
-	/*if(g.number[N_ENEMIES]<5){
-		spawnEnemy(RND()*(g.xres), RND()*(g.yres));
 	}*/
+
 	static char* info_here = g.info.get_place();
 	sprintf(info_here, "Tilemode: %d %d", g.state[S_TILEEDIT], g.state[S_TILE]);
 }
@@ -484,7 +421,7 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_e:
 			if (e->type == KeyPress)
-                interactDoor();
+				interactDoor();
 			break;
 		case XK_p:
 			if (e->type == KeyPress)
@@ -494,11 +431,11 @@ int checkKeys(XEvent *e)
 			if (e->type == KeyPress)
 				g.state[S_DEBUG] ^= 1;
 			break;
-        case XK_z:
-            if (e->type == KeyPress) {
-			createWall(g.savex, g.savey);
-            static char* info_here = g.info.get_place();
-			sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
+		case XK_z:
+			if (e->type == KeyPress) {
+				createWall(g.savex, g.savey);
+				static char* info_here = g.info.get_place();
+				sprintf(info_here, "Wall at: %d %d", g.savex, g.savey);
 			}
 			break;
 			if (e->type == KeyPress) {
@@ -524,7 +461,7 @@ int checkKeys(XEvent *e)
         case XK_f:
             if (e->type == KeyPress) {
                 if (g.state[S_LEVELEDIT]) {
-                	loadLevel((char *)"level2");
+                	//loadLevel((char *)"level2");
                 }
             }
             break;
@@ -570,12 +507,14 @@ int checkKeys(XEvent *e)
 			}
 			break;
 		case XK_4:
-			if (e->type == KeyPress)
-			    spawnEnemy(g.savex, g.savey, 180);
+			if (g.state[S_LEVELEDIT]) {
+				if (e->type == KeyPress)
+					spawnEnemy(g.savex, g.savey, 180);
+			}
 			break;
 		case XK_0:
 			if (e->type == KeyPress) {
-			    if (g.state[S_TILEEDIT])
+				if (g.state[S_TILEEDIT])
 					g.state[S_TILE]=0;
 			}
 			break;
@@ -597,10 +536,11 @@ int checkMouse(XEvent *e)
 			if (!g.state[S_LEVELEDIT]) {
 				if (g.player.weapon.anim_handler!=NULL 
 				&& g.player.weapon.anim_handler->type == A_BOW_DRAW) {
+					if(g.player.weapon.anim_handler->frame>30)
+						spawnArrow();
 					g.player.weapon.anim_handler->cancel();
 					Animation *act = g.animator.init(A_BOW_RELEASE);
 					act->add_actor(&g.player.weapon);
-					spawnArrow();
 				}
 			}
 		}
@@ -630,7 +570,7 @@ int checkMouse(XEvent *e)
                rotateDoor(g.savex, g.savey);
                rotateEnemy(g.savex, g.savey);
             } else {
-            	if(g.player.weapon.anim_handler==NULL) {
+            	if(g.player.weapon.anim_handler==NULL && g.player.ammo) {
 					g.player.setVel(0,0);
 					g.player.swapWeapon(W_BOW);
 					Animation *act = g.animator.init(A_BOW_DRAW);
@@ -660,29 +600,9 @@ int checkMouse(XEvent *e)
 		}
 	}
 	//for menu buttons
-	if(g.state[ S_PAUSED ]) {
-		int click_state= g.pauseMenu.getOver(x, y);
-		if (g.isClicked[M_1]) {
-			switch (click_state) {
-				case C_RESUME:
-					//resumeGame();
-					g.state[S_PAUSED] ^= 1;
-					break;
-				case C_QUIT:
-					printf("Quit was clicked!\n");
-					return 1;
-					break;
-				case C_EDITOR:
-    				toggleEditMode();
-					g.state[S_PAUSED] ^= 1;
-					break;
-				case C_NONE:
-					break;
-				case C_:
-					break;	
-			}
-		}
-	}
+	int m = detectButtons(g.isClicked[M_1], x, y);
+	if(m == 1)
+		return 1;
 	return 0;
 }
 
@@ -697,7 +617,7 @@ void physics()
 		return;
 	}
 
-    Player *p = &g.player;
+	Player *p = &g.player;
 	if (g.isPressed[K_W]) {
 		p->addVel(0,1);
 	} else if (g.isPressed[K_S]) {
@@ -719,7 +639,7 @@ void physics()
 	} else {
 		p->setVel(0,p->vel[1]);
 	}
-	
+
 	// if not attacking
 	if(g.player.anim_handler == NULL || g.player.anim_handler->can_cancel ){
 		//update player position
@@ -753,7 +673,8 @@ void physics()
 			}
 			wallCollision(g.level.walls[i], g.player);
 		}
-	
+
+
 
 		for (int i=0; i<g.number[N_ENEMIES]; i++) {
 			for (int j=0; j<g.number[N_ENEMIES]; j++) {
@@ -762,7 +683,15 @@ void physics()
 			}
 			characterCollision(g.enemies[i], g.player);
 		}
-	
+
+		for (int i=0; i<g.player.weapon.nattacks; i++){
+			for(int j=0; j<g.number[N_ITEMS]; j++){
+				if(g.player.weapon.attacks[i].intersect(g.items[j].hitbox)){
+					g.items[j].useItem();
+				}
+			}
+		}
+		
 		for (int i=0; i<g.player.weapon.nattacks; i++){
 			for(int j=0; j<g.number[N_ENEMIES]; j++){
 				if(g.player.weapon.attacks[i].intersect(g.enemies[j].hitbox)){
@@ -778,7 +707,7 @@ void physics()
 	
 		int i=0;
 		bool flag;
-		std::cout << g.number[N_ARROWS] << std::endl;
+		//std::cout << g.number[N_ARROWS] << std::endl;
 		while (i<g.number[N_ARROWS]){
 			g.arrows[i].move();
 			static char* info_here = g.info.get_place();
@@ -846,13 +775,6 @@ void physics()
 
 void render(void)
 {
-	//--------------------------------------------------------
-	//This code is repeated several times in this program, so
-	//it can be made more generic and cleaner with some work.
-	//center of a grid
-	//bq is the width of one grid section
-	//--------------------------------------------------------
-	//start the opengl stuff
 	//set the viewing area on screen
 	glViewport(0, 0, g.xres-1, g.yres-1);
 	//clear color buffer
@@ -862,8 +784,8 @@ void render(void)
 
 	glEnable(GL_COLOR_MATERIAL);
 	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendEquation(GL_MAX);
 	//init matrices
 	glMatrixMode (GL_PROJECTION); glLoadIdentity();
@@ -871,87 +793,78 @@ void render(void)
 	//this sets to 2D mode (no perspective)
 
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
-    glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -100, 1000);
+
+	if (g.state[S_STARTUP] == 0) {
+
+		glOrtho(g.player.pos[0]-g.xres/2, g.player.pos[0]+g.xres/2, g.player.pos[1]-g.yres/2, g.player.pos[1]+g.yres/2, -100, 1000);
+
+		drawTiles();
+		
+		//draw level objects
+		for (int i=0; i<g.number[N_WALLS]; i++) {
+			g.level.walls[i].draw();
+		}
+		for (int i=0; i<g.number[N_DOORS]; i++) {
+			g.level.doors[i].draw();
+		}
+
+		//draw character
+		if (g.player.state != S_CHAR_DEAD)
+			g.player.draw();
 
 
+		for(int i=0; i<g.number[N_ENEMIES]; i++){
+			g.enemies[i].draw();
+		}
 
-	//
-	//screen background
-	/*
-	glColor3f(0.7f, 0.7f, 0.7f);
-	glBindTexture(GL_TEXTURE_2D, g.sprites[SB_TILE_WOOD].spriteTex->tex);
-	glBegin(GL_TRIANGLE_FAN);
-	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]); 
-	glVertex3i(-50,      g.yres+100,0);
-	
-	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]); 
-	glVertex3i(g.xres+50, g.yres+100,0);
-	
-	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0]+g.sprites[SB_TILE_WOOD].w, g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
-	glVertex3i(g.xres+50, -50,     0);
-	
-	glTexCoord2f(g.sprites[SB_TILE_WOOD].pos[0], g.sprites[SB_TILE_WOOD].pos[1]+g.sprites[SB_TILE_WOOD].h); 
-	glVertex3i(-50,      -50,     0);
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	*/
-	drawTiles();
-	
+		for (int i=0; i<g.number[N_ITEMS]; i++) {
+			g.items[i].draw();
+		}	
 
-	//draw level objects
-    for (int i=0; i<g.number[N_WALLS]; i++) {
-        g.level.walls[i].draw();
-    }
-    for (int i=0; i<g.number[N_DOORS]; i++) {
-        g.level.doors[i].draw();
-    }
-    
-	//draw character
-	if (g.player.state != S_CHAR_DEAD)
-		g.player.draw();
-	
-	
-    for(int i=0; i<g.number[N_ENEMIES]; i++){
-		g.enemies[i].draw();
-	}
-	for(int i=0; i<g.number[N_ARROWS]; i++){
-		g.arrows[i].draw();
-	}
-	
-	//glDisable(GL_DEPTH_TEST);
-	
-    
-	
-	//Beginning of GUI elements//
-	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	glOrtho(0, g.xres, 0, g.yres, -1, 1);
-	if (g.state[S_DEBUG])
-		g.info.draw();
-	
-	if (g.state[S_PAUSED])
-		g.pauseMenu.draw();
+		for (int i=0; i<g.number[N_ARROWS]; i++) {
+			g.arrows[i].draw();
+		}	
 
-	if (g.state[S_GAMEOVER]){
-		strcpy(g.title.text,"GAME OVER");
-		g.title.text_color = 0xff0000;
-	}
-	//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-	
-	for(int loop = 0; loop < 3; loop++) {
-		//g.menuButt[ loop ].draw();
+		//Beginning of GUI elements//
+		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+		glOrtho(0, g.xres, 0, g.yres, -1, 1);
+		if (g.state[S_DEBUG])
+			g.info.draw();
+
+		if (g.state[S_PAUSED])
+			g.pauseMenu.draw();
+
+		if (g.state[S_GAMEOVER]){
+			strcpy(g.title.text,"GAME OVER");
+			g.title.text_color = 0xff0000;
+		}
+		//ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
+
+		for(int loop = 0; loop < 3; loop++) {
+			//g.menuButt[ loop ].draw();
+		}
+
+		for (int i=0; i<g.player.hp; i++) {
+			ggprint16(&g.hearts.r, 0, g.hearts.text_color, "<3");
+			g.hearts.r.left+=20;
+		}
+		g.hearts.r.left = 100;	
+		
+		ggprint16(&g.arrowCount.r, 0, g.arrowCount.text_color, "x%d", g.player.ammo);
+		g.arrowIcon.drawSprite();
+	} else {
+		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+		glOrtho(0, g.xres, 0, g.yres, -1, 1);
+		g.mainMenu.draw();
 	}
 
-    
 	//glOrtho(0, g.xres, 0, g.yres, -1, 1);
-	
+	//glDisable(GL_DEPTH_TEST);
+
 	ggprint16(&g.title.r, 0, g.title.text_color, g.title.text);
-	displayEnemiesKilled();
-	
-	for (int i=0; i<g.player.hp; i++) {
-		ggprint16(&g.hearts.r, 0, g.hearts.text_color, "<3");
-		g.hearts.r.left+=20;
-	}
-	g.hearts.r.left = 100;	
+	//displayEnemiesKilled();
+
+
 
 }
 
