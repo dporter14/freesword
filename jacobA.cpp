@@ -328,6 +328,8 @@ void Door::swing()
 {
 	if (isHoriz) {
 		if (isOpen) {
+			fake_rot = 0;
+			sprt = &g.sprites[SB_DOOR_HORIZ];
 			if (openedFrom == false) {
 				pos[0] = pos[0] - (scale[1]) + (scale[0]);
 				pos[1] = pos[1] + (scale[1]) - (scale[0]);
@@ -339,15 +341,21 @@ void Door::swing()
 			if (g.player.pos[1] > pos[1]) {
 				pos[0] = pos[0] - (scale[1]) + (scale[0]);
 				pos[1] = pos[1] + (scale[1]) - (scale[0]);
+				fake_rot = 180;
+				sprt = &g.sprites[SB_DOOR_VERT];
 				openedFrom = false;
 			} else {
 				pos[0] = pos[0] + (scale[0]) - (scale[1]);
 				pos[1] = pos[1] + (scale[0]) - (scale[1]);
 				openedFrom = true;
+				fake_rot = 0;
+				sprt = &g.sprites[SB_DOOR_VERT];
 			}
 		}
 	} else {
 		if (isOpen) {
+			fake_rot = 180;
+			sprt = &g.sprites[SB_DOOR_VERT];
 			if (openedFrom == false) {
 				pos[0] = pos[0] - (scale[0]) + (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
@@ -359,10 +367,15 @@ void Door::swing()
 			if (g.player.pos[0] < pos[0]) {
 				pos[0] = pos[0] - (scale[0]) + (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
+				fake_rot = 180;
+				sprt = &g.sprites[SB_DOOR_HORIZ];
 				openedFrom = false;
+				
 			} else {
 				pos[0] = pos[0] + (scale[0]) - (scale[1]);
 				pos[1] = pos[1] - (scale[0]) + (scale[1]);
+				fake_rot = 0;
+				sprt = &g.sprites[SB_DOOR_HORIZ];
 				openedFrom = true;
 			}
 		}
@@ -412,12 +425,15 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 	Flt tempf;
 	if (isHoriz) {
 		Wall::initWall(initx, inity, width, height);
+		sprt = &g.sprites[SB_DOOR_HORIZ];
 	} else {
 		tempf = width;
 		width = height;
 		height = tempf;
 		Wall::initWall(initx, inity, width, height);
 		fake_rot = -180;
+		sprt = &g.sprites[SB_DOOR_VERT];
+		
 	}
 
 	VecMake(1.0, 1.0, 1.0, color);
@@ -430,7 +446,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 	VecCopy(pos, trigger.pos);
 	VecCopy(temp, trigger.scale);
 	
-	sprt = &g.sprites[SB_THE_DOOR];
+	
 }
 
 void interactDoor()

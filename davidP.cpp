@@ -121,7 +121,16 @@ void initSpriteTextures()
 	
 	Image img4 = "./images/door.png";
     g.spriteTextures[SS_DOOR].init(&img4);
-	g.sprites[SB_THE_DOOR].set_texture(&g.spriteTextures[SS_DOOR]);
+	g.sprites[SB_DOOR_HORIZ].set_texture(&g.spriteTextures[SS_DOOR]);
+	g.sprites[SB_DOOR_HORIZ].init(0, 0, 100, 35, 1);
+	g.sprites[SB_DOOR_VERT].set_texture(&g.spriteTextures[SS_DOOR]);
+	g.sprites[SB_DOOR_VERT].init(0, 35, 35, 100, 1);
+	
+	Image img5 = "./images/special.png";
+    g.spriteTextures[SS_SPECIAL].init(&img5);
+
+    g.sprites[SB_SPECIAL].set_texture(&g.spriteTextures[SS_SPECIAL]);
+	g.sprites[SB_SPECIAL].init(0, 0, 23, 81, 5);
 	
 	
 }

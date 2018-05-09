@@ -221,6 +221,7 @@ void advance()
 		g.number[N_WALLS] = 0;
 		g.number[N_ENEMIES] = 0;
 		g.number[N_ARROWS] = 0;
+		g.number[N_ITEMS] = 0;
 		clearTiles();
 		g.currentLevel++;
 		loadLevel(g.levelName[g.currentLevel]);	
@@ -363,10 +364,10 @@ void gameUpdate()
 			g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
 		}
 	}
-	/*if (g.number[N_ENEMIES] == 0) {
+	if (g.number[N_ENEMIES] == 0) {
 		g.level.beat = true;
 		advance();
-	}*/
+	}
 
 	static char* info_here = g.info.get_place();
 	sprintf(info_here, "Tilemode: %d %d", g.state[S_TILEEDIT], g.state[S_TILE]);
@@ -531,6 +532,23 @@ int checkMouse(XEvent *e)
 			g.isClicked[M_1] = false;
 			g.wallChange = true;
 			g.doorChange = true;
+			if (!g.state[S_LEVELEDIT]) {
+				if (g.player.weapon.anim_handler!=NULL 
+				&& g.player.weapon.anim_handler->type == A_SPECIAL_WINDUP) {
+					printf("%d\n",g.player.weapon.anim_handler->frame);
+					if(g.player.weapon.anim_handler->frame>75){
+						printf("is 1\n");
+					printf("cancel 1\n");
+						g.player.weapon.anim_handler->cancel();
+						Animation *act = g.animator.init(A_SPECIAL_RELEASE);
+						act->add_actor(&g.player.weapon);
+					} else {
+						printf("is 2\n");
+						g.player.weapon.anim_handler->cancel();
+						printf("end cancel 2\n");
+					}
+				}
+			}
 		} else if (e->xbutton.button==3) {
 			g.isClicked[M_2] = false;
 			if (!g.state[S_LEVELEDIT]) {
@@ -544,7 +562,7 @@ int checkMouse(XEvent *e)
 				}
 			}
 		}
-        return 0;
+        //return 0;
     }
 	if (e->type == ButtonPress) {
 		if (e->xbutton.button==1) {
@@ -599,6 +617,8 @@ int checkMouse(XEvent *e)
 			}
 		}
 	}
+	if(g.player.weapon.anim_handler!=NULL)
+		printf("fuk\n");
 	//for menu buttons
 	int m = detectButtons(g.isClicked[M_1], x, y);
 	if(m == 1)
@@ -608,7 +628,15 @@ int checkMouse(XEvent *e)
 
 
 void animation(){
+	if (0 && g.isClicked[M_1] && g.player.weapon.anim_handler!=NULL 
+		&& g.player.weapon.anim_handler->type == A_SWORD_SLASH
+		&& g.player.weapon.anim_handler->frame == 16) {
+		g.player.weapon.anim_handler->cancel();
+		Animation *act = g.animator.init(A_SPECIAL_WINDUP);
+		act->add_actor(&g.player.weapon);
+	}
 	g.animator.play();
+	
 }
 
 void physics()
@@ -731,7 +759,7 @@ void physics()
 			}
 			if (!flag) {
 				for (int j=0; j<g.number[N_DOORS]; j++) {
-					if(g.arrows[i].hitbox.intersect(g.level.doors[j].hitbox)){
+					if(g.arrows[i].hitbox.intersect(g.level.doors[j].hitbox) && g.level.doors[j].isOpen){
 						g.arrows[i]=g.arrows[--g.number[N_ARROWS]];
 						flag=1;
 						break;

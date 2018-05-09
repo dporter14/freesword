@@ -56,6 +56,7 @@ void spawnEnemy(Flt x, Flt y, Flt rot){
 		VecAdd(e->weapon.pos, e->pos, e->weapon.pos);
 		VecCopy(e->weapon.pos, e->weapon.fake_pos);
 		VecMake(10, 30, 0, e->weapon.scale);
+		e->weapon.dist = 40;
 		e->weapon.rot=180;
 		e->weapon.fake_rot=180;
 		e->weapon.sprt = &g.sprites[SB_ITEM_SWORD];
@@ -118,14 +119,14 @@ void Enemy::kill()
 	}
 	state = S_CHAR_DEAD;
 	if (g.number[N_ITEMS] < 10) {
-		if (RND()*100 < 25) {
+		if (RND()*100 < 30) {
 			std::cout << N_ITEMS << std::endl;
 			g.items[g.number[N_ITEMS]].type = I_POTION;
 			std::cout << "Set type\n" << std::endl;
 			g.items[g.number[N_ITEMS]].spawnPotion(pos[0], pos[1]);
 			std::cout << "Spawn\n" << std::endl;
 			g.number[N_ITEMS]++;
-		} else if (RND()*100 < 13) {
+		} else if (RND()*100 < 30) {
 			g.items[g.number[N_ITEMS]].type = I_AMMO;
 			g.items[g.number[N_ITEMS]].spawnAmmo(pos[0], pos[1]);
 			g.number[N_ITEMS]++;
@@ -183,8 +184,10 @@ void Animator::play(){
 	int i=0;
 	while ( i < nanims ) {
 		anims[i].play();
+		printf("fauk\n");
 		if(anims[i].done){
 			//g.anims[i].clear();
+			printf("fram: %d\n",anims[i].frame);
 			anims[i]=anims[--nanims];
 		} else {
 			i++;
@@ -223,7 +226,15 @@ void Animation::init(anim_type t)
 			break;
 		case A_BOW_RELEASE:
 			set_frames(10);
+			can_cancel=0;
+			break;
+		case A_SPECIAL_WINDUP:
+			set_frames(120);
 			can_cancel=1;
+			break;
+		case A_SPECIAL_RELEASE:
+			set_frames(30);
+			can_cancel=0;
 			break;
 		case A_TEST:
 			test();
@@ -233,6 +244,7 @@ void Animation::init(anim_type t)
 
 void Animation::play()
 {
+	printf("play\n");
 	switch(type) {
 		case A_SWORD_SLASH:
 			sword_slash();
@@ -249,11 +261,18 @@ void Animation::play()
 		case A_BOW_RELEASE:
 			bow_release();
 			break;
+		case A_SPECIAL_WINDUP:
+			special_windup();
+			break;
+		case A_SPECIAL_RELEASE:
+			special_release();
+			break;
 		case A_TEST:
 			test();
 			break;
 	}
 	if(done){
+		printf("yep\n");
 		while(nactors) {
 			nactors--;
 			actors[nactors]->anim_handler=NULL;
@@ -265,6 +284,7 @@ void Animation::play()
 void Animation::cancel()
 {
 	frame = nframes+1;
+	printf("can\n");
 	play();
 }
 
@@ -287,30 +307,29 @@ void Animation::sword_slash()
 	
 	Weapon* actor = (Weapon*)actors[0];
 	
-	static Vec orig_pos;
-	static Flt orig_rot;
 	if(frame==0){
 		actor->faking = 0;
-		VecCopy(actor->pos, orig_pos);
+		VecCopy(actor->pos, actor->orig_pos);
 		//VecCopy(actor->dir, orig_dir);
-		orig_rot = actor->rot;
+		actor->orig_rot = actor->rot;
 		//actor->pos[0] = 50;
 		//VecCopy(actor->pos, actor->fake_pos);
 		//actor->pos[1] += 35;
-
+	
 	}
 	if (frame==nframes+1) {
 		//VecCopy(orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
-		actor->rot = orig_rot;
+		actor->rot = actor->orig_rot;
 		actor->faking = 0;
 		done=1;
 	}
+	
 	//Vec dir;
 	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
 		
 	if(frame<10){
-		float angle = 90*(float(frame)/9.0)+(orig_rot-30);
+		float angle = 90*(float(frame)/9.0)+(actor->orig_rot-30);
 		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
@@ -322,7 +341,7 @@ void Animation::sword_slash()
 		
 		//cout << (-100/28)*frame+50 << endl;
 	} else if (frame<nframes) {
-		float angle = 60+orig_rot;
+		float angle = 60+actor->orig_rot;
 		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
@@ -361,13 +380,11 @@ void Animation::sword_slash2()
 	
 	Weapon* actor = (Weapon*)actors[0];
 	
-	static Vec orig_pos;
-	static Flt orig_rot;
 	if(frame==0){
 		actor->faking = 0;
-		VecCopy(actor->pos, orig_pos);
+		VecCopy(actor->pos, actor->orig_pos);
 		//VecCopy(actor->dir, orig_dir);
-		orig_rot = actor->rot;
+		actor->orig_rot = actor->rot;
 		//actor->pos[0] = 50;
 		//VecCopy(actor->pos, actor->fake_pos);
 		//actor->pos[1] += 35;
@@ -376,7 +393,7 @@ void Animation::sword_slash2()
 	if (frame==nframes+1) {
 		//VecCopy(orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
-		actor->rot = orig_rot;
+		actor->rot = actor->orig_rot;
 		actor->faking = 0;
 		done=1;
 	}
@@ -384,7 +401,7 @@ void Animation::sword_slash2()
 	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
 		
 	if(frame<10){
-		float angle = -90*(float(frame)/9.0)+(orig_rot+30);
+		float angle = -90*(float(frame)/9.0)+(actor->orig_rot+30);
 		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
@@ -396,7 +413,7 @@ void Animation::sword_slash2()
 		
 		//cout << (-100/28)*frame+50 << endl;
 	} else if (frame<nframes) {
-		float angle = -60+orig_rot;
+		float angle = -60+actor->orig_rot;
 		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
@@ -429,21 +446,20 @@ void Animation::sword_slash2()
 void Animation::sword_windup()
 {
 	Weapon* actor = (Weapon*)actors[0];
-	static Vec orig_pos;
-	static Flt orig_rot, orig_dist;
+	static Flt orig_dist;
 	if(frame==0){
-		VecCopy(actor->pos, orig_pos);
+		VecCopy(actor->pos, actor->orig_pos);
 		//VecCopy(actor->dir, orig_dir);
-		orig_rot = actor->rot;
+		actor->orig_rot = actor->rot;
 		orig_dist = actor->dist;
 		//actor->pos[0] = 50;
 		//actor->pos[1] = 35;
 
 	}
 	if (frame==nframes+1) {
-		VecCopy(orig_pos, actor->pos);
+		VecCopy(actor->orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
-		actor->rot = orig_rot;
+		actor->rot = actor->orig_rot;
 		actor->dist = orig_dist;
 		
 		done=1;
@@ -451,7 +467,7 @@ void Animation::sword_windup()
 	
 	if(frame<10){
 		actor->dist = 70*(float)frame/nframes;
-		float angle = (orig_rot-60)*(float)frame/nframes;
+		float angle = (actor->orig_rot-60)*(float)frame/nframes;
 		actor->pos[0] = -sin(angle*PI/180)*actor->dist+actor->parent->pos[0];
 		actor->pos[1] = cos(angle*PI/180)*actor->dist+actor->parent->pos[1];
 		//actor->dir[0] = cosf(angle);
@@ -491,6 +507,120 @@ void Animation::bow_release() {
 	if(frame==0){
 		actor->sprt->setFrame(0);
 		done=1;
+	}
+	frame++;
+}
+
+void Animation::special_windup() {
+	Weapon* actor = (Weapon*)actors[0];
+	printf("%d\n",frame);
+	if(frame==0){
+		actor->faking = 0;
+		VecCopy(actor->pos, actor->orig_pos);
+		//VecCopy(actor->dir, orig_dir);
+		actor->orig_rot = actor->rot;
+		//actor->pos[0] = 50;
+		//VecCopy(actor->pos, actor->fake_pos);
+		//actor->pos[1] += 35;
+		actor->sprt = &g.sprites[SB_SPECIAL];
+
+	}
+	
+	if (frame==nframes+1) {
+		//VecCopy(orig_pos, actor->pos);
+		//VecCopy(orig_dir, actor->dir);
+		actor->rot = actor->orig_rot;
+		actor->faking = 0;
+		done=1;
+		actor->sprt = &g.sprites[SB_ITEM_SWORD];
+		printf("fasg\n");
+	}
+	//Vec dir;
+	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
+		
+	if (frame<nframes) {
+		float angle = 60+actor->orig_rot;
+		Vec temp;
+		VecSub(actor->pos, actor->parent->pos, temp);
+		float s = 70;//VecLen(temp);
+		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
+		actor->pos[1] = cos(angle*PI/180)*s+actor->parent->pos[1];
+		actor->fake_rot = angle;
+	}
+	printf("asdfsd\n");
+	if (frame==20){
+		printf("2\n");
+		actor->sprt->nextFrame();
+	} else if (frame==40) {
+		printf("3\n");
+		actor->sprt->nextFrame();
+	} else if (frame==60) {
+		printf("4\n");
+		actor->sprt->nextFrame();
+	} else if (frame==80) {
+		actor->sprt->setFrame(4);
+	} else if (frame==85) {
+		actor->sprt->setFrame(0);
+		frame=75;
+	}
+	
+	printf("done: %d\n",done);
+	frame++;
+}
+
+void Animation::special_release()
+{
+	printf("gay\n");
+	Weapon* actor = (Weapon*)actors[0];
+	
+	if(frame==0){
+		actor->faking = 0;
+		VecCopy(actor->pos, actor->orig_pos);
+		//VecCopy(actor->dir, orig_dir);
+		actor->orig_rot = actor->rot;
+		//actor->pos[0] = 50;
+		//VecCopy(actor->pos, actor->fake_pos);
+		//actor->pos[1] += 35;
+
+	}
+	if (frame==nframes+1) {
+		//VecCopy(orig_pos, actor->pos);
+		//VecCopy(orig_dir, actor->dir);
+		actor->rot = actor->orig_rot;
+		actor->faking = 0;
+		done=1;
+		if (actor->attacks[0].active) {
+			actor->attacks[0].active = 0;
+			actor->nattacks=0;
+		}
+	}
+	//Vec dir;
+	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
+		
+	if(frame<nframes){
+		float angle = actor->orig_rot+60-10*frame;
+		while (angle<180){
+			angle+=360;
+		}
+		Vec temp;
+		VecSub(actor->pos, actor->parent->pos, temp);
+		float s = 70;//VecLen(temp);
+		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
+		actor->pos[1] = cos(angle*PI/180)*s+actor->parent->pos[1];
+		actor->fake_rot = angle;
+		//printf("angl: %f\n", angle);
+		//actor->rot = angle;
+		
+		//cout << (-100/28)*frame+50 << endl;
+	}
+	
+	if (frame>4) {
+		//VecAddS(60, dir, orig_pos, actor->attacks[0].pos);
+		VecCopy(actor->pos, actor->attacks[0].pos);
+		actor->attacks[0].scale[0] =
+		actor->attacks[0].scale[1] = 40;
+		actor->attacks[0].active = 1;
+		actor->nattacks=1;
 	}
 	frame++;
 }

@@ -37,9 +37,9 @@
 const int MAXBUTTONS = 4;
 const int MAXENEMIES = 105;
 const int MAXARROWS = 110;
-const int MAXANIMATIONS = 10;
-const int MAXSPRITES = 10;
-const int MAXITEMS = 10;
+const int MAXANIMATIONS = 20;
+const int MAXSPRITES = 20;
+const int MAXITEMS = 20;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
@@ -78,6 +78,8 @@ class Object {
 		Vec fake_pos;
 		bool faking;
 		
+		Vec orig_pos;
+		Flt orig_rot;
 		Vec scale;
 		Flt rot;
 		Flt fake_rot;
@@ -122,8 +124,9 @@ class Hitbox {
 
 
 enum anim_type {A_SWORD_SLASH, A_SWORD_SLASH2, A_SWORD_WINDUP, 
-	A_BOW_DRAW, A_BOW_RELEASE, A_TEST};
+	A_BOW_DRAW, A_BOW_RELEASE, A_SPECIAL_WINDUP, A_SPECIAL_RELEASE, A_TEST};
 
+		
 class Animation {
 	public:
 		int frame, nframes;
@@ -150,6 +153,8 @@ class Animation {
 		void sword_windup();
 		void bow_draw();
 		void bow_release();
+		void special_windup();
+		void special_release();
 		void test();
 
 
@@ -318,12 +323,13 @@ int detectButtons(int, int, int);
 void david_func();
 enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L, 
 	SB_ENEMY_NORMAL_F, SB_ENEMY_NORMAL_B, SB_ENEMY_NORMAL_R, 
-	SB_ENEMY_NORMAL_L, SB_THE_DOOR,
+	SB_ENEMY_NORMAL_L, SB_DOOR_HORIZ, SB_DOOR_VERT,
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
 	SB_ITEM_SWORD, SB_ITEM_BOW, SB_ITEM_ARROW, 
-	SB_ICON_HEART, SB_ITEM_POTION, SB_ITEM_AMMO, SB_};
+	SB_ICON_HEART, SB_ITEM_POTION, SB_ITEM_AMMO, 
+	SB_SPECIAL, SB_};
 enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_SWORD, 
-	SS_POTION, SS_BOW, SS_AMMO, SS_DOOR, SS_};
+	SS_POTION, SS_BOW, SS_AMMO, SS_DOOR, SS_SPECIAL, SS_};
 
 class Texture 
 {
@@ -358,6 +364,7 @@ class Sprite {
 		}
 		
 		void setFrame(int fram) {
+			printf("%f\n",w);
 			frame = fram;
 			VecCopy(start,pos);
 			pos[0] += w*frame;
@@ -575,13 +582,13 @@ struct Global {
 
 		//spriteImage=NULL;
 		
-       /* 
+       
 		title.r.left = xres/2;
 		title.r.bot	= yres-100;
 		title.r.center = 1;
 		strcpy(title.text, "");
 		title.text_color = 0x00ffffff;
-		*/
+		
         
 		hearts.r.left = 100;
 		hearts.r.bot = yres-150;
@@ -594,6 +601,7 @@ struct Global {
 		arrowCount.r.center = 1;
 		strcpy(arrowCount.text, "Arrows");
 		arrowCount.text_color = 0xffffff;
+		
 		arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
 		VecMake(xres-150, yres-150, 0, arrowIcon.pos);
 		VecMake(50, 9, 0, arrowIcon.scale);
