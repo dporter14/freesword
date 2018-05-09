@@ -122,11 +122,11 @@ void Menu::draw() {
 	glTranslatef(g.xres/2, g.yres/2, 0.0);
 
 	glTranslatef(-50, 50.0, 0.0);
-	Rect r;
+	/*Rect r;
 	r.bot = 50;
 	r.left = 50;
 	r.center = 1;
-
+	*/
 	glPopMatrix();
 
 	//return time spent
@@ -147,7 +147,7 @@ void MainMenu::draw() {
 	}
 	glPushMatrix();
 	glTranslatef(g.xres/2, g.yres/2, 0.0);
-	glTranslatef(-50, 50.0, 0.0);
+	//glTranslatef(-50, 50.0, 0.0);
 	glPopMatrix();
 }
 
