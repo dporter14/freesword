@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     timeStart = current_time();
     int done = 0;
     loadLevel(g.levelName[g.currentLevel]);
+    playSound(g.sounds.alSourceTheme);
     while (!done) {
 	gameUpdate();
 	while (x11.getXPending()) {
@@ -519,6 +520,15 @@ int checkKeys(XEvent *e)
 				if (e->type == KeyPress)
 					spawnEnemy(g.savex, g.savey, 180);
 			}
+			break;
+		case XK_7:
+			if (e->type == KeyPress) {
+				if (g.player.weapon.anim_handler==NULL ) {
+					Animation *act = g.animator.init(A_SPECIAL_RELEASE);
+					act->add_actor(&g.player.weapon);
+				}
+			}
+			
 			break;
 		case XK_0:
 			if (e->type == KeyPress) {

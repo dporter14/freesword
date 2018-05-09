@@ -232,7 +232,7 @@ void Animation::init(anim_type t)
 			can_cancel=1;
 			break;
 		case A_SPECIAL_RELEASE:
-			set_frames(30);
+			set_frames(120);
 			can_cancel=0;
 			break;
 		case A_TEST:
@@ -597,7 +597,7 @@ void Animation::special_release()
 	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
 		
 	if(frame<nframes){
-		float angle = actor->orig_rot+60-10*frame;
+		float angle = actor->orig_rot+60-30*frame;
 		while (angle<180){
 			angle+=360;
 		}
