@@ -37,15 +37,15 @@
 const int MAXBUTTONS = 4;
 const int MAXENEMIES = 105;
 const int MAXARROWS = 110;
-const int MAXANIMATIONS = 20;
+const int MAXANIMATIONS = 50;
 const int MAXSPRITES = 20;
 const int MAXITEMS = 20;
 
 enum clickState {C_NONE, C_QUIT, C_RESUME, C_EDITOR, C_STARTGAME, C_};
 
 struct Ray {
-	Vec o;
-	Vec d;
+    Vec o;
+    Vec d;
 };
 
 class Button {
@@ -169,10 +169,10 @@ class Animator {
 		}
 		Animation* init(anim_type);
 		void checkin(Animation* anim);
-		
-	private:
-		Animation anims[MAXANIMATIONS];
 		int nanims;
+	
+		Animation anims[MAXANIMATIONS];
+		
 		
 };
 
@@ -271,7 +271,7 @@ class Player : public Character {
 };
 
 class Enemy : public Character {
-	Flt v_fov, v_dist, v_close;
+    Flt v_fov, v_dist, v_close;
     public:
     	void draw();
     	void setVel(Flt x, Flt y);
@@ -327,9 +327,11 @@ enum Sprite_box {SB_PLAYER_F, SB_PLAYER_B, SB_PLAYER_R, SB_PLAYER_L,
 	SB_TILE_WOOD, SB_TILE_STONE, SB_TILE_GRASS, SB_TILE_GRASS2, 
 	SB_ITEM_SWORD, SB_ITEM_BOW, SB_ITEM_ARROW, 
 	SB_ICON_HEART, SB_ITEM_POTION, SB_ITEM_AMMO, 
-	SB_SPECIAL, SB_};
+	SB_SPECIAL, SB_TREASURE, SB_HEART, SB_FREESWORD, SB_BACK, SB_};
+
 enum Sprite_sheet {SS_PLAYER, SS_ENEMY_NORMAL, SS_TILES, SS_SWORD, 
-	SS_POTION, SS_BOW, SS_AMMO, SS_DOOR, SS_SPECIAL, SS_};
+	SS_POTION, SS_AMMO,  SS_DOOR, SS_SPECIAL, SS_BOW,
+	SS_TREASURE, SS_HEART, SS_FREESWORD, SS_BACK, SS_};
 
 class Texture 
 {
@@ -364,7 +366,7 @@ class Sprite {
 		}
 		
 		void setFrame(int fram) {
-			printf("%f\n",w);
+			//printf("%f\n",w);
 			frame = fram;
 			VecCopy(start,pos);
 			pos[0] += w*frame;
@@ -375,80 +377,80 @@ enum Z_layers {ZL_SWORD, ZL_ENEMY, ZL_PLAYER, ZL_};
 void initSpriteTextures();
 
 
-		
+
 /* JACOB FUNCTIONS */
 
 enum Items {I_POTION, I_AMMO, I_};
 
 class Item : public Object {
-	public:
-		Items type;
-		Hitbox hitbox;
+    public:
+	Items type;
+	Hitbox hitbox;
 
-		void useItem();
-		void spawnAmmo(Flt, Flt);
-		void spawnPotion(Flt, Flt);
-		void draw();
+	void useItem();
+	void spawnAmmo(Flt, Flt);
+	void spawnPotion(Flt, Flt);
+	void draw();
 };
 
 class Wall : public Object {
 
     public:
-        Flt width, height;
-        //coordinates for center of wall
-        //Vec pos; // inherited from object
-		Hitbox hitbox;
-		
-        Flt left, right, top, bot;
+	Flt width, height;
+	//coordinates for center of wall
+	//Vec pos; // inherited from object
+	Hitbox hitbox;
 
-        void draw();
-        void initWall(Flt, Flt, Flt, Flt);
-        Wall(){hitbox.dynamic=0;}
+	Flt left, right, top, bot;
+
+	void draw();
+	void initWall(Flt, Flt, Flt, Flt);
+	Wall(){hitbox.dynamic=0;}
 };
 
 class Door : public Wall {
 
     public:
-        //Flt width, height; //inherited from wall
-        //center
-        //Vec pos; // inherited from object
-		
-        //Flt left, right, top, bot; //inherited from wall
-		bool isHoriz;
-        bool isOpen;
-        //false -> left/up true -> right/down
-        bool openedFrom;
+	//Flt width, height; //inherited from wall
+	//center
+	//Vec pos; // inherited from object
 
-		Hitbox trigger;
-        
-        void draw();
-        void wallCollision(Door object, Enemy& being);
-        //function to open/close door
-        void swing();
-        void initDoor(Flt, Flt, Flt, Flt, bool);
-        //level edit function
-        void rotate();
-        Door(){trigger.dynamic=0;}
+	//Flt left, right, top, bot; //inherited from wall
+	bool isHoriz;
+	bool isOpen;
+	//false -> left/up true -> right/down
+	bool openedFrom;
+
+	Hitbox trigger;
+
+	void draw();
+	void wallCollision(Door object, Enemy& being);
+	//function to open/close door
+	void swing();
+	void initDoor(Flt, Flt, Flt, Flt, bool);
+	//level edit function
+	void rotate();
+	Door(){trigger.dynamic=0;}
 };
 
 class Level {
     public:
-        Enemy enemies[1000];
-        Wall walls[1000];
-        Door doors[1000];
-		int currentLevel;
-		bool beat; 
+	Enemy enemies[1000];
+	Wall walls[1000];
+	Door doors[1000];
+	int currentLevel;
+	bool beat; 
 
     private:
 };
 
 class Sounds {
-	public:
-		ALuint alSourceTheme;
-		ALuint alBufferTheme;
-                ALuint alSourceSwordSwing;
-                ALuint alBufferSwordSwing;
-	private:
+    public:
+	ALuint alSourceTheme;
+	ALuint alBufferTheme;
+	ALuint alSourceSwordSwing;
+	ALuint alBufferSwordSwing;
+    private:
 };
 
 void toggleEditMode();
@@ -458,11 +460,11 @@ void collide(Door);
 void createWall(int, int);
 
 /*
-void doorCollision(Door, Enemy&);
-void doorCollision(Door, Player);
-void wallCollision(Wall, Enemy, int);
-void wallCollision(Wall, Player);
-*/
+   void doorCollision(Door, Enemy&);
+   void doorCollision(Door, Player);
+   void wallCollision(Wall, Enemy, int);
+   void wallCollision(Wall, Player);
+   */
 void dragWall(int, int);
 void createDoor(int, int);
 void dragDoor(int, int);
@@ -480,19 +482,19 @@ void wallCollision(Wall&, Character&);
 Flt angleBetween(Vec, Vec);
 double current_time();
 class Info {
-	public:
-		Rect r;
-		Info(){
-			nstats=0;
-		}
-		char* get_place(){
-			return stats[nstats++];
-		}
-		void draw();
-	private:
-		char stats[50][50];
-		int nstats;
-		
+    public:
+	Rect r;
+	Info(){
+	    nstats=0;
+	}
+	char* get_place(){
+	    return stats[nstats++];
+	}
+	void draw();
+    private:
+	char stats[50][50];
+	int nstats;
+
 };
 
 void placeTile(float, float);
@@ -548,88 +550,106 @@ struct Global {
 
 	Item items[MAXITEMS];
 
-	Button title;
-	Button hearts;
-	Button button[MAXBUTTONS];
 	Button arrowCount;
 	Object arrowIcon;
     
-	//sound
-	Sounds sounds;
+    
+	Object treasure;	
+    Object hearts[5];
+	Object freesword;
+	Object titleback;
 
-	bool isPressed[K_];
+    Button title;
+    Button button[MAXBUTTONS];
+
+    //sound
+    Sounds sounds;
+
+    bool isPressed[K_];
     bool isClicked[M_];
-	int state[S_];
-	int number[N_];
-	int eKilled;
-	
-	std::map<std::string,int> tilemap;
-	bool wallChange, doorChange;
+    int state[S_];
+    int number[N_];
+    int eKilled;
+
+    std::map<std::string,int> tilemap;
+    bool wallChange, doorChange;
     Door doors[4];
-	Info info;
-	Animator animator;
-	int currentLevel;
-	char levelName[4][10]; // 4 levels; 10 character names
+    Info info;
+    Animator animator;
+    int currentLevel;
+    char levelName[4][10]; // 4 levels; 10 character names
     Level level;
+    bool victory;
 
-	Global() {
-		xres = 1200; yres = 900;
-		savex = savey = 0;
-		
-		bgImage=NULL;
+    Global() {
+	xres = 1200; yres = 900;
+	savex = savey = 0;
 
-		eKilled = 0;
+	bgImage=NULL;
 
-		//spriteImage=NULL;
-		
-       
-		title.r.left = xres/2;
-		title.r.bot	= yres-100;
-		title.r.center = 1;
-		strcpy(title.text, "");
-		title.text_color = 0x00ffffff;
-		
-        
-		hearts.r.left = 100;
-		hearts.r.bot = yres-150;
-		hearts.r.center = 1;
-		strcpy(hearts.text, "\u2764");
-		hearts.text_color = 0xff0000;
+	eKilled = 0;
 
+	title.r.left = xres/2-50;
+	title.r.bot = yres-150;
+	title.r.center = 1;
+	
 		arrowCount.r.left = xres-130;
-		arrowCount.r.bot = yres-180;
+		arrowCount.r.bot = yres-150;
 		arrowCount.r.center = 1;
 		strcpy(arrowCount.text, "Arrows");
 		arrowCount.text_color = 0xffffff;
 		
 		arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
-		VecMake(xres-150, yres-150, 0, arrowIcon.pos);
+		VecMake(xres-150, yres-120, 0, arrowIcon.pos);
 		VecMake(50, 9, 0, arrowIcon.scale);
 		VecMake(1,1,1,arrowIcon.color);
 		arrowIcon.fake_rot = 45;
 		
-		for(int i = 0; i<K_; i++) {
-			isPressed[i] = false;
-		}
-		for(int i = 0; i<S_; i++) {
-			state[i] = 0;
-		}
-		for(int i = 0; i<N_; i++) {
-			number[i] = 0;
-		}
-		for (int i=0; i<M_; i++) {
-            isClicked[i] = false;
-        }
-        state[S_STARTUP] = 1;
-		wallChange = true;
-        doorChange = true;
-		level.beat = false;
-		currentLevel = 0;
-		strcpy(levelName[0], "level1");
-		strcpy(levelName[1], "level2");
-		strcpy(levelName[2], "level3");
-		strcpy(levelName[3], "level4");
+	for (int i = 0; i<S_; i++) {
+	    state[i] = 0;
 	}
+	for (int i = 0; i<N_; i++) {
+	    number[i] = 0;
+	}
+	for (int i = 0; i<M_; i++) {
+	    isClicked[i] = false;
+	}
+	
+	state[S_STARTUP] = 1;
+	wallChange = true;
+	doorChange = true;
+	level.beat = false;
+	currentLevel = 0;
+	strcpy(levelName[0], "level1");
+	strcpy(levelName[1], "level2");
+	strcpy(levelName[2], "level3");
+	strcpy(levelName[3], "level4");
+   	victory = false;
+
+	for (int i=0; i<5; i++) {
+		hearts[i].pos[0] = 50+(i*56);
+		hearts[i].pos[1] = 800;
+		VecMake(28, 28, 0, hearts[i].scale);
+		VecMake(1, 1, 1, hearts[i].color);
+		hearts[i].sprt = &sprites[SB_HEART];
+	}
+	freesword.pos[0] = xres/2;
+	freesword.pos[1] = yres/2;
+	VecMake(120, 120, 0, freesword.scale);
+	VecMake(1, 1, 1, freesword.color);
+	freesword.sprt = &sprites[SB_FREESWORD];
+	titleback.pos[0] = xres/2;
+	titleback.pos[1] = yres/2;
+	VecMake(600, 450, 0, titleback.scale);
+	VecMake(1, 1, 1, titleback.color);
+	titleback.sprt = &sprites[SB_BACK];
+	treasure.pos[0] = (xres/2);
+	treasure.pos[1] = (yres/2)-200;
+	VecMake(192, 192, 1, treasure.scale);
+	VecMake(1, 1, 1, treasure.color);
+	treasure.sprt = &sprites[SB_TREASURE];
+
+    }
 };
 extern Global g;
 

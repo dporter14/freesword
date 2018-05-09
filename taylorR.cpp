@@ -119,14 +119,14 @@ void Enemy::kill()
 	}
 	state = S_CHAR_DEAD;
 	if (g.number[N_ITEMS] < 10) {
-		if (RND()*100 < 30) {
+		if (RND()*100 < 50) {
 			std::cout << N_ITEMS << std::endl;
 			g.items[g.number[N_ITEMS]].type = I_POTION;
 			std::cout << "Set type\n" << std::endl;
 			g.items[g.number[N_ITEMS]].spawnPotion(pos[0], pos[1]);
 			std::cout << "Spawn\n" << std::endl;
 			g.number[N_ITEMS]++;
-		} else if (RND()*100 < 30) {
+		} else if (RND()*100 < 50) {
 			g.items[g.number[N_ITEMS]].type = I_AMMO;
 			g.items[g.number[N_ITEMS]].spawnAmmo(pos[0], pos[1]);
 			g.number[N_ITEMS]++;
@@ -184,10 +184,9 @@ void Animator::play(){
 	int i=0;
 	while ( i < nanims ) {
 		anims[i].play();
-		printf("fauk\n");
 		if(anims[i].done){
 			//g.anims[i].clear();
-			printf("fram: %d\n",anims[i].frame);
+			//printf("fram: %d\n",anims[i].frame);
 			anims[i]=anims[--nanims];
 		} else {
 			i++;
@@ -244,7 +243,7 @@ void Animation::init(anim_type t)
 
 void Animation::play()
 {
-	printf("play\n");
+	//printf("play\n");
 	switch(type) {
 		case A_SWORD_SLASH:
 			sword_slash();
@@ -272,7 +271,7 @@ void Animation::play()
 			break;
 	}
 	if(done){
-		printf("yep\n");
+		//printf("yep\n");
 		while(nactors) {
 			nactors--;
 			actors[nactors]->anim_handler=NULL;
@@ -284,8 +283,8 @@ void Animation::play()
 void Animation::cancel()
 {
 	frame = nframes+1;
-	printf("can\n");
 	play();
+	//printf("can: %d\n",done);
 }
 
 void Animation::set_frames(int frames)
@@ -323,6 +322,7 @@ void Animation::sword_slash()
 		actor->rot = actor->orig_rot;
 		actor->faking = 0;
 		done=1;
+		
 	}
 	
 	//Vec dir;
@@ -513,7 +513,7 @@ void Animation::bow_release() {
 
 void Animation::special_windup() {
 	Weapon* actor = (Weapon*)actors[0];
-	printf("%d\n",frame);
+	//printf("%d\n",frame);
 	if(frame==0){
 		actor->faking = 0;
 		VecCopy(actor->pos, actor->orig_pos);
@@ -531,9 +531,10 @@ void Animation::special_windup() {
 		//VecCopy(orig_dir, actor->dir);
 		actor->rot = actor->orig_rot;
 		actor->faking = 0;
-		done=1;
+		this->done=1;
 		actor->sprt = &g.sprites[SB_ITEM_SWORD];
-		printf("fasg\n");
+		return;
+		//printf("fasg\n");
 	}
 	//Vec dir;
 	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
@@ -547,30 +548,28 @@ void Animation::special_windup() {
 		actor->pos[1] = cos(angle*PI/180)*s+actor->parent->pos[1];
 		actor->fake_rot = angle;
 	}
-	printf("asdfsd\n");
-	if (frame==20){
-		printf("2\n");
+	//printf("asdfsd\n");
+	//printf("%d %d\n",frame, actor->sprt->nframes);
+	if (frame==20){	
 		actor->sprt->nextFrame();
 	} else if (frame==40) {
-		printf("3\n");
 		actor->sprt->nextFrame();
 	} else if (frame==60) {
-		printf("4\n");
 		actor->sprt->nextFrame();
 	} else if (frame==80) {
 		actor->sprt->setFrame(4);
 	} else if (frame==85) {
 		actor->sprt->setFrame(0);
-		frame=75;
 	}
 	
-	printf("done: %d\n",done);
+	if (frame==85)
+		frame=75;
+	
 	frame++;
 }
 
 void Animation::special_release()
 {
-	printf("gay\n");
 	Weapon* actor = (Weapon*)actors[0];
 	
 	if(frame==0){

@@ -139,7 +139,7 @@ door 75 150 1
 door 725 600 1
 door 850 125 0
 enemy 1045 437 180
-enemy 1030 771 90
+enemy 1030 77 180
 enemy 141 751 270
 tile -1 -2 2
 tile -1 -3 2

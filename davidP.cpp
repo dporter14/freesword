@@ -109,8 +109,28 @@ void initSpriteTextures()
 	Image ammo = "./images/ArrowAmmo.png";
 	g.spriteTextures[SS_AMMO].init(&ammo);
 	g.sprites[SB_ITEM_AMMO].set_texture(&g.spriteTextures[SS_AMMO]);
-	//g.sprites[SB_ITEM_AMMO].init(0, 0, 100, 100, 1);	
+	g.sprites[SB_ITEM_AMMO].init(0, 0, 100, 100, 1);	
+
+	Image treasure = "./images/treasure.png";
+	g.spriteTextures[SS_TREASURE].init(&treasure);
+	g.sprites[SB_TREASURE].set_texture(&g.spriteTextures[SS_TREASURE]);
+	g.sprites[SB_TREASURE].init(0, 0, 384, 384, 1);
+
+	Image heart = "./images/FS_Heart.png";
+	g.spriteTextures[SS_HEART].init(&heart);
+	g.sprites[SB_HEART].set_texture(&g.spriteTextures[SS_HEART]);
+	g.sprites[SB_HEART].init(0, 0, 56, 56, 1);
+
+	Image FreeSword = "./images/freesword.png";
+	g.spriteTextures[SS_FREESWORD].init(&FreeSword);
+	g.sprites[SB_FREESWORD].set_texture(&g.spriteTextures[SS_FREESWORD]);
+	g.sprites[SB_FREESWORD].init(0, 0, 200, 200, 1);
 	
+	Image background = "./images/freebackground.png";
+	g.spriteTextures[SS_BACK].init(&background);
+	g.sprites[SB_BACK].set_texture(&g.spriteTextures[SS_BACK]);
+	g.sprites[SB_BACK].init(0, 0, 1200, 900, 1);
+
 	Image img3 = "./images/bow.png";
     g.spriteTextures[SS_BOW].init(&img3);
 

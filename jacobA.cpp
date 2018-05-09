@@ -179,6 +179,7 @@ void Player::die()
 
 void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 {   
+	//set x and y to closest spot on a grid of 25x25 squares
 	initx = round((initx/25))*25;
 	inity = round((inity/25))*25;
 
@@ -194,11 +195,13 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 	top = pos[1]+(scale[1]);
 	bot = pos[1]-(scale[1]);
 
+	//set hurtbox (for collision)
 	VecMake(1.0, 1.0, 1.0, color);
 	hitbox.type = H_HURTBOX;
 	VecCopy(pos, hitbox.pos);
 	VecCopy(scale, hitbox.scale);
-	
+
+	//set wall sprite
 	sprt = &g.sprites[SB_TILE_STONE];
 }
 
@@ -211,7 +214,7 @@ void Wall::draw(){
 	startTime = current_time();
 	//printf("Blah: %s",sprt);
 	drawSprite();
-	
+
 	glPushMatrix();
 	glTranslatef(hitbox.pos[0], hitbox.pos[1], 0);
 	if (g.state[S_DEBUG]) {
@@ -249,74 +252,74 @@ void wallCollision(Wall object, Enemy being, int num)
 	}
 
 
-}
+   }
 
-void wallCollision(Wall object, Player being)
-{
-	if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
-			&& being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
-		if (being.pos[0] < object.left+5)
-			g.player.pos[0] = object.left-10;
-		else if (being.pos[0] > object.right-5) 
-			g.player.pos[0] = object.right+10;
-		if (being.pos[1] < object.bot+5)
-			g.player.pos[1] = object.bot-10;
-		else if (being.pos[1] > object.top-5)
-			g.player.pos[1] = object.top+10;
-	}
+   void wallCollision(Wall object, Player being)
+   {
+   if (being.pos[0] >= object.left-10 && being.pos[0] <= object.right+10
+   && being.pos[1] <= object.top+10 && being.pos[1] >= object.bot-10) {
+   if (being.pos[0] < object.left+5)
+   g.player.pos[0] = object.left-10;
+   else if (being.pos[0] > object.right-5) 
+   g.player.pos[0] = object.right+10;
+   if (being.pos[1] < object.bot+5)
+   g.player.pos[1] = object.bot-10;
+   else if (being.pos[1] > object.top-5)
+   g.player.pos[1] = object.top+10;
+   }
 
-}
-*/
+   }
+   */
 
 void wallCollision(Wall& o1, Character& o2){
 	/*static char* derp = g.info.get_place();
-	if(&g.player == &o2)
-		sprintf(derp, "col: %0.2f", g.player.vel[0]);
-	*/
+	  if(&g.player == &o2)
+	  sprintf(derp, "col: %0.2f", g.player.vel[0]);
+	  */
 	Hitbox h1 = o1.hitbox, h2 = o2.hitbox;
 	//Log("Dimensions: %0.3f %0.3f\n", h1.scale[0], h2.scale[0]);
 	float t = 0;
 	bool flag=0;
 	float xt1, xt2, yt1, yt2, xt, yt;
 	if(h1.intersect(h2)){ 
-		
-		// magic
+
+		//very magic collision
 		if (ABS(o2.vel[0]) > 1e-8) {
 			flag = 1;
 			xt1 = ((h1.pos[0]-h1.scale[0]) - 
-				(h2.pos[0]+h2.scale[0])) / (o2.vel[0]);
+					(h2.pos[0]+h2.scale[0])) / (o2.vel[0]);
 			xt2 = ((h1.pos[0]+h1.scale[0]) - 
-				(h2.pos[0]-h2.scale[0])) / (o2.vel[0]);
+					(h2.pos[0]-h2.scale[0])) / (o2.vel[0]);
 			//Log("Dimensions: %0.3f %0.3f\n", xt1, xt2);
 		} else {
 			xt1 = xt2 = 1e10;
 		}
-		
+
 		if (ABS(o2.vel[1]) > 1e-8) {
 			flag = 1;
 			yt1 = ((h1.pos[1]-h1.scale[1]) - 
-				(h2.pos[1]+h2.scale[1])) / (o2.vel[1]);
+					(h2.pos[1]+h2.scale[1])) / (o2.vel[1]);
 			yt2 = ((h1.pos[1]+h1.scale[1]) - 
-				(h2.pos[1]-h2.scale[1])) / (o2.vel[1]);
+					(h2.pos[1]-h2.scale[1])) / (o2.vel[1]);
 		} else {
 			yt1 = yt2 = 1e10;
 		}
-		
+
 		if (flag) {
 			xt =  (ABS(xt1) < ABS(xt2)) ? xt1 : xt2;
 			yt =  (ABS(yt1) < ABS(yt2)) ? yt1 : yt2;
 			t =  (ABS(xt) < ABS(yt)) ? xt : yt;
 			t = CLAMP(t * 1.0001, -1.5, 1.5); //magic
 			//Log("Dimensions: %0.3f %0.3f\n", xt, yt);
-			
+
 			if (ABS(xt) < ABS(yt)) {
 				o2.addPos(o2.vel[0]*t, 0);
-				
+
 				float temp = -o2.vel[0];
 				o2.setVel(temp*0.2, o2.vel[1]);
 			} else {
 				o2.addPos(0, o2.vel[1]*t);
-				
+
 				float temp = -o2.vel[1];
 				o2.setVel(o2.vel[0], temp*0.2);
 			}
@@ -326,6 +329,7 @@ void wallCollision(Wall& o1, Character& o2){
 
 void Door::swing()
 {
+	//open/close door based on door's current orientation
 	if (isHoriz) {
 		if (isOpen) {
 			fake_rot = 0;
@@ -421,7 +425,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 {
 	isHoriz = horz;
 	isOpen = false;
-	
+
 	Flt tempf;
 	if (isHoriz) {
 		Wall::initWall(initx, inity, width, height);
@@ -451,6 +455,7 @@ void Door::initDoor(Flt initx, Flt inity, Flt width, Flt height, bool horz)
 
 void interactDoor()
 {
+	//check if player is close enough to open a door
 	for (int i=0; i<g.number[N_DOORS]; i++) {
 		if(g.player.hitbox.intersect(g.level.doors[i].trigger))
 			g.level.doors[i].swing();
@@ -501,12 +506,14 @@ void doorCollision(Door object, Player being)
 
 void createWall(int mousex, int mousey) 
 {
+	//do not place wall if one already exists at that spot on the grid
 	for (int i=0; i<g.number[N_WALLS]; i++) {
 		//std::cout << round((mousex/25))*25 << " " << round((mousey/25))*25 << std::endl;
 		if (g.level.walls[i].pos[0] == round((mousex/25))*25 && g.level.walls[i].pos[1] == round((mousey/25))*25) {
 			return;
 		}
 	}
+	//place wall at spot on grid closest to mouse
 	if (g.number[N_WALLS] < 1000) {
 		g.level.walls[g.number[N_WALLS]].initWall(mousex, mousey, 25.0, 25.0);
 		g.number[N_WALLS]++;
@@ -514,14 +521,18 @@ void createWall(int mousex, int mousey)
 	} else {
 		std::cout << "Error: Too many walls.\n" << std::endl;
 	}
-	
+
 }
 
 void dragWall(int mousex, int mousey) 
 {
 	static int selectedWall;
+	//if dragging a door, do not grab a wall
+	//prevents creating a blackhole of walls and doors
 	if (g.doorChange == false)
 		return;
+	//grab first wall under mouse
+	//then move wall to respective grid position closest to mouse's position
 	if (g.wallChange == true && g.number[N_WALLS]>0) {
 		for (int i=0; i<g.number[N_WALLS]; i++) {
 			if (mousex<=g.level.walls[i].pos[0]+12.5 && mousex>=g.level.walls[i].pos[0]-12.5) {
@@ -557,6 +568,7 @@ void createDoor(int mousex, int mousey)
 
 void dragDoor(int mousex, int mousey) 
 {
+	//very similar to dragWall()
 	static int selectedDoor;
 	if (g.doorChange == true && g.number[N_DOORS]>0) {
 		for (int i=0; i<g.number[N_DOORS]; i++) {
@@ -618,7 +630,7 @@ void Door::rotate()
 void saveLevel()
 {
 	char levelName[10] = "levelx";
-	std::cout << "This will overwrite any existing file with your provided name.\nEnter level name: ";
+	std::cout << "Beware! This will overwrite any existing file with your provided name.\nEnter level name: ";
 	std::cin >> levelName;
 	std::ofstream levelOF;
 	levelOF.open (levelName);
@@ -652,27 +664,27 @@ void loadLevel(char *levelName)
 		Flt x, y, horiz, rot;
 		while(!levelread.eof()) {
 			levelread >> object;
-			std::cout << object << std::endl;
+			//std::cout << object << std::endl;
 			if (!strcmp("wall", object)) {
 				levelread >> x;
 				levelread >> y;
 				g.level.walls[g.number[N_WALLS]].initWall(x, y, 25.0, 25.0); 
 				g.number[N_WALLS]++;   
-				std::cout << "Spawned wall\n" << std::endl;
+				//std::cout << "Spawned wall\n" << std::endl;
 			} else if (!strcmp("door", object)) {
 				levelread >> x;
 				levelread >> y;
 				levelread >> horiz;
 				g.level.doors[g.number[N_DOORS]].initDoor(x, y, 50.0, 12.5, horiz);
 				g.number[N_DOORS]++; 
-				std::cout << "Spawned door\n" << std::endl;  
+				//std::cout << "Spawned door\n" << std::endl;  
 			} else if (!strcmp("enemy", object)) {
 				levelread >> x;
 				levelread >> y;
 				levelread >> rot;
 				spawnEnemy(x, y, rot);
-				std::cout << "Spawned enemy" << std::endl;
-				std::cout << g.number[N_ENEMIES] << std::endl;
+				//std::cout << "Spawned enemy" << std::endl;
+				//std::cout << g.number[N_ENEMIES] << std::endl;
 			} else if (!strcmp("tile",object)) {
 				int tile, x, y;
 				levelread >> x;
@@ -687,6 +699,7 @@ void loadLevel(char *levelName)
 				std::cout << "Error: Unrecognized data\n" << std::endl;
 				exit(1);
 			}
+
 		}
 	} else {
 		printf("Unable to open file\n");
@@ -695,10 +708,10 @@ void loadLevel(char *levelName)
 	levelread.close();
 }
 
+//mostly taken from framework
 void initSound() 
 {
-	#ifdef USE_OPENAL_SOUND
-	//mostly taken from framework
+#ifdef USE_OPENAL_SOUND
 	alutInit(0, NULL);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("alutInit() failure.\n");
@@ -727,24 +740,25 @@ void initSound()
 		printf("Setting theme source failure\n");
 		return;
 	}
-        
-        g.sounds.alBufferSwordSwing = alutCreateBufferFromFile("./sounds/SwordSwing.wav");
-        alGenSources(1, &g.sounds.alSourceSwordSwing);
-        alSourcei(g.sounds.alSourceSwordSwing, AL_BUFFER, g.sounds.alBufferSwordSwing);
-        alSourcef(g.sounds.alSourceSwordSwing, AL_GAIN, 1.0f);
-        alSourcef(g.sounds.alSourceSwordSwing, AL_PITCH, 1.0f);
-        alSourcei(g.sounds.alSourceSwordSwing, AL_LOOPING, AL_TRUE);
-        if (alGetError() != AL_NO_ERROR) {
-            printf("Setting sword swing source failre\n");
-            return;
-        }
 
-	#endif
+	g.sounds.alBufferSwordSwing = alutCreateBufferFromFile("./sounds/SwordSwing.wav");
+	alGenSources(1, &g.sounds.alSourceSwordSwing);
+	alSourcei(g.sounds.alSourceSwordSwing, AL_BUFFER, g.sounds.alBufferSwordSwing);
+	alSourcef(g.sounds.alSourceSwordSwing, AL_GAIN, 1.0f);
+	alSourcef(g.sounds.alSourceSwordSwing, AL_PITCH, 1.0f);
+	alSourcei(g.sounds.alSourceSwordSwing, AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("Setting sword swing source failre\n");
+		return;
+	}
+
+#endif
 }
 
+//mostly taken from framework
 void cleanupSound()
 {
-	#ifdef USE_OPENAL_SOUND
+#ifdef USE_OPENAL_SOUND
 	alDeleteSources(1, &g.sounds.alSourceTheme);
 
 	alDeleteBuffers(1, &g.sounds.alSourceTheme);
@@ -758,22 +772,26 @@ void cleanupSound()
 	alcDestroyContext(Context);
 
 	alcCloseDevice(Device);
-	#endif
+#endif
 }
 
+//mostly taken from framework
 void playSound(ALuint source)
 {
-	#ifdef USE_OPENAL_SOUND
+#ifdef USE_OPENAL_SOUND
 	alSourcePlay(source);
-	#endif 
+#endif 
 }
 
 void Item::useItem()
 {
 	if (type == I_POTION) {
-		g.player.hp++;
+		if (g.player.hp<5)
+			g.player.hp++;
 	} else if (type == I_AMMO) {
-		g.player.ammo++;
+		g.player.ammo+=3;
+	} else {
+		return;
 	}
 	g.number[N_ITEMS]--;
 }
@@ -785,7 +803,7 @@ void Item::spawnPotion(Flt x, Flt y)
 	VecMake(1, 1, 1, color);
 	VecMake(25, 25, 0, scale);
 	sprt = &g.sprites[SB_ITEM_POTION];
-	
+
 	VecCopy(pos, hitbox.pos);
 	VecCopy(scale, hitbox.scale);
 
@@ -798,7 +816,7 @@ void Item::spawnAmmo(Flt x, Flt y)
 	VecMake(1, 1, 1, color);
 	VecMake(50, 50, 0, scale);
 	sprt = &g.sprites[SB_ITEM_AMMO];
-	
+
 	VecCopy(pos, hitbox.pos);
 	VecS(0.5, scale, hitbox.scale);
 
