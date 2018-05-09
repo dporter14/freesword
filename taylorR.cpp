@@ -330,7 +330,7 @@ void Animation::sword_slash()
 		
 	if(frame<10){
 		float angle = 90*(float(frame)/9.0)+(actor->orig_rot-30);
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
@@ -342,7 +342,7 @@ void Animation::sword_slash()
 		//cout << (-100/28)*frame+50 << endl;
 	} else if (frame<nframes) {
 		float angle = 60+actor->orig_rot;
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
@@ -402,7 +402,7 @@ void Animation::sword_slash2()
 		
 	if(frame<10){
 		float angle = -90*(float(frame)/9.0)+(actor->orig_rot+30);
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
@@ -414,7 +414,7 @@ void Animation::sword_slash2()
 		//cout << (-100/28)*frame+50 << endl;
 	} else if (frame<nframes) {
 		float angle = -60+actor->orig_rot;
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
@@ -541,7 +541,7 @@ void Animation::special_windup() {
 		
 	if (frame<nframes) {
 		float angle = 60+actor->orig_rot;
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
@@ -601,7 +601,7 @@ void Animation::special_release()
 		while (angle<180){
 			angle+=360;
 		}
-		//Vec temp;
+		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
 		actor->pos[0] = -sin(angle*PI/180)*s+actor->parent->pos[0];
