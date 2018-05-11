@@ -54,11 +54,7 @@ $(TARGET): $(FILES)
 %.o: %.cpp $(HEADERS)
 	g++ $(CFLAGS) $< -o $@
 
-snake: snake.cpp log.cpp
-	g++ $(CFLAGS) snake.cpp log.cpp $(LFLAGS) -o snake
-
 clean:
-	rm -f snake
 	rm -f freesword
 	rm -f *.o
 
