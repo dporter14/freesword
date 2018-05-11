@@ -92,19 +92,11 @@ void initOpengl(void);
 int checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
-void initSounds(void);
 
 void gameUpdate();
 void animation(void);
 void physics(void);
 void render(void);
-
-#ifdef USE_OPENAL_SOUND
-void initSound();
-void cleanupSound();
-void playSound(ALuint source);
-
-#endif //USE_OPENAL_SOUND
 
 
 //-----------------------------------------------------------------------------
@@ -161,6 +153,7 @@ int main(int argc, char *argv[])
     logOpen();
     initOpengl();
     initialize_fonts();
+    initSound();
     init();
     srand((unsigned int)time(NULL));
     timePause = current_time();
@@ -197,7 +190,7 @@ int main(int argc, char *argv[])
 	while(physicsCountdown >= physicsRate) {
 	    //6. Apply physics
 	    if (!g.state[S_PAUSED]) {
-			physics();
+	    	physics();
 			animation();
 		}
 	    //7. Reduce the countdown by our physics-rate
@@ -208,6 +201,7 @@ int main(int argc, char *argv[])
 	render();
 	x11.swapBuffers();
     }
+    cleanupSound();
     cleanup_fonts();
     logClose();
     return 0;
@@ -240,7 +234,7 @@ void advance()
 
 void initOpengl(void)
 {
-    //OpenGL initialization
+	//OpenGL initialization
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -284,7 +278,6 @@ void initOpengl(void)
 
 void init()
 {
-
 	g.player.init();
 	g.currentLevel = 0;
 	g.state[S_STARTUP] = 1;
@@ -370,6 +363,7 @@ void gameUpdate()
     for(int i=0; i<g.number[N_ENEMIES]; i++){
 	if (g.enemies[i].state == S_CHAR_DEAD) {
 	    g.enemies[i]=g.enemies[--g.number[N_ENEMIES]];
+	    g.enemies[i].weapon.parent=&g.enemies[i];
 	}
     }
     if (g.number[N_ENEMIES] == 0 && g.victory == false) {
@@ -553,7 +547,7 @@ int checkMouse(XEvent *e)
 				if (g.player.weapon.anim_handler!=NULL 
 				&& g.player.weapon.anim_handler->type == A_SPECIAL_WINDUP) {
 					//printf("%d\n",g.player.weapon.anim_handler->frame);
-					if(g.player.weapon.anim_handler->frame>75){
+					if(g.player.weapon.anim_handler->frame>80){
 						//printf("is 1\n");
 						//printf("cancel 1\n");
 						g.player.weapon.anim_handler->cancel();
@@ -591,12 +585,14 @@ int checkMouse(XEvent *e)
             
             } else {
 				if(g.player.weapon.anim_handler==NULL){
+					playSound(g.sounds.alSourceSwordSwing);
 					g.player.swapWeapon(W_SWORD);
 					g.player.setVel(0,0);
 					Animation *act = g.animator.init(A_SWORD_SLASH);
 					act->add_actor(&g.player.weapon);
 				} else if (g.player.weapon.anim_handler->type == A_SWORD_SLASH
 					&& g.player.weapon.anim_handler->can_cancel) {
+					playSound(g.sounds.alSourceSwordSwing);
 					g.player.weapon.anim_handler->cancel();
 					Animation *act = g.animator.init(A_SWORD_SLASH2);
 					act->add_actor(&g.player.weapon);
@@ -646,7 +642,7 @@ int checkMouse(XEvent *e)
 
 
 void animation(){
-	if (0&&g.isClicked[M_1] && g.player.weapon.anim_handler!=NULL 
+	if (g.isClicked[M_1] && g.player.weapon.anim_handler!=NULL 
 		&& g.player.weapon.anim_handler->type == A_SWORD_SLASH
 		&& g.player.weapon.anim_handler->frame == 16) {
 		g.player.weapon.anim_handler->cancel();
@@ -731,9 +727,13 @@ void physics()
 		}
 
 		for (int i=0; i<g.player.weapon.nattacks; i++){
-			for(int j=0; j<g.number[N_ITEMS]; j++){
+			int j=0;
+			while(j<g.number[N_ITEMS]){
 				if(g.player.weapon.attacks[i].intersect(g.items[j].hitbox)){
 					g.items[j].useItem();
+					g.items[j]=g.items[--g.number[N_ITEMS]];
+				} else {
+					j++;
 				}
 			}
 		}
@@ -821,7 +821,7 @@ void physics()
 
 void render(void)
 {
-    //set the viewing area on screen
+	//set the viewing area on screen
     glViewport(0, 0, g.xres-1, g.yres-1);
     //clear color buffer
     glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
@@ -899,6 +899,7 @@ void render(void)
 		for (int i=0; i<g.player.hp; i++) {
 			g.hearts[i].drawSprite();
 		}
+		playSound(g.alBufferTick);	
 		
 		ggprint16(&g.arrowCount.r, 0, g.arrowCount.text_color, "x%d", g.player.ammo);
 		g.arrowIcon.drawSprite();
@@ -910,7 +911,8 @@ void render(void)
 		g.freesword.drawSprite();
 		g.mainMenu.draw();
     }
-
+	
+    
     //glOrtho(0, g.xres, 0, g.yres, -1, 1);
     //glDisable(GL_DEPTH_TEST);
 

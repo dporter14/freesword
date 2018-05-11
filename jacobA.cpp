@@ -183,8 +183,8 @@ void Wall::initWall(Flt initx, Flt inity, Flt width, Flt height)
 	initx = round((initx/25))*25;
 	inity = round((inity/25))*25;
 
-	printf("initx: %f\n", initx);
-	printf("inity: %f\n", inity);
+	//printf("initx: %f\n", initx);
+	//printf("inity: %f\n", inity);
 
 	pos[0] = initx;
 	pos[1] = inity;
@@ -724,7 +724,20 @@ void initSound()
 	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
 	alListenerfv(AL_ORIENTATION, vec);
 	alListenerf(AL_GAIN, 1.0f);
-
+	
+	g.alBufferTick = alutCreateBufferFromFile("./sounds/tick.wav");
+	//Generate a source, and store it in a buffer.
+	alGenSources(1, &g.alSourceTick);
+	alSourcei(g.alSourceTick, AL_BUFFER, g.alBufferTick);
+	//Set volume and pitch to normal, no looping of sound.
+	alSourcef(g.alSourceTick, AL_GAIN, 1.0f);
+	alSourcef(g.alSourceTick, AL_PITCH, 1.0f);
+	alSourcei(g.alSourceTick, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+		return;
+	}
+	
 	//Buffer holds sound info
 	//Source holds actual sound
 	//ALuint data type, need alBuffer and alSource
@@ -733,20 +746,20 @@ void initSound()
 	alGenSources(1, &g.sounds.alSourceTheme);
 	alSourcei(g.sounds.alSourceTheme, AL_BUFFER, g.sounds.alBufferTheme);
 	//Set volume, pitch, loop (yes for theme)
-	alSourcef(g.sounds.alSourceTheme, AL_GAIN, 1.0f);
+	alSourcef(g.sounds.alSourceTheme, AL_GAIN, 0.8f);
 	alSourcef(g.sounds.alSourceTheme, AL_PITCH, 1.0f);
 	alSourcei(g.sounds.alSourceTheme, AL_LOOPING, AL_TRUE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("Setting theme source failure\n");
 		return;
 	}
-
+	
 	g.sounds.alBufferSwordSwing = alutCreateBufferFromFile("./sounds/SwordSwing.wav");
 	alGenSources(1, &g.sounds.alSourceSwordSwing);
 	alSourcei(g.sounds.alSourceSwordSwing, AL_BUFFER, g.sounds.alBufferSwordSwing);
 	alSourcef(g.sounds.alSourceSwordSwing, AL_GAIN, 1.0f);
 	alSourcef(g.sounds.alSourceSwordSwing, AL_PITCH, 1.0f);
-	alSourcei(g.sounds.alSourceSwordSwing, AL_LOOPING, AL_TRUE);
+	alSourcei(g.sounds.alSourceSwordSwing, AL_LOOPING, AL_FALSE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("Setting sword swing source failre\n");
 		return;
@@ -760,8 +773,10 @@ void cleanupSound()
 {
 #ifdef USE_OPENAL_SOUND
 	alDeleteSources(1, &g.sounds.alSourceTheme);
+	alDeleteSources(1, &g.sounds.alSourceSwordSwing);
 
-	alDeleteBuffers(1, &g.sounds.alSourceTheme);
+	alDeleteBuffers(1, &g.sounds.alBufferTheme);
+	alDeleteBuffers(1, &g.sounds.alBufferSwordSwing);
 
 	ALCcontext *Context = alcGetCurrentContext();
 
@@ -793,7 +808,6 @@ void Item::useItem()
 	} else {
 		return;
 	}
-	g.number[N_ITEMS]--;
 }
 
 void Item::spawnPotion(Flt x, Flt y)

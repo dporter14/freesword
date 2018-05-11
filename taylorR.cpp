@@ -6,8 +6,8 @@
 using namespace std;
 void taylor_func()
 {
-//	strcpy(g.title.text,"Taylor breathes code");
-//	g.title.text_color = 0x0000ffff;
+	strcpy(g.title.text,"Taylor breathes code");
+	g.title.text_color = 0x0000ffff;
 
 }
 
@@ -188,6 +188,8 @@ void Animator::play(){
 			//g.anims[i].clear();
 			//printf("fram: %d\n",anims[i].frame);
 			anims[i]=anims[--nanims];
+			for(int j=0; j<anims[i].nactors; j++)
+				anims[i].actors[j]->anim_handler = &anims[i];
 		} else {
 			i++;
 		}
@@ -216,7 +218,7 @@ void Animation::init(anim_type t)
 			can_cancel=0;
 			break;
 		case A_SWORD_WINDUP:
-			set_frames(10);
+			set_frames(15);
 			can_cancel=0;
 			break;
 		case A_BOW_DRAW:
@@ -232,7 +234,7 @@ void Animation::init(anim_type t)
 			can_cancel=1;
 			break;
 		case A_SPECIAL_RELEASE:
-			set_frames(120);
+			set_frames(100);
 			can_cancel=0;
 			break;
 		case A_TEST:
@@ -244,31 +246,33 @@ void Animation::init(anim_type t)
 void Animation::play()
 {
 	//printf("play\n");
-	switch(type) {
-		case A_SWORD_SLASH:
-			sword_slash();
-			break;
-		case A_SWORD_SLASH2:
-			sword_slash2();
-			break;
-		case A_SWORD_WINDUP:
-			sword_windup();
-			break;
-		case A_BOW_DRAW:
-			bow_draw();
-			break;
-		case A_BOW_RELEASE:
-			bow_release();
-			break;
-		case A_SPECIAL_WINDUP:
-			special_windup();
-			break;
-		case A_SPECIAL_RELEASE:
-			special_release();
-			break;
-		case A_TEST:
-			test();
-			break;
+	if(!done){
+		switch(type) {
+			case A_SWORD_SLASH:
+				sword_slash();
+				break;
+			case A_SWORD_SLASH2:
+				sword_slash2();
+				break;
+			case A_SWORD_WINDUP:
+				sword_windup();
+				break;
+			case A_BOW_DRAW:
+				bow_draw();
+				break;
+			case A_BOW_RELEASE:
+				bow_release();
+				break;
+			case A_SPECIAL_WINDUP:
+				special_windup();
+				break;
+			case A_SPECIAL_RELEASE:
+				special_release();
+				break;
+			case A_TEST:
+				test();
+				break;
+		}
 	}
 	if(done){
 		//printf("yep\n");
@@ -445,13 +449,14 @@ void Animation::sword_slash2()
 
 void Animation::sword_windup()
 {
+	printf("fa\n");
 	Weapon* actor = (Weapon*)actors[0];
-	static Flt orig_dist;
+	
 	if(frame==0){
 		VecCopy(actor->pos, actor->orig_pos);
 		//VecCopy(actor->dir, orig_dir);
 		actor->orig_rot = actor->rot;
-		orig_dist = actor->dist;
+		actor->orig_dist = actor->dist;
 		//actor->pos[0] = 50;
 		//actor->pos[1] = 35;
 
@@ -460,7 +465,7 @@ void Animation::sword_windup()
 		VecCopy(actor->orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
 		actor->rot = actor->orig_rot;
-		actor->dist = orig_dist;
+		actor->dist = actor->orig_dist;
 		
 		done=1;
 	}
@@ -523,15 +528,16 @@ void Animation::special_windup() {
 		//VecCopy(actor->pos, actor->fake_pos);
 		//actor->pos[1] += 35;
 		actor->sprt = &g.sprites[SB_SPECIAL];
-
+		actor->sprt->setFrame(0);
 	}
 	
 	if (frame==nframes+1) {
 		//VecCopy(orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
+		VecCopy(actor->orig_pos, actor->pos);
 		actor->rot = actor->orig_rot;
 		actor->faking = 0;
-		this->done=1;
+		done=1;
 		actor->sprt = &g.sprites[SB_ITEM_SWORD];
 		return;
 		//printf("fasg\n");
@@ -540,7 +546,7 @@ void Animation::special_windup() {
 	//VecMake(-sin(orig_rot*PI/180), cos(orig_rot*PI/180), 0, dir);
 		
 	if (frame<nframes) {
-		float angle = 60+actor->orig_rot;
+		float angle = 60+actor->rot;
 		Vec temp;
 		VecSub(actor->pos, actor->parent->pos, temp);
 		float s = 70;//VecLen(temp);
@@ -557,13 +563,15 @@ void Animation::special_windup() {
 	} else if (frame==60) {
 		actor->sprt->nextFrame();
 	} else if (frame==80) {
-		actor->sprt->setFrame(4);
-	} else if (frame==85) {
+		actor->sprt->nextFrame();
+	} else if (frame==100) {
 		actor->sprt->setFrame(0);
+	} else if (frame==105) {
+		actor->sprt->setFrame(4);
 	}
 	
-	if (frame==85)
-		frame=75;
+	if (frame==105)
+		frame=95;
 	
 	frame++;
 }
@@ -585,6 +593,10 @@ void Animation::special_release()
 	if (frame==nframes+1) {
 		//VecCopy(orig_pos, actor->pos);
 		//VecCopy(orig_dir, actor->dir);
+		if(actor->attacks[0].active){
+			actor->attacks[0].active = 0;
+			actor->nattacks--;
+		}
 		actor->rot = actor->orig_rot;
 		actor->faking = 0;
 		done=1;
@@ -613,7 +625,7 @@ void Animation::special_release()
 		//cout << (-100/28)*frame+50 << endl;
 	}
 	
-	if (frame>4) {
+	if (frame>4 && frame<nframes) {
 		//VecAddS(60, dir, orig_pos, actor->attacks[0].pos);
 		VecCopy(actor->pos, actor->attacks[0].pos);
 		actor->attacks[0].scale[0] =

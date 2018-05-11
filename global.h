@@ -80,6 +80,7 @@ class Object {
 		
 		Vec orig_pos;
 		Flt orig_rot;
+		Flt orig_dist;
 		Vec scale;
 		Flt rot;
 		Flt fake_rot;
@@ -444,6 +445,7 @@ class Level {
     private:
 };
 
+#ifdef USE_OPENAL_SOUND
 class Sounds {
     public:
 	ALuint alSourceTheme;
@@ -452,6 +454,12 @@ class Sounds {
 	ALuint alBufferSwordSwing;
     private:
 };
+
+void initSound();
+void cleanupSound();
+void playSound(ALuint source);
+
+#endif //USE_OPENAL_SOUND
 
 void toggleEditMode();
 void initWalls();
@@ -515,7 +523,7 @@ void spawnArrow();
 
 
 enum KeyList {K_SHIFT, K_W, K_A, K_S, K_D, K_};
-enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
+enum State {S_PAUSED, S_STARTUP, S_GAMEOVER, S_WINNER, S_SPECIAL, S_PLAYER, S_DEBUG, S_LEVELEDIT, S_TILEEDIT, S_TILE, S_};
 /*
 	paused: game paused?
 	gameover: gameover?
@@ -564,7 +572,9 @@ struct Global {
 
     //sound
     Sounds sounds;
-
+	ALuint alBufferDrip, alBufferTick;
+	ALuint alSourceDrip, alSourceTick;
+	
     bool isPressed[K_];
     bool isClicked[M_];
     int state[S_];
@@ -593,17 +603,17 @@ struct Global {
 	title.r.bot = yres-150;
 	title.r.center = 1;
 	
-		arrowCount.r.left = xres-130;
-		arrowCount.r.bot = yres-150;
-		arrowCount.r.center = 1;
-		strcpy(arrowCount.text, "Arrows");
-		arrowCount.text_color = 0xffffff;
-		
-		arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
-		VecMake(xres-150, yres-120, 0, arrowIcon.pos);
-		VecMake(50, 9, 0, arrowIcon.scale);
-		VecMake(1,1,1,arrowIcon.color);
-		arrowIcon.fake_rot = 45;
+	arrowCount.r.left = xres-130;
+	arrowCount.r.bot = yres-150;
+	arrowCount.r.center = 1;
+	strcpy(arrowCount.text, "Arrows");
+	arrowCount.text_color = 0xffffff;
+	
+	arrowIcon.sprt = &sprites[SB_ITEM_ARROW];
+	VecMake(xres-150, yres-120, 0, arrowIcon.pos);
+	VecMake(50, 9, 0, arrowIcon.scale);
+	VecMake(1,1,1,arrowIcon.color);
+	arrowIcon.fake_rot = 45;
 		
 	for (int i = 0; i<S_; i++) {
 	    state[i] = 0;
