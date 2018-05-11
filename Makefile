@@ -48,20 +48,13 @@ HEADERS := global.h defs.h
 
 all: $(TARGET)
 
-snake: snake.o log.o
-	g++ snake.o log.o $(LFLAGS) -o snake
-
 $(TARGET): $(FILES)
 	g++ $(FILES) $(LFLAGS) -o  $(TARGET)
 
 %.o: %.cpp $(HEADERS)
 	g++ $(CFLAGS) $< -o $@
-	
-snake.o: snake.cpp log.cpp
-	g++ $(CFLAGS) snake.cpp log.cpp
 
 clean:
-	rm -f snake
 	rm -f freesword
 	rm -f *.o
 

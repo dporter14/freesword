@@ -1,8 +1,6 @@
 #include "global.h"
 
 Global g;
-Image img[1] = {"./images/grillbys-reference5.png" };				
-//Image img[1] = {"./images/marble.png" };				
 
 class X11_wrapper {
     private:
@@ -258,7 +256,8 @@ void initOpengl(void)
     //
     //load the image file into a ppm structure.
     //
-    g.bgImage = &img[0];
+    /*
+	g.bgImage = &img[0];
     Log("Dimensions: %d %d\n", g.bgImage->width, g.bgImage->height);
 
     //
@@ -270,7 +269,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 	    g.bgImage->width, g.bgImage->height,
 	    0, GL_RGBA, GL_UNSIGNED_BYTE, g.bgImage->data);
-
+	*/
     initSpriteTextures();
 }
 
